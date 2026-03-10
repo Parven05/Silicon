@@ -9,11 +9,10 @@ GL_VERSION_MINOR :: 4
 
 window: glfw.WindowHandle
 
-init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) {
+init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) -> (bool) {
 
 	if !glfw.Init() {
-		log.error("Failed to initialize GLFW")
-		return
+		return false
 	}
 
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_VERSION_MAJOR)
@@ -23,18 +22,18 @@ init_window :: proc(window_width: i32, window_height: i32, window_title: cstring
 	window = glfw.CreateWindow(window_width, window_height, window_title, nil, nil)
 
 	if window == nil {
-		log.error("Failed to create GLFW Window")
 		glfw.Terminate()
-		return
-	} else {
-		log.info("GLFW window created successfully")
-	}
+		return false
+	} 
 	glfw.MakeContextCurrent(window)
 
+	// load GLAD loader
 	gl.load_up_to(GL_VERSION_MAJOR, GL_VERSION_MINOR, glfw.gl_set_proc_address)
 	log.info(gl.GetString(gl.VERSION))
 
 	glfw.SetFramebufferSizeCallback(window, fb_size_callback)
+
+	return true
 
 }
 
@@ -48,7 +47,6 @@ window_close :: proc() -> bool {
 
 		return false
 	}
-
 	return true
 }
 
