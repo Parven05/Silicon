@@ -1,6 +1,5 @@
 package silicon
 
-import "core:log"
 import "core:strings"
 import gl "vendor:OpenGL"
 

@@ -2,7 +2,6 @@ package silicon
 
 import gl "vendor:OpenGL"
 import stb "vendor:stb/image"
-import "core:log"
 
 Texture :: struct {
     id: u32,
