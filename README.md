@@ -4,7 +4,7 @@ An OpenGL-based game engine written in Odin to explore engine architecture and r
 ## Progress
 > Setup ready a working graphics pipeline
 
-<img width="1920" height="1080" alt="Silicon" src="https://github.com/user-attachments/assets/223c8a33-702a-495c-86b5-21a481efbfde" />
+https://github.com/user-attachments/assets/9aac6201-479c-43b0-9923-cb4fb6d21cad
 
 ## Usage
 1. Clone the repository
