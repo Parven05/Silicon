@@ -1,7 +1,9 @@
 package silicon
 
 import "core:log"
+import "vendor:glfw"
 import gl "vendor:OpenGL"
+import la "core:math/linalg"
 
 WINDOW_WIDTH :: 800
 WINDOW_HEIGHT :: 600
@@ -14,15 +16,15 @@ FRAGMENT_PATH: string : "shaders/frag.glsl"
 
 TEXTURE_PATH_01: cstring :	"resources/textures/container.jpg"
 
-vertices := [?]f32 {
- // positions          // colors           // texture coords
+vertices := []f32 {
+ 	 // positions      // colors     	// texture coords
      0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0,   // top right
      0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0,   // bottom right
     -0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0,   // bottom left
     -0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0    // top left 
 }
 
-indices := [?]u32 {
+indices := []u32 {
 	0, 1, 3,
 	1, 2, 3
 }
@@ -50,37 +52,21 @@ engine_run :: proc() {
 	}
 
 	// buffers
-	VBO, VAO, EBO: u32
-	gl.GenVertexArrays(1, &VAO)
-	gl.GenBuffers(1, &VBO)
-	gl.GenBuffers(1, &EBO)
+	VAO := create_VAO()
+	VBO := create_VBO()
+	EBO := create_EBO()
 
-	defer gl.DeleteVertexArrays(1, &VAO)
-	defer gl.DeleteBuffers(1, &VBO)
-	defer gl.DeleteBuffers(1, &EBO)
+	defer delete_VAO(&VAO)
+	defer delete_VBO(&VBO)
+	defer delete_EBO(&EBO)
 
-	// bind VAO
-	gl.BindVertexArray(VAO)
+	bind_VAO(&VAO)
+	bind_VBO(&VBO, vertices, gl.STATIC_DRAW)
+	bind_EBO(&EBO, indices, gl.STATIC_DRAW)
 
-	// bind VBO
-	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
-	gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices, gl.STATIC_DRAW)
-
-	// bind EBO
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices, gl.STATIC_DRAW)
-
-	// position attribute
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 8 * size_of(f32), uintptr(0))
-	gl.EnableVertexAttribArray(0)
-
-	// color attribute
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 8 * size_of(f32), uintptr(3 * size_of(f32)))
-	gl.EnableVertexAttribArray(1)
-
-	// texture attribute
-	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 8 * size_of(f32), uintptr(6 * size_of(f32)))
-	gl.EnableVertexAttribArray(2)
+	link_attrib(0, 3, 8, 0)	 // position attribute
+	link_attrib(1, 2, 8, 3)	 // color attribute
+	link_attrib(2, 2, 8, 6)	 // texture attribute
 
 	// textures
 	texture_01 := init_texture(gl.TEXTURE_2D, gl.REPEAT, gl.LINEAR_MIPMAP_LINEAR, gl.LINEAR)
@@ -91,17 +77,25 @@ engine_run :: proc() {
 		log.info("Texture loaded successfully")
 	}
 
-	for (!window_close()) {
 
+	for (!window_close()) {
+		time := glfw.GetTime()
 		gl.ClearColor(0, 0, 0, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-
-		use_shader(shader) 
 
 		activate_texture(gl.TEXTURE0)
 		bind_texture(gl.TEXTURE_2D, texture_01)
 
-		gl.BindVertexArray(VAO)
+		trans := la.MATRIX4F32_IDENTITY
+		trans = trans * la.matrix4_translate_f32({0.5, -0.5, 0.5})
+		trans = trans * la.matrix4_rotate_f32(f32(time), {0,0,1})
+		trans = trans * la.matrix4_scale_f32({0.5, 0.5, 0.5})
+
+		use_shader(shader) 
+		transform := gl.GetUniformLocation(shader.id, "transform")
+		gl.UniformMatrix4fv(transform, 1, gl.FALSE, &trans[0][0])
+
+		bind_VAO(&VAO)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 
 	}
