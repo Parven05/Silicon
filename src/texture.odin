@@ -7,6 +7,7 @@ Texture :: struct {
     id: u32,
 }
 
+@require_results
 init_texture :: proc (target: u32, wrap: i32, filter_min: i32, filter_max: i32) -> (Texture) {
     texture: u32
     gl.GenTextures(1, &texture)
@@ -26,13 +27,13 @@ load_texture :: proc (filepath: cstring, target: u32, internal_format:i32, forma
 
     if (data == nil) {
        return false
-    } else { 
+    } else {
         gl.TexImage2D(target, 0, internal_format, width, height, 0, format, gl.UNSIGNED_BYTE, data)
         gl.GenerateMipmap(target)
-        
+
         return true
     }
-     stb.image_free(data)    
+     stb.image_free(data)
 
      return true
 

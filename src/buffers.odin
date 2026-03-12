@@ -6,8 +6,8 @@ VBO::struct {
     id: u32
 }
 
+@require_results
 create_VBO::proc() -> (VBO) {
-
     vbo_id: u32
     gl.GenBuffers(1, &vbo_id)
 
@@ -31,6 +31,7 @@ EBO::struct {
     id: u32
 }
 
+@require_results
 create_EBO::proc() -> (EBO) {
     ebo_id: u32
     gl.GenBuffers(1, &ebo_id)
@@ -55,6 +56,7 @@ VAO::struct {
     id: u32
 }
 
+@require_results
 create_VAO::proc() -> (VAO) {
     vao_id: u32
     gl.GenVertexArrays(1, &vao_id)

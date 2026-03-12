@@ -12,7 +12,7 @@ init_shader :: proc(vertex_path, fragment_path: string) -> (Shader, bool) {
 	program, ok := gl.load_shaders_file(vertex_path, fragment_path)
 	if !ok {
 		return {}, false
-	} 
+	}
 	return Shader{id = program}, true
 }
 
@@ -21,17 +21,7 @@ use_shader :: proc(shader: Shader) {
 }
 
 // Utility uniform functions
-set_bool_shader :: proc(shader: Shader, name: string, value: bool) {
-	location := gl.GetUniformLocation(shader.id, strings.unsafe_string_to_cstring(name))
-	gl.Uniform1i(location, i32(value))
-}
-
-set_int_shader :: proc(shader: Shader, name: string, value: i32) {
-	location := gl.GetUniformLocation(shader.id, strings.unsafe_string_to_cstring(name))
-	gl.Uniform1i(location, value)
-}
-
-set_float_shader :: proc(shader: Shader, name: string, value: f32) {
-	location := gl.GetUniformLocation(shader.id, strings.unsafe_string_to_cstring(name))
-	gl.Uniform1f(location, value)
+set_mat4_f::proc(shader: Shader, name: cstring, value: ^matrix[4,4]f32){
+	location := gl.GetUniformLocation(shader.id, name)
+	gl.UniformMatrix4fv(location, 1, gl.FALSE, &value[0][0])
 }

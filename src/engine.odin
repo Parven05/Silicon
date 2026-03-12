@@ -14,7 +14,6 @@ SUCCESS: bool
 
 VERTEX_PATH: string : "shaders/vert.glsl"
 FRAGMENT_PATH: string : "shaders/frag.glsl"
-
 TEXTURE_PATH_01: cstring :	"resources/textures/container.jpg"
 
 vertices := []f32 {
@@ -66,6 +65,19 @@ vertices := []f32 {
      0.5,  0.5,  0.5,   0.8, 0.8, 0.8,   1.0, 0.0,
     -0.5,  0.5,  0.5,   0.8, 0.8, 0.8,   0.0, 0.0,
     -0.5,  0.5, -0.5,   0.8, 0.8, 0.8,   0.0, 1.0,
+}
+
+cube_positions := [][3]f32 {
+	{0.0,  0.0,  0.0},
+	{2.0,  5.0, -15.0},
+	{-1.5, -2.2, -2.5},
+	{-3.8, -2.0, -12.3},
+	{2.4, -0.4, -3.5},
+	{-1.7,  3.0, -7.5},
+	{1.3, -2.0, -2.5},
+	{1.5,  2.0, -2.5},
+	{1.5,  0.2, -1.5},
+	{-1.3,  1.0, -1.5}
 }
 
 indices := []u32 {
@@ -132,37 +144,35 @@ engine_run :: proc() {
 		activate_texture(gl.TEXTURE0)
 		bind_texture(gl.TEXTURE_2D, texture_01)
 
-		model := la.MATRIX4F32_IDENTITY
 		view := la.MATRIX4F32_IDENTITY
 
-		angle := ma.to_radians_f32(50.0)
+		// angle := ma.to_radians_f32(50.0)
 		fov_radians  := ma.to_radians_f32(45.0)
 		aspect_ratio := f32(800) / f32(600)
 		near         := f32(0.1)
 		far          := f32(100.0)
 
-		model = model * la.matrix4_rotate_f32(f32(time) * angle, {0.5, 1.0, 0.0})
 		view = view * la.matrix4_translate_f32({0.0, 0.0, -3.0})
 		projection := la.matrix4_perspective_f32(fov_radians, aspect_ratio, near, far)
 
-		use_shader(shader) 
+		use_shader(shader)
 
-		// model
-		modelLoc := gl.GetUniformLocation(shader.id, "model")
-		gl.UniformMatrix4fv(modelLoc, 1, gl.FALSE, &model[0][0])
-
-		// view
-		viewLoc := gl.GetUniformLocation(shader.id, "view")
-		gl.UniformMatrix4fv(viewLoc, 1, gl.FALSE, &view[0][0])
-
-		// projection
-		projectionLoc := gl.GetUniformLocation(shader.id, "projection")
-		gl.UniformMatrix4fv(projectionLoc, 1, gl.FALSE, &projection[0][0])
+		set_mat4_f(shader, "view", &view)				// view
+		set_mat4_f(shader, "projection", &projection)	// projection
 
 		bind_VAO(&VAO)
-		// gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
-		gl.DrawArrays(gl.TRIANGLES, 0, 36)
+		for i in 0..<10 {
+			model := la.MATRIX4F32_IDENTITY
+			model = model * la.matrix4_translate_f32(cube_positions[i])
+			angle := 20.0 * i
+			model = model * la.matrix4_rotate_f32(ma.to_radians_f32(f32(angle)), {1.0, 0.3, 0.5})
 
+			set_mat4_f(shader, "model", &model)			// model
+
+			gl.DrawArrays(gl.TRIANGLES, 0, 36)
+		}
+
+		// gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 	}
 
 }

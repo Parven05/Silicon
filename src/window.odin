@@ -24,7 +24,7 @@ init_window :: proc(window_width: i32, window_height: i32, window_title: cstring
 	if window == nil {
 		glfw.Terminate()
 		return false
-	} 
+	}
 	glfw.MakeContextCurrent(window)
 
 	// load GLAD loader
@@ -50,11 +50,11 @@ window_close :: proc() -> bool {
 	return true
 }
 
-
 delete_window :: proc() {
 	glfw.Terminate()
 }
 
+@(private="file")
 fb_size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
 }
