@@ -1,0 +1,9 @@
+[
+  {
+    "label": "Debug",
+    "cwd": "${ZED_WORKTREE_ROOT}",
+    "program": "${ZED_WORKTREE_ROOT}/build/src",
+    "request": "launch",
+    "adapter": "CodeLLDB",
+  },
+]
