@@ -1,5 +1,5 @@
 # Silicon
-An OpenGL-based game engine written in Odin to explore engine architecture and rendering fundamentals.
+An OpenGL based graphics renderer written in Odin for explore rendering fundamentals
 
 ## Progress
 > Setup ready a working graphics pipeline
