@@ -85,7 +85,7 @@ indices := []u32 {
 	1, 2, 3
 }
 
-engine_run :: proc() {
+renderer_run :: proc() {
 	context.logger = log.create_console_logger()
 
 	// window
@@ -135,6 +135,11 @@ engine_run :: proc() {
 		log.info("Texture loaded successfully")
 	}
 
+	use_shader(shader)
+
+	cam : Camera
+	projection := set_camera_mode(.PERSPECTIVE, &cam)
+	set_mat4_f(shader, "projection", &projection)
 
 	for (!window_close()) {
 		time := glfw.GetTime()
@@ -144,21 +149,17 @@ engine_run :: proc() {
 		activate_texture(gl.TEXTURE0)
 		bind_texture(gl.TEXTURE_2D, texture_01)
 
-		view := la.MATRIX4F32_IDENTITY
-
-		// angle := ma.to_radians_f32(50.0)
-		fov_radians  := ma.to_radians_f32(45.0)
-		aspect_ratio := f32(800) / f32(600)
-		near         := f32(0.1)
-		far          := f32(100.0)
-
-		view = view * la.matrix4_translate_f32({0.0, 0.0, -3.0})
-		projection := la.matrix4_perspective_f32(fov_radians, aspect_ratio, near, far)
-
 		use_shader(shader)
 
-		set_mat4_f(shader, "view", &view)				// view
-		set_mat4_f(shader, "projection", &projection)	// projection
+		radius : f32 = 3.0
+		cam.pos.x = ma.sin(f32(time)) * radius
+		cam.pos.z = ma.cos(f32(time)) * radius
+		cam.pos = {cam.pos.x, 0.0, cam.pos.z}
+		cam.front = {0.0, 0.0, 0.0}
+		cam.up = {0.0, 1.0, 0.0}
+
+		view := init_camera(&cam)
+		set_mat4_f(shader, "view", &view)
 
 		bind_VAO(&VAO)
 		for i in 0..<10 {
@@ -166,13 +167,9 @@ engine_run :: proc() {
 			model = model * la.matrix4_translate_f32(cube_positions[i])
 			angle := 20.0 * i
 			model = model * la.matrix4_rotate_f32(ma.to_radians_f32(f32(angle)), {1.0, 0.3, 0.5})
-
 			set_mat4_f(shader, "model", &model)			// model
 
 			gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		}
-
-		// gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 	}
-
 }

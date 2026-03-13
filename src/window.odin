@@ -58,3 +58,10 @@ delete_window :: proc() {
 fb_size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
 }
+
+process_input :: proc(window: glfw.WindowHandle) {
+
+	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
+		glfw.SetWindowShouldClose(window, true)
+	}
+}
