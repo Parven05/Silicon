@@ -97,6 +97,8 @@ renderer_run :: proc() {
 	}
 	defer delete_window()
 
+	w, h := glfw.GetWindowSize(window)
+
 	enable_feature(gl.DEPTH_TEST)
 
 	// shader
@@ -139,8 +141,13 @@ renderer_run :: proc() {
 	use_shader(shader)
 
 	cam : Camera
-	init_camera(&cam)
-	set_camera_mode(.PERSPECTIVE, &cam, shader)
+	p: Projection
+	init_camera(&cam, &p)
+	p.aspect_ratio = {f32(w), f32(h)}
+	camera_mode:= get_camera_mode(.PERSPECTIVE, &p)
+	set_uniform(shader, "projection", &camera_mode)
+
+	cube_transform: Transform
 
 	for (!window_close()) {
 		time := glfw.GetTime()
@@ -156,15 +163,16 @@ renderer_run :: proc() {
 		cam.pos.x = ma.sin(f32(time)) * radius
 		cam.pos.z = ma.cos(f32(time)) * radius
 		cam.pos = {cam.pos.x, 0.0, cam.pos.z}
-		set_camera_view(&cam, shader)
+		camera_view := get_camera_view(&cam)
+		set_uniform(shader, "view", &camera_view)
 
 		bind_VAO(&VAO)
 		for i in 0..<10 {
-			model = la.MATRIX4F32_IDENTITY
+			init_transform(&cube_transform)
 			angle := 20.0 * i
-			move(cube_positions[i])
-			rotate(f32(angle), {1.0, 0.3, 0.5})
-			apply_transform(shader)
+			move(cube_positions[i], &cube_transform)
+			rotate(f32(angle), {1.0, 0.3, 0.5}, &cube_transform)
+			apply_transform(shader, &cube_transform)
 
 			gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		}

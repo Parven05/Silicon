@@ -8,7 +8,7 @@ Texture :: struct {
 }
 
 @require_results
-init_texture :: proc (target: u32, wrap: i32, filter_min: i32, filter_max: i32) -> (Texture) {
+init_texture :: proc (target: u32, wrap, filter_min, filter_max: i32) -> (Texture) {
     texture: u32
     gl.GenTextures(1, &texture)
     gl.BindTexture(target, texture)
