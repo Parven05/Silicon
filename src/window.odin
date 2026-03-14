@@ -4,13 +4,12 @@ import "core:log"
 import gl "vendor:OpenGL"
 import "vendor:glfw"
 
+window: glfw.WindowHandle
+
 GL_VERSION_MAJOR :: 4
 GL_VERSION_MINOR :: 4
 
-window: glfw.WindowHandle
-
 init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) -> (bool) {
-
 	if !glfw.Init() {
 		return false
 	}
@@ -40,8 +39,6 @@ init_window :: proc(window_width: i32, window_height: i32, window_title: cstring
 window_close :: proc() -> bool {
 
 	for (!glfw.WindowShouldClose(window)) {
-		process_input(window)
-
 		glfw.SwapBuffers(window)
 		glfw.PollEvents()
 
@@ -57,11 +54,4 @@ delete_window :: proc() {
 @(private="file")
 fb_size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
-}
-
-process_input :: proc(window: glfw.WindowHandle) {
-
-	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
-		glfw.SetWindowShouldClose(window, true)
-	}
 }
