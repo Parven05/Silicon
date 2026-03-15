@@ -6,9 +6,9 @@ import gl "vendor:OpenGL"
 import ma "core:math"
 import la "core:math/linalg"
 
-WINDOW_WIDTH :: 800
-WINDOW_HEIGHT :: 600
 WINDOW_TITLE :: "Silicon"
+WINDOW_WIDTH :: 1280
+WINDOW_HEIGHT :: 720
 
 SUCCESS: bool
 
@@ -80,10 +80,19 @@ cube_positions := [][3]f32 {
 	{-1.3,  1.0, -1.5}
 }
 
-indices := []u32 {
-	0, 1, 3,
-	1, 2, 3
-}
+shader : Shader
+cam : Camera
+projection: Projection
+cube_transform: Transform
+
+delta_time := 0.0
+last_frame := 0.0
+
+yaw : f32 = -90.0
+pitch : f32 = 0.0
+last_x := f32(WINDOW_WIDTH) / 2.0
+last_y := f32(WINDOW_HEIGHT) / 2.0
+first_mouse := true
 
 renderer_run :: proc() {
 	context.logger = log.create_console_logger()
@@ -100,9 +109,9 @@ renderer_run :: proc() {
 	w, h := glfw.GetWindowSize(window)
 
 	enable_feature(gl.DEPTH_TEST)
+	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
 	// shader
-	shader : Shader
 	shader, SUCCESS = init_shader(VERTEX_PATH, FRAGMENT_PATH)
 	if !SUCCESS {
 		log.error("Failed to read shader file")
@@ -114,15 +123,12 @@ renderer_run :: proc() {
 	// buffers
 	VAO := create_VAO()
 	VBO := create_VBO()
-	// EBO := create_EBO()
 
 	defer delete_VAO(&VAO)
 	defer delete_VBO(&VBO)
-	// defer delete_EBO(&EBO)
 
 	bind_VAO(&VAO)
 	bind_VBO(&VBO, vertices, gl.STATIC_DRAW)
-	// bind_EBO(&EBO, indices, gl.STATIC_DRAW)
 
 	stride : i32 = 8
 	link_attrib(0, 3, stride, 0)	 // position attribute
@@ -139,31 +145,26 @@ renderer_run :: proc() {
 	}
 
 	use_shader(shader)
-
-	cam : Camera
-	p: Projection
-	init_camera(&cam, &p)
-	p.aspect_ratio = {f32(w), f32(h)}
+	init_camera(&cam, &projection)
+	projection.aspect_ratio = {f32(w), f32(h)}
 	camera_mode:= get_camera_mode(.PERSPECTIVE, &p)
 	set_uniform(shader, "projection", &camera_mode)
 
-	cube_transform: Transform
-
 	for (!window_close()) {
-		time := glfw.GetTime()
+
+		current_frame := glfw.GetTime()
+		delta_time = current_frame - last_frame
+		last_frame = current_frame
+
 		clear_window()
-		process_input()
+		process_input(window, &cam)
 
 		activate_texture(gl.TEXTURE0)
 		bind_texture(gl.TEXTURE_2D, texture_01)
 
 		use_shader(shader)
 
-		radius : f32 = 3.0
-		cam.pos.x = ma.sin(f32(time)) * radius
-		cam.pos.z = ma.cos(f32(time)) * radius
-		cam.pos = {cam.pos.x, 0.0, cam.pos.z}
-		camera_view := get_camera_view(&cam)
+		camera_view := get_camera_move_view(&cam)
 		set_uniform(shader, "view", &camera_view)
 
 		bind_VAO(&VAO)
@@ -179,11 +180,31 @@ renderer_run :: proc() {
 	}
 }
 
-clear_window::proc() {
+mouse_callback :: proc(window: glfw.WindowHandle, x_pos: f32, y_pos: f32) {
+	if (first_mouse) {
+		last_x = f32(x_pos)
+		last_y = f32(y_pos)
+	}
+
+	x_offset := x_pos - last_x
+	y_offset := y_pos - last_y
+	last_x = f32(x_pos)
+	last_y = f32(y_pos)
+
+	sensitivity : f32 = 0.1
+	x_offset += sensitivity
+	y_offset += sensitivity
+
+	yaw += x_offset
+	pitch += y_offset
+
+}
+
+clear_window :: proc() {
 	gl.ClearColor(0, 0, 0, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
-enable_feature::proc(cap: u32)  {
+enable_feature :: proc(cap: u32)  {
 	gl.Enable(cap)
 }

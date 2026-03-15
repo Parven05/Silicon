@@ -23,9 +23,9 @@ Camera_mode :: enum {
 
 init_camera :: proc(camera: ^Camera, p: ^Projection) {
 	// default values
-	camera.pos = {0.0, 0.0, 0.0}
-	camera.target = {0.0, 0.0, 0.0}
-	camera.up = {0.0, 0.1, 0.0}
+	camera.pos = {0.0, 0.0, 3.0}
+	camera.target = {0.0, 0.0, -1.0}
+	camera.up = {0.0, 1.0, 0.0}
 	p.fov = ma.to_radians_f32(45.0)
 	p.near = 0.1
 	p.far = 100.0
@@ -46,4 +46,9 @@ get_camera_mode :: proc(cam_mode: Camera_mode, p: ^Projection) -> la.Matrix4f32 
 @require_results
 get_camera_view :: proc(camera: ^Camera) -> la.Matrix4f32 {
 	return la.matrix4_look_at_f32(camera.pos, camera.target, camera.up)
+}
+
+@require_results
+get_camera_move_view :: proc(camera: ^Camera) -> la.Matrix4f32 {
+	return la.matrix4_look_at_f32(camera.pos, camera.pos + camera.target, camera.up)
 }
