@@ -6,8 +6,8 @@ import "vendor:glfw"
 
 window: glfw.WindowHandle
 
-GL_VERSION_MAJOR :: 4
-GL_VERSION_MINOR :: 4
+@(private="file") GL_VERSION_MAJOR :: 4
+@(private="file") GL_VERSION_MINOR :: 4
 
 init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) -> (bool) {
 	if !glfw.Init() {

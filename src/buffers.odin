@@ -3,7 +3,7 @@ package silicon
 import gl "vendor:OpenGL"
 
 VBO::struct {
-    id: u32
+    id: u32,
 }
 
 @require_results
@@ -24,7 +24,7 @@ delete_VBO::proc(vbo:^VBO) {
 }
 
 VAO::struct {
-    id: u32
+    id: u32,
 }
 
 @require_results
@@ -49,7 +49,7 @@ delete_VAO::proc(vao:^VAO) {
 }
 
 EBO::struct {
-    id: u32
+    id: u32,
 }
 
 @require_results

@@ -61,8 +61,8 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 	camera_ptr.rot.x += y_offset
 
 	// limit pitch
-	if (camera_ptr.rot.x > 89.0) do camera_ptr.rot.x = 89.0
-	if (camera_ptr.rot.x < -89.0) do camera_ptr.rot.x = -89.0
+	if (camera_ptr.rot.x > 89.0)  {camera_ptr.rot.x = 89.0}
+	if (camera_ptr.rot.x < -89.0) {camera_ptr.rot.x = -89.0}
 
 	direction : la.Vector3f32
 	direction.x = ma.cos(ma.to_radians_f32(camera_ptr.rot.y)) * ma.cos(ma.to_radians_f32(camera_ptr.rot.x))
@@ -76,6 +76,6 @@ mouse_scroll_callback :: proc "c" (window: glfw.WindowHandle, x_offset, y_offset
 
 	// limit field of view
 	camera_ptr.fov -= f32(y_offset)
-	if (camera_ptr.fov < 1.0) do camera_ptr.fov = 1.0
-	if (camera_ptr.fov > 45.0) do camera_ptr.fov = 45.0
+	if (camera_ptr.fov < 1.0)  {camera_ptr.fov = 1.0}
+	if (camera_ptr.fov > 45.0) {camera_ptr.fov = 45.0}
 }

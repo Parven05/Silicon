@@ -4,7 +4,7 @@ import ma "core:math"
 import la "core:math/linalg"
 
 Transform :: struct {
-	id : la.Matrix4f32
+	id : la.Matrix4f32,
 }
 
 init_transform :: proc(trans: ^Transform) {
