@@ -1,5 +1,6 @@
 package silicon
 
+import "core:compress/shoco"
 import "core:log"
 import "vendor:glfw"
 import gl "vendor:OpenGL"
@@ -81,18 +82,11 @@ cube_positions := [][3]f32 {
 }
 
 shader : Shader
-cam : Camera
-projection: Projection
+camera : Camera
 cube_transform: Transform
 
 delta_time := 0.0
 last_frame := 0.0
-
-yaw : f32 = -90.0
-pitch : f32 = 0.0
-last_x := f32(WINDOW_WIDTH) / 2.0
-last_y := f32(WINDOW_HEIGHT) / 2.0
-first_mouse := true
 
 renderer_run :: proc() {
 	context.logger = log.create_console_logger()
@@ -107,9 +101,13 @@ renderer_run :: proc() {
 	defer delete_window()
 
 	w, h := glfw.GetWindowSize(window)
+	glfw.SetWindowUserPointer(window, &camera)
 
 	enable_feature(gl.DEPTH_TEST)
 	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+
+	glfw.SetCursorPosCallback(window, mouse_callback)
+	glfw.SetScrollCallback(window, mouse_scroll_callback)
 
 	// shader
 	shader, SUCCESS = init_shader(VERTEX_PATH, FRAGMENT_PATH)
@@ -145,10 +143,8 @@ renderer_run :: proc() {
 	}
 
 	use_shader(shader)
-	init_camera(&cam, &projection)
-	projection.aspect_ratio = {f32(w), f32(h)}
-	camera_mode:= get_camera_mode(.PERSPECTIVE, &p)
-	set_uniform(shader, "projection", &camera_mode)
+	init_camera(&camera)
+	camera.aspect_ratio = {f32(w), f32(h)}
 
 	for (!window_close()) {
 
@@ -157,14 +153,17 @@ renderer_run :: proc() {
 		last_frame = current_frame
 
 		clear_window()
-		process_input(window, &cam)
+		process_input(window, &camera)
 
 		activate_texture(gl.TEXTURE0)
 		bind_texture(gl.TEXTURE_2D, texture_01)
 
 		use_shader(shader)
 
-		camera_view := get_camera_move_view(&cam)
+		camera_projection := get_camera_mode(.PERSPECTIVE, &camera)
+		set_uniform(shader, "projection", &camera_projection)
+
+		camera_view := get_camera_move_view(&camera)
 		set_uniform(shader, "view", &camera_view)
 
 		bind_VAO(&VAO)
@@ -178,26 +177,6 @@ renderer_run :: proc() {
 			gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		}
 	}
-}
-
-mouse_callback :: proc(window: glfw.WindowHandle, x_pos: f32, y_pos: f32) {
-	if (first_mouse) {
-		last_x = f32(x_pos)
-		last_y = f32(y_pos)
-	}
-
-	x_offset := x_pos - last_x
-	y_offset := y_pos - last_y
-	last_x = f32(x_pos)
-	last_y = f32(y_pos)
-
-	sensitivity : f32 = 0.1
-	x_offset += sensitivity
-	y_offset += sensitivity
-
-	yaw += x_offset
-	pitch += y_offset
-
 }
 
 clear_window :: proc() {

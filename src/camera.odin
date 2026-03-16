@@ -7,9 +7,6 @@ Camera :: struct {
 	pos:   la.Vector3f32,
 	target: la.Vector3f32,
 	up:    la.Vector3f32,
-}
-
-Projection	::	struct {
 	fov:   f32,
 	aspect_ratio: la.Vector2f32,
 	near:  f32,
@@ -21,21 +18,21 @@ Camera_mode :: enum {
 	ORTHOGRAPHIC,
 }
 
-init_camera :: proc(camera: ^Camera, p: ^Projection) {
+init_camera :: proc(camera: ^Camera) {
 	// default values
 	camera.pos = {0.0, 0.0, 3.0}
 	camera.target = {0.0, 0.0, -1.0}
 	camera.up = {0.0, 1.0, 0.0}
-	p.fov = ma.to_radians_f32(45.0)
-	p.near = 0.1
-	p.far = 100.0
+	camera.fov = ma.to_radians_f32(45.0)
+	camera.near = 0.1
+	camera.far = 100.0
 }
 
 @require_results
-get_camera_mode :: proc(cam_mode: Camera_mode, p: ^Projection) -> la.Matrix4f32  {
+get_camera_mode :: proc(cam_mode: Camera_mode, camera: ^Camera) -> la.Matrix4f32  {
 	switch cam_mode {
 	case .PERSPECTIVE:
-		return la.matrix4_perspective_f32(p.fov, f32(p.aspect_ratio.x) / f32(p.aspect_ratio.y), p.near, p.far)
+		return la.matrix4_perspective_f32(camera.fov, f32(camera.aspect_ratio.x) / f32(camera.aspect_ratio.y), camera.near, camera.far)
 	// not yet implement ortho logic
 	case .ORTHOGRAPHIC:
 		return 0
