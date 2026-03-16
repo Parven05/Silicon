@@ -1,6 +1,5 @@
 package silicon
 
-import "core:compress/shoco"
 import "core:log"
 import "vendor:glfw"
 import gl "vendor:OpenGL"
@@ -81,12 +80,12 @@ cube_positions := [][3]f32 {
 	{-1.3,  1.0, -1.5}
 }
 
-shader : Shader
-camera : Camera
-cube_transform: Transform
+@(private="file") shader : Shader
+@(private="file") camera : Camera
+@(private="file") cube_transform: Transform
 
+@(private="file") last_frame := 0.0
 delta_time := 0.0
-last_frame := 0.0
 
 renderer_run :: proc() {
 	context.logger = log.create_console_logger()
@@ -100,12 +99,12 @@ renderer_run :: proc() {
 	}
 	defer delete_window()
 
-	w, h := glfw.GetWindowSize(window)
+	window_width, window_height := glfw.GetWindowSize(window)
 	glfw.SetWindowUserPointer(window, &camera)
 
 	enable_feature(gl.DEPTH_TEST)
-	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
+	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 	glfw.SetCursorPosCallback(window, mouse_callback)
 	glfw.SetScrollCallback(window, mouse_scroll_callback)
 
@@ -142,18 +141,15 @@ renderer_run :: proc() {
 		log.info("Texture loaded successfully")
 	}
 
-	use_shader(shader)
 	init_camera(&camera)
-	camera.aspect_ratio = {f32(w), f32(h)}
+	camera.aspect_ratio = {f32(window_width), f32(window_height)}
+
+	use_shader(shader)
 
 	for (!window_close()) {
-
-		current_frame := glfw.GetTime()
-		delta_time = current_frame - last_frame
-		last_frame = current_frame
-
+		set_deltatime()
 		clear_window()
-		process_input(window, &camera)
+		process_input()
 
 		activate_texture(gl.TEXTURE0)
 		bind_texture(gl.TEXTURE_2D, texture_01)
@@ -163,7 +159,7 @@ renderer_run :: proc() {
 		camera_projection := get_camera_mode(.PERSPECTIVE, &camera)
 		set_uniform(shader, "projection", &camera_projection)
 
-		camera_view := get_camera_move_view(&camera)
+		camera_view := get_camera_view(&camera)
 		set_uniform(shader, "view", &camera_view)
 
 		bind_VAO(&VAO)
@@ -173,10 +169,20 @@ renderer_run :: proc() {
 			move(cube_positions[i], &cube_transform)
 			rotate(f32(angle), {1.0, 0.3, 0.5}, &cube_transform)
 			apply_transform(shader, &cube_transform)
-
 			gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		}
 	}
+}
+
+set_deltatime :: proc () {
+	current_frame := glfw.GetTime()
+	delta_time = current_frame - last_frame
+	last_frame = current_frame
+}
+
+process_input :: proc() {
+	close_window_esc(window)
+	move_camera_keys(&camera)
 }
 
 clear_window :: proc() {

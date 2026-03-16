@@ -4,25 +4,20 @@ import "vendor:glfw"
 import ma "core:math"
 import la "core:math/linalg"
 
-yaw : f32 = -90.0
-pitch : f32 = 0.0
-last_x := f32(WINDOW_WIDTH) / 2.0
-last_y := f32(WINDOW_HEIGHT) / 2.0
-first_mouse := true
-
-process_input :: proc(window: glfw.WindowHandle, camera: ^Camera) {
-	// close window
+close_window_esc :: proc(window: glfw.WindowHandle) {
 	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
 		glfw.SetWindowShouldClose(window, true)
 	}
+}
 
-	base_camera_speed := 0.06
-	camera_speed_multiplier := 2.0
+move_camera_keys :: proc(camera: ^Camera) {
+	base_camera_speed := 4.0 * f32(delta_time)
+	camera_speed_multiplier := 6.0
 	current_camera_speed := base_camera_speed
 
 	// increase & revert camera speed based on shift state
 	if (glfw.GetKey(window, glfw.KEY_LEFT_SHIFT) == glfw.PRESS) {
-		current_camera_speed = base_camera_speed * camera_speed_multiplier
+		current_camera_speed = base_camera_speed * f32(camera_speed_multiplier)
 	} else if (glfw.GetKey(window, glfw.KEY_LEFT_SHIFT) == glfw.RELEASE) {
 		current_camera_speed = base_camera_speed
 	}
@@ -39,8 +34,11 @@ process_input :: proc(window: glfw.WindowHandle, camera: ^Camera) {
 	}
 }
 
-mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
+@(private="file") last_x := f32(WINDOW_WIDTH) / 2.0
+@(private="file") last_y := f32(WINDOW_HEIGHT) / 2.0
+@(private="file") first_mouse := true
 
+mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 	camera_ptr := (^Camera)(glfw.GetWindowUserPointer(window))
 
 	if (first_mouse) {
@@ -51,6 +49,7 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 
 	x_offset := f32(x_pos) - last_x
 	y_offset := last_y - f32(y_pos)
+
 	last_x = f32(x_pos)
 	last_y = f32(y_pos)
 
@@ -58,30 +57,25 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 	x_offset *= sensitivity
 	y_offset *= sensitivity
 
-	yaw += x_offset
-	pitch += y_offset
+	camera_ptr.rot.y += x_offset
+	camera_ptr.rot.x += y_offset
 
-	if(pitch > 89.0) {
-		pitch = 89.0
-	} else if (pitch < -89.0) {
-		pitch = -89.0
-	}
+	// limit pitch
+	if (camera_ptr.rot.x > 89.0) do camera_ptr.rot.x = 89.0
+	if (camera_ptr.rot.x < -89.0) do camera_ptr.rot.x = -89.0
 
 	direction : la.Vector3f32
-	direction.x = ma.cos(ma.to_radians_f32(yaw)) * ma.cos(ma.to_radians_f32(pitch))
-	direction.y = ma.sin(ma.to_radians_f32(pitch))
-	direction.z = ma.sin(ma.to_radians_f32(yaw)) * ma.cos(ma.to_radians_f32(pitch))
+	direction.x = ma.cos(ma.to_radians_f32(camera_ptr.rot.y)) * ma.cos(ma.to_radians_f32(camera_ptr.rot.x))
+	direction.y = ma.sin(ma.to_radians_f32(camera_ptr.rot.x))
+	direction.z = ma.sin(ma.to_radians_f32(camera_ptr.rot.y)) * ma.cos(ma.to_radians_f32(camera_ptr.rot.x))
 	camera_ptr.target = la.normalize(direction)
 }
 
 mouse_scroll_callback :: proc "c" (window: glfw.WindowHandle, x_offset, y_offset: f64) {
-
 	camera_ptr := (^Camera)(glfw.GetWindowUserPointer(window))
 
+	// limit field of view
 	camera_ptr.fov -= f32(y_offset)
-	if (camera_ptr.fov < 1.0) {
-		camera_ptr.fov = 1.0
-	} else if (camera_ptr.fov > 45.0) {
-		camera_ptr.fov = 45.0
-	}
+	if (camera_ptr.fov < 1.0) do camera_ptr.fov = 1.0
+	if (camera_ptr.fov > 45.0) do camera_ptr.fov = 45.0
 }
