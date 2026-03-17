@@ -5,7 +5,26 @@ import "vendor:glfw"
 import gl "vendor:OpenGL"
 import la "core:math/linalg"
 
-vertices := []f32 {
+import im "libs:imgui"
+import "libs:imgui/imgui_impl_glfw"
+import "libs:imgui/imgui_impl_opengl3"
+
+// error check
+@(private="file") SUCCESS: bool
+
+// window
+@(private="file") WINDOW_TITLE :: "Silicon"
+WINDOW_WIDTH :: 1280
+WINDOW_HEIGHT :: 720
+
+// shader file
+@(private="file") VERTEX_PATH: string : "shaders/vert.glsl"
+@(private="file") FRAGMENT_PATH: string : "shaders/frag.glsl"
+
+// assets
+@(private="file") TEXTURE_PATH_01: cstring :	"resources/textures/container.jpg"
+
+@(private="file") vertices := []f32 {
     // Positions  		// Tex Coords
     // Back Face
     -0.5, -0.5, -0.5,   0.0, 0.0,
@@ -56,7 +75,7 @@ vertices := []f32 {
     -0.5,  0.5, -0.5,   0.0, 1.0,
 }
 
-cube_positions := [][3]f32 {
+@(private="file") cube_positions := [][3]f32 {
 	{0.0,  0.0,  0.0},
 	{2.0,  5.0, -15.0},
 	{-1.5, -2.2, -2.5},
