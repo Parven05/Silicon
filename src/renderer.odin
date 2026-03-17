@@ -106,7 +106,6 @@ renderer_run :: proc() {
 	}
 	defer delete_window()
 
-	window_width, window_height := glfw.GetWindowSize(window)
 	glfw.SetWindowUserPointer(window, &camera)
 
 	enable_feature(gl.DEPTH_TEST)
@@ -114,6 +113,15 @@ renderer_run :: proc() {
 	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 	glfw.SetCursorPosCallback(window, mouse_callback)
 	glfw.SetScrollCallback(window, mouse_scroll_callback)
+
+	// imgui
+	im.CreateContext()
+	defer im.DestroyContext()
+
+	imgui_impl_glfw.InitForOpenGL(window, true)
+	defer imgui_impl_glfw.Shutdown()
+	imgui_impl_opengl3.Init("#version 460")
+	defer imgui_impl_opengl3.Shutdown()
 
 	// shader
 	shader, SUCCESS = init_shader(VERTEX_PATH, FRAGMENT_PATH)
@@ -148,7 +156,7 @@ renderer_run :: proc() {
 	}
 
 	init_camera(&camera)
-	camera.aspect_ratio = {f32(window_width), f32(window_height)}
+	camera.aspect_ratio = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
 
 	use_shader(shader)
 
@@ -177,8 +185,41 @@ renderer_run :: proc() {
 			apply_transform(shader, &cube_transform)
 			gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		}
+
+		// imgui
+		window_width, window_height := glfw.GetWindowSize(window)
+
+		imgui_impl_opengl3.NewFrame()
+        imgui_impl_glfw.NewFrame()
+        im.NewFrame()
+
+        bar_height : f32 = 25.0
+
+        im.SetNextWindowPos({0, f32(window_height) - bar_height})
+        im.SetNextWindowSize({f32(window_width) + 2, bar_height})
+
+        flags := im.WindowFlags{.NoTitleBar, .NoResize, .NoMove, .NoScrollbar, .NoBackground}
+
+  		im.Begin("Status Bar", nil, flags)
+   		im.Text("Camera :")
+     	im.SameLine()
+     	draw_vec3_colored("Pos", camera.pos)
+
+      	im.SameLine()
+	    im.Text("|")
+	    im.SameLine()
+	    draw_vec3_colored("Rot", camera.rot.x)
+
+	    im.SameLine()
+	    im.Text("| FOV: %.2f", camera.fov)
+        im.End()
+
+        im.Render()
+
+        imgui_impl_opengl3.RenderDrawData(im.GetDrawData())
 	}
 }
+
 
 set_deltatime :: proc () {
 	current_frame := glfw.GetTime()
@@ -189,6 +230,7 @@ set_deltatime :: proc () {
 process_input :: proc() {
 	close_window_esc(window)
 	move_camera_keys(&camera)
+	reset_camera_key(&camera)
 }
 
 clear_window :: proc() {
@@ -198,4 +240,22 @@ clear_window :: proc() {
 
 enable_feature :: proc(cap: u32)  {
 	gl.Enable(cap)
+}
+
+draw_vec3_colored :: proc(label: string, v: [3]f32) {
+    im.Text("%s: ", label)
+    im.SameLine(0, 0)
+
+    im.TextColored({1.0, 0.4, 0.4, 1.0}, "%.2f", v.x) // X - Red
+    im.SameLine(0, 0)
+    im.Text(", ")
+    im.SameLine(0, 2)
+
+    im.TextColored({0.4, 1.0, 0.4, 1.0}, "%.2f", v.y) // Y - Green
+    im.SameLine(0, 0)
+    im.Text(", ")
+    im.SameLine(0, 2)
+
+    im.TextColored({0.4, 0.4, 1.0, 1.0}, "%.2f", v.z) // Z - Blue
+    im.SameLine(0, 0)
 }

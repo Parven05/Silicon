@@ -34,6 +34,13 @@ move_camera_keys :: proc(camera: ^Camera) {
 	}
 }
 
+reset_camera_key :: proc(camera: ^Camera) {
+	if (glfw.GetKey(window, glfw.KEY_R) == glfw.PRESS) {
+		camera.pos = {0.0, 0.0, 0.0}
+		camera.fov = 45.0
+	}
+}
+
 @(private="file") last_x := f32(WINDOW_WIDTH) / 2.0
 @(private="file") last_y := f32(WINDOW_HEIGHT) / 2.0
 @(private="file") first_mouse := true
