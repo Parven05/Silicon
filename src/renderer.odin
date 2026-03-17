@@ -22,7 +22,7 @@ WINDOW_HEIGHT :: 720
 @(private="file") FRAGMENT_PATH: string : "shaders/frag.glsl"
 
 // assets
-@(private="file") TEXTURE_PATH_01: cstring :	"resources/textures/container.jpg"
+@(private="file") TEXTURE_PATH_01: cstring : "assets/textures/container.jpg"
 
 @(private="file") vertices := []f32 {
     // Positions  		// Tex Coords

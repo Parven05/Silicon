@@ -6,15 +6,44 @@ readonly EXE_NAME="silicon"
 readonly BUILD_DIR="build"
 readonly SRC_DIR="src"
 
-# Command options: debug (default), release, check, clean, profile
+# Detect Host OS
+OS_TYPE=$(uname -s | tr '[:upper:]' '[:lower:]')
+TARGET_OS=${TARGET_OS:-$OS_TYPE}
+TARGET_ARCH=${TARGET_ARCH:-amd64}
+
+# Determine executable extension
+EXE_EXT=""
+[[ "$TARGET_OS" == "windows" || "$OS_TYPE" == *"mingw"* || "$OS_TYPE" == *"msys"* ]] && EXE_EXT=".exe"
+
+OUTPUT_PATH="$BUILD_DIR/$EXE_NAME$EXE_EXT"
 ACTION=${1:-debug}
 
-common_flags=(
-    -vet-cast -vet-style -vet-using-param -strict-style
-    -disallow-do -warnings-as-errors -collection:libs=./libs/
-)
+# --- Help Function ---
+show_help() {
+    echo "Usage: ./build.sh [command]"
+    echo ""
+    echo "Commands:"
+    echo "  debug      (Default) Builds with debug symbols and runs the app."
+    echo "  release    Builds with optimizations (-o:speed) and runs the app."
+    echo "  check      Runs Odin's type-checker only (very fast, no binary produced)."
+    echo "  profile    Builds with debug symbols and shows compiler timing statistics."
+    echo "  clean      Removes the '$BUILD_DIR' directory."
+    echo "  help       Shows this help message."
+    echo ""
+    echo "Environment Variables:"
+    echo "  TARGET_OS    Set target OS (e.g., windows, linux, darwin). Default: $OS_TYPE"
+    echo "  TARGET_ARCH  Set target architecture (e.g., amd64, arm64). Default: amd64"
+    echo ""
+    echo "Example:"
+    echo "  TARGET_OS=windows ./build.sh release"
+}
 
-# 1. Handle Clean
+# 1. Handle Immediate Actions (Help & Clean)
+if [[ "$ACTION" == "help" || "$ACTION" == "--help" || "$ACTION" == "-h" ]]; then
+    show_help
+    exit 0
+fi
+
 if [[ "$ACTION" == "clean" ]]; then
     echo "🧹 Cleaning build directory..."
     rm -rf "$BUILD_DIR"
@@ -31,37 +60,48 @@ echo " |____/___|_____|___\____\___/|_| \_|"
 echo "        >> Engine Build System <<"
 echo "----------------------------------------------------------------"
 
+common_flags=(
+    -vet-cast -vet-style -vet-using-param -strict-style
+    -disallow-do -warnings-as-errors -collection:libs=./libs/
+    -target:${TARGET_OS}_${TARGET_ARCH}
+)
+
 mkdir -p "$BUILD_DIR"
 start_time=$(date +%s%N)
 
-# 2. Handle Build Modes & Profiling
+# 2. Handle Build Modes
 case "$ACTION" in
     release)
         mode_flags=(-o:speed)
-        echo "🚀 MODE: RELEASE" ;;
+        echo "🚀 MODE: RELEASE ($TARGET_OS/$TARGET_ARCH)" ;;
     check)
         echo "🔍 MODE: CHECK"
         odin check "$SRC_DIR" "${common_flags[@]}"
         exit 0 ;;
     profile)
         mode_flags=(-debug -show-timings)
-        echo "⏱️  MODE: PROFILE (Showing Build Timings)" ;;
-    *)
+        echo "⏱️  MODE: PROFILE" ;;
+    debug)
         mode_flags=(-debug)
-        echo "🐞 MODE: DEBUG" ;;
+        echo "🐞 MODE: DEBUG ($TARGET_OS/$TARGET_ARCH)" ;;
+    *)
+        echo "❓ Unknown command: $ACTION"
+        show_help
+        exit 1 ;;
 esac
 
-echo "🔨 Compiling $EXE_NAME..."
+echo "🔨 Compiling for $TARGET_OS..."
 
-if odin build "$SRC_DIR" "${mode_flags[@]}" "${common_flags[@]}" -out:"$BUILD_DIR/$EXE_NAME"; then
+if odin build "$SRC_DIR" "${mode_flags[@]}" "${common_flags[@]}" -out:"$OUTPUT_PATH"; then
     elapsed=$(( ($(date +%s%N) - start_time) / 1000000 ))
     echo "✅ Build successful in ${elapsed}ms"
     echo "----------------------------------------------------------------"
 
-    # Don't run the exe if we are just profiling/checking
-    if [[ "$ACTION" != "profile" ]]; then
+    if [[ "$ACTION" != "profile" && "$TARGET_OS" == "$OS_TYPE" ]]; then
         echo "🚀 Running $EXE_NAME..."
-        "./$BUILD_DIR/$EXE_NAME"
+        "./$OUTPUT_PATH"
+    elif [[ "$TARGET_OS" != "$OS_TYPE" ]]; then
+        echo "📦 Cross-compilation complete: $OUTPUT_PATH"
     fi
 else
     echo -e "\n❌ Build failed."
