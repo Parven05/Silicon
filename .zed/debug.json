@@ -1,9 +1,0 @@
-[
-  {
-    "label": "Debug",
-    "cwd": "${ZED_WORKTREE_ROOT}",
-    "program": "${ZED_WORKTREE_ROOT}/build/silicon",
-    "request": "launch",
-    "adapter": "CodeLLDB",
-  },
-]
