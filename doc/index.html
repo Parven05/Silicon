@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silicon Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0b0c0e;
+            --card: #141619;
+            --text: #abb2bf;
+            --dim: #5c6370;
+            --border: #21252b;
+            --accent: #61afef;
+            --code-bg: #1e2227;
+        }
+
+        * { box-sizing: border-box; transition: background 0.2s, color 0.2s; }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0; display: flex; justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container { width: 100%; max-width: 1000px; display: grid; grid-template-columns: 240px 1fr; gap: 40px; }
+
+        .sidebar { position: sticky; top: 40px; height: fit-content; border-right: 1px solid var(--border); padding-right: 20px; }
+        .nav-header {
+            font-size: 0.8rem; font-weight: 900; color: #fff; letter-spacing: 3px;
+            margin-bottom: 25px; cursor: pointer; text-transform: uppercase;
+        }
+        .nav-header:hover { color: var(--accent); }
+        .nav-item {
+            display: block; font-size: 0.75rem; color: var(--dim);
+            text-decoration: none; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+        }
+        .nav-item:hover, .nav-item.active { color: var(--accent); padding-left: 8px; }
+
+        .main-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 45px;
+            border-radius: 12px;
+            min-height: 550px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        #home-view { text-align: center; padding-top: 50px; }
+        #home-view h2 { font-size: 3.5rem; color: #fff; margin: 0; letter-spacing: -1.5px; font-weight: 800; }
+        #home-view p { font-size: 1rem; color: var(--dim); max-width: 500px; margin: 20px auto 50px auto; line-height: 1.7; }
+
+        /* Powered By - Enhanced OpenGL & Odin Branding */
+        .powered-by-label { font-size: 0.6rem; color: #3e4451; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 25px; }
+        .powered-by { display: flex; justify-content: center; align-items: center; gap: 50px; margin-top: 30px; }
+        .brand-icon { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--dim); }
+        .brand-icon:hover { color: var(--accent); }
+        .brand-icon span { font-family: 'JetBrains Mono'; font-weight: 900; font-size: 1.8rem; }
+        .brand-icon i { font-size: 2.2rem; }
+        .brand-icon label { font-size: 0.55rem; letter-spacing: 1px; font-weight: bold; opacity: 0.6; }
+
+        .file-content { display: none; }
+        .file-content.active { display: block; }
+
+        .file-badge {
+            font-family: monospace; font-size: 0.8rem; font-weight: bold;
+            color: var(--accent); background: #1e2227; padding: 6px 14px; border-radius: 6px;
+        }
+        .file-desc { font-size: 0.85rem; color: var(--dim); margin: 20px 0 40px 0; line-height: 1.7; border-left: 2px solid var(--border); padding-left: 20px; }
+
+        details { border-bottom: 1px solid var(--border); }
+        summary {
+            padding: 18px 10px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        summary:hover { background: #1c1f23; border-radius: 8px; }
+        details[open] summary { color: var(--accent); font-weight: 700; }
+
+        .proc-content { padding: 10px 0 30px 0; }
+        .proc-desc { font-size: 0.8rem; color: var(--dim); margin-bottom: 15px; font-style: italic; padding: 0 10px; }
+
+        pre { margin: 0 !important; padding: 25px !important; background: var(--code-bg) !important; border-radius: 8px !important; border: 1px solid #181a1f !important; }
+        code { font-family: 'JetBrains Mono', monospace !important; font-size: 0.82rem !important; line-height: 1.6 !important; }
+
+        /* --- ONE DARK PRO SYNTAX HIGHLIGHTING --- */
+        .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5c6370; font-style: italic; }
+        .token.punctuation { color: #abb2bf; }
+        .token.namespace { opacity: .7; }
+        .token.property, .token.tag, .token.constant, .token.symbol, .token.deleted { color: #e06c75; }
+        .token.boolean, .token.number { color: #d19a66; }
+        .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #98c379; }
+        .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string, .token.variable { color: #56b6c2; }
+        .token.atrule, .token.attr-value, .token.function { color: #61afef; }
+        .token.keyword { color: #c678dd; }
+        .token.regex, .token.important { color: #e06c75; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="nav-header" onclick="showHome()">Silicon Doc</div>
+            <div id="nav-list"><div class="nav-item" onclick="showFile('buffers-odin', event)">> buffers.odin</div><div class="nav-item" onclick="showFile('camera-odin', event)">> camera.odin</div><div class="nav-item" onclick="showFile('engine-odin', event)">> engine.odin</div><div class="nav-item" onclick="showFile('input-odin', event)">> input.odin</div><div class="nav-item" onclick="showFile('main-odin', event)">> main.odin</div><div class="nav-item" onclick="showFile('shader-odin', event)">> shader.odin</div><div class="nav-item" onclick="showFile('texture-odin', event)">> texture.odin</div><div class="nav-item" onclick="showFile('transform-odin', event)">> transform.odin</div><div class="nav-item" onclick="showFile('ui-odin', event)">> ui.odin</div><div class="nav-item" onclick="showFile('vertex-odin', event)">> vertex.odin</div><div class="nav-item" onclick="showFile('window-odin', event)">> window.odin</div></div>
+        </aside>
+
+        <div class="main-card">
+            <div id="home-view">
+                <h2>Silicon</h2>
+                <p>A high-performance OpenGL renderer written in Odin, supporting PBR and ray tracing for CAD visualization.</p>
+
+                <div class="powered-by-label">Powered By</div>
+                <div class="powered-by">
+                    <div class="brand-icon">
+                        <span>ODIN</span>
+                        <label>LANGUAGE</label>
+                    </div>
+                    <div class="brand-icon">
+                        <i class="fas fa-cube"></i>
+                        <label>OPENGL CORE</label>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.6rem; color: #282c34; margin-top: 100px; font-family: monospace; letter-spacing: 3px;">REF_DATA // 26.03.18</div>
+            </div>
+
+            <div id="file-display">
+                <div class='file-content' id='view-buffers-odin'><span class='file-badge'>buffers.odin</span><p class='file-desc'>Source file.</p></div><div class='file-content' id='view-camera-odin'><span class='file-badge'>camera.odin</span><p class='file-desc'>Source file.</p></div><div class='file-content' id='view-engine-odin'><span class='file-badge'>engine.odin</span><p class='file-desc'>This is the core of the engine. It handles the basic life of the engine opening a window, drawing shapes on the screen, and cleaning up when done.</p>
+                        <details>
+                            <summary>run_engine</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Starts the engine and keeps it running until close the window.</div>
+                                <pre><code class="language-clike">run_engine :: proc() {
+	init_engine()
+	defer delete_engine()
+
+	init_ui()
+	defer delete_ui()
+
+	for (!window_close()) {
+		process_input()
+
+		pre_render_engine()
+		render_engine()
+
+		pre_render_ui()
+		draw_status_bottom_bar_ui(&camera)
+		render_ui()
+
+		post_render_engine()
+	}
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>init_engine</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Sets everything up so the engine is ready to use. It prepares the window, loads shaders, and sets up the graphics buffers.</div>
+                                <pre><code class="language-clike">init_engine :: proc() {
+	context.logger = log.create_console_logger()
+
+	// setup window
+	SUCCESS = init_window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
+	if !SUCCESS {
+		log.error("Failed to initialize window")
+	} else {
+		log.info("Window initialized successfully")
+	}
+
+	// setup shader
+	shader, SUCCESS = init_shader(VERTEX_PATH, FRAGMENT_PATH)
+	if !SUCCESS {
+		log.error("Failed to compile shader file")
+		return
+	} else {
+		log.info("Shader file compiled successfully")
+	}
+
+	// setup config
+	enable_feature(gl.DEPTH_TEST)
+	set_input_mode()
+	set_glfw_callback()
+
+	// setup texture
+	texture_01 = init_texture(gl.TEXTURE_2D, gl.REPEAT, gl.LINEAR_MIPMAP_LINEAR, gl.LINEAR)
+	SUCCESS = load_texture(TEXTURE_PATH_01, gl.TEXTURE_2D, gl.RGB, gl.RGB)
+	if !SUCCESS {
+		log.errorf("Failed to load texture: %v", texture_01.id)
+	} else {
+		log.infof("Texture loaded successfully: %v", texture_01.id)
+	}
+
+	// setup buffers
+	vao, SUCCESS = create_VAO()
+	if !SUCCESS {
+		log.errorf("Failed to create vertex array object: %v", vao.id)
+	} else {
+		log.infof("Vertex array object created successfully: %v", vao.id)
+	}
+
+	vbo, SUCCESS = create_VBO()
+	if !SUCCESS {
+		log.errorf("Failed to create vertex buffer object: %v", vbo.id)
+	} else {
+		log.infof("Vertex buffer object created successfully: %v", vbo.id)
+	}
+
+	// bind buffers
+ 	SUCCESS = bind_VAO(&vao)
+  	if !SUCCESS {
+ 		log.errorf("Failed to bind vertex array object: %v", vao.id)
+   } else {
+   		log.infof("Vertex array object binded successfully: %v", vao.id)
+   }
+
+  	SUCCESS = bind_VBO(&vbo, cube_vertices, gl.STATIC_DRAW)
+   	if !SUCCESS {
+  		log.errorf("Failed to bind vertex buffer object: %v", vbo.id)
+    } else {
+    		log.infof("Vertex buffer object binded successfully: %v", vbo.id)
+    }
+
+	// link buffers
+	// position attribute
+	stride : i32 = 5
+	SUCCESS = link_attrib(0, 3, stride, 0)
+	if !SUCCESS {
+		log.errorf("Failed to link attributes to vertex array object: %v", vao.id)
+	} else {
+		log.infof("Linked attributes to vertex array object successfully: %v", vao.id)
+	}
+
+	// texture attribute
+	SUCCESS = link_attrib(1, 2, stride, 3)
+	if !SUCCESS {
+		log.errorf("Failed to link attributes to vertex array object: %v", vao.id)
+	} else {
+		log.infof("Linked attributes to vertex array object successfully: %v", vao.id)
+	}
+
+	// setup camera
+	SUCCESS = init_camera(&camera)
+	if !SUCCESS {
+		log.error("Failed to initialize camera")
+	} else {
+		log.info("Camera initialize successfully")
+	}
+
+	camera.aspect_ratio = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>delete_engine</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Cleans up the mess.</div>
+                                <pre><code class="language-clike">delete_engine :: proc() {
+	delete_VBO(&vbo)
+	delete_VAO(&vao)
+	delete_window()
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>pre_render_engine</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Clears the screen and updates the perspective for the next frame. This makes sure the camera is looking at the right spot before draw.</div>
+                                <pre><code class="language-clike">pre_render_engine :: proc() {
+	clear_window()
+	set_current_window_size()
+
+	activate_texture(gl.TEXTURE0)
+	bind_texture(gl.TEXTURE_2D, texture_01)
+
+	use_shader(shader)
+	camera_projection := get_camera_mode(.PERSPECTIVE, &camera)
+	set_uniform(shader, "projection", &camera_projection)
+
+	camera_view := get_camera_view(&camera)
+	set_uniform(shader, "view", &camera_view)
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>render_engine</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Draws the 3D scene geometry onto the screen.</div>
+                                <pre><code class="language-clike">render_engine :: proc() {
+	bind_VAO(&vao)
+	for i in 0..&lt;10 {
+		init_transform(&cube_transform)
+		angle := 20.0 * i
+		move(cube_positions[i], &cube_transform)
+		rotate(f32(angle), {1.0, 0.3, 0.5}, &cube_transform)
+		apply_transform(shader, &cube_transform)
+		gl.DrawArrays(gl.TRIANGLES, 0, 36)
+	}
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>post_render_engine</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Takes the finished drawing and presents it onto monitor.</div>
+                                <pre><code class="language-clike">post_render_engine :: proc() {
+	swap_buffer_window()
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>set_glfw_callback</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Configures hardware callbacks for mouse and scroll events.</div>
+                                <pre><code class="language-clike">set_glfw_callback :: proc() {
+	glfw.SetWindowUserPointer(window, &camera)
+	glfw.SetCursorPosCallback(window, mouse_callback)
+	glfw.SetScrollCallback(window, mouse_scroll_callback)
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>process_input</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Updates the engine timing and handles user input changes.</div>
+                                <pre><code class="language-clike">process_input :: proc() {
+	set_deltatime()
+	close_window(window)
+	move_camera(&camera)
+	reset_camera(&camera)
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>clear_window</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Wipes the window clean with a background color to start a new frame.</div>
+                                <pre><code class="language-clike">clear_window :: proc() {
+	gl.ClearColor(0.20, 0.20, 0.20, 1.0)
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+}</code></pre>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>enable_feature</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Turns on a specific graphics setting.</div>
+                                <pre><code class="language-clike">enable_feature :: proc(cap: u32)  {
+	gl.Enable(cap)
+}</code></pre>
+                            </div>
+                        </details></div><div class='file-content' id='view-input-odin'><span class='file-badge'>input.odin</span><p class='file-desc'>Source file.</p>
+                        <details>
+                            <summary>close_window</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Close window</div>
+                                <pre><code class="language-clike">close_window:: proc(window: glfw.WindowHandle) {
+	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
+		glfw.SetWindowShouldClose(window, true)
+	}
+}</code></pre>
+                            </div>
+                        </details></div><div class='file-content' id='view-main-odin'><span class='file-badge'>main.odin</span><p class='file-desc'>Source file.</p></div><div class='file-content' id='view-shader-odin'><span class='file-badge'>shader.odin</span><p class='file-desc'>Source file.</p></div><div class='file-content' id='view-texture-odin'><span class='file-badge'>texture.odin</span><p class='file-desc'>Source file.</p></div><div class='file-content' id='view-transform-odin'><span class='file-badge'>transform.odin</span><p class='file-desc'>Source file.</p>
+                        <details>
+                            <summary>init_transform</summary>
+                            <div class="proc-content">
+                                <div class="proc-desc">Testing</div>
+                                <pre><code class="language-clike">init_transform :: proc(trans: ^Transform) {
+	trans.id = la.MATRIX4F32_IDENTITY
+}</code></pre>
+                            </div>
+                        </details></div><div class='file-content' id='view-ui-odin'><span class='file-badge'>ui.odin</span><p class='file-desc'>Source file.</p></div><div class='file-content' id='view-vertex-odin'><span class='file-badge'>vertex.odin</span><p class='file-desc'>Source file.</p></div><div class='file-content' id='view-window-odin'><span class='file-badge'>window.odin</span><p class='file-desc'>Source file.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script>
+        function showFile(fileId, event) {
+            document.getElementById('home-view').style.display = 'none';
+            document.querySelectorAll('.file-content').forEach(f => f.classList.remove('active'));
+            const target = document.getElementById('view-' + fileId);
+            if (target) target.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (event) event.target.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showHome() {
+            document.getElementById('home-view').style.display = 'block';
+            document.querySelectorAll('.file-content').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        }
+    </script>
+</body>
+</html>

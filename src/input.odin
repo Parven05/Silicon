@@ -8,6 +8,9 @@ import la "core:math/linalg"
 @(private="file") last_y := f32(WINDOW_HEIGHT) / 2.0
 @(private="file") first_mouse := true
 
+/*
+Close window
+*/
 close_window:: proc(window: glfw.WindowHandle) {
 	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
 		glfw.SetWindowShouldClose(window, true)
