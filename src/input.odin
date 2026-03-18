@@ -4,13 +4,17 @@ import "vendor:glfw"
 import ma "core:math"
 import la "core:math/linalg"
 
-close_window_esc :: proc(window: glfw.WindowHandle) {
+@(private="file") last_x := f32(WINDOW_WIDTH) / 2.0
+@(private="file") last_y := f32(WINDOW_HEIGHT) / 2.0
+@(private="file") first_mouse := true
+
+close_window:: proc(window: glfw.WindowHandle) {
 	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
 		glfw.SetWindowShouldClose(window, true)
 	}
 }
 
-move_camera_keys :: proc(camera: ^Camera) {
+move_camera:: proc(camera: ^Camera) {
 	base_camera_speed := 4.0 * f32(delta_time)
 	camera_speed_multiplier := 6.0
 	current_camera_speed := base_camera_speed
@@ -34,17 +38,14 @@ move_camera_keys :: proc(camera: ^Camera) {
 	}
 }
 
-reset_camera_key :: proc(camera: ^Camera) {
+reset_camera:: proc(camera: ^Camera) {
 	if (glfw.GetKey(window, glfw.KEY_R) == glfw.PRESS) {
 		camera.pos = {0.0, 0.0, 0.0}
 		camera.fov = 45.0
 	}
 }
 
-@(private="file") last_x := f32(WINDOW_WIDTH) / 2.0
-@(private="file") last_y := f32(WINDOW_HEIGHT) / 2.0
-@(private="file") first_mouse := true
-
+// callback functions
 mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 	camera_ptr := (^Camera)(glfw.GetWindowUserPointer(window))
 
@@ -85,4 +86,9 @@ mouse_scroll_callback :: proc "c" (window: glfw.WindowHandle, x_offset, y_offset
 	camera_ptr.fov -= f32(y_offset)
 	if (camera_ptr.fov < 1.0)  {camera_ptr.fov = 1.0}
 	if (camera_ptr.fov > 45.0) {camera_ptr.fov = 45.0}
+}
+
+// utility functions
+set_input_mode :: proc() {
+	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 }
