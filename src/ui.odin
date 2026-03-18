@@ -31,17 +31,27 @@ draw_status_bottom_bar_ui :: proc(camera: ^Camera) {
 	flags := im.WindowFlags{.NoTitleBar, .NoResize, .NoMove, .NoScrollbar, .NoBackground}
 
 	im.Begin("Status Bar", nil, flags)
+	draw_f32_colored_ui("FPS", "%.2f", f32(1.0 / delta_time))
+	im.SameLine()
+	im.Text("|")
+	im.SameLine()
+
+	draw_f32_colored_ui("DT", "%.4f", f32(delta_time))
+	im.SameLine()
+	im.Text("|")
+	im.SameLine()
+
 	im.Text("=O=")
 	im.SameLine()
 	draw_vec3_colored_ui("Pos", camera.pos)
 
 	im.SameLine()
-	im.Text("|")
+	im.Text("*")
 	im.SameLine()
 	draw_vec2_colored_ui("Rot", camera.rot)
 
 	im.SameLine()
-	im.Text("| FOV: %.2f", camera.fov)
+	draw_f32_colored_ui("Fov", "%.2f", camera.fov)
 	im.End()
 }
 
@@ -80,4 +90,12 @@ draw_vec2_colored_ui :: proc(label: string, v: [3]f32) {
 
     im.TextColored({0.4, 1.0, 0.4, 1.0}, "%.2f", v.y) // Y - Green
     im.SameLine(0, 0)
+}
+
+draw_f32_colored_ui :: proc(label: string, format: cstring, v: f32) {
+    im.Text("%s: ", label)
+    im.SameLine(0, 0)
+
+    im.TextColored({1.0, 1.0, 0.4, 1.0}, format, v) // X - Red
+    im.SameLine(0, 4)
 }
