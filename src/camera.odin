@@ -19,7 +19,7 @@ Camera_mode :: enum {
 	ORTHOGRAPHIC,
 }
 
-init_camera :: proc(camera: ^Camera) {
+init_camera :: proc(camera: ^Camera) -> (bool) {
 	pitch : f32 = 0.0
 	yaw : f32 = -90.0
 
@@ -30,6 +30,7 @@ init_camera :: proc(camera: ^Camera) {
 	camera.fov = 45.0
 	camera.near = 0.1
 	camera.far = 100.0
+	return true
 }
 
 @require_results

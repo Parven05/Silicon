@@ -19,7 +19,7 @@ use_shader :: proc(shader: Shader) {
 	gl.UseProgram(shader.id)
 }
 
-set_uniform :: proc(shader: Shader, name: cstring, value: ^matrix[4,4]f32){
+set_uniform :: proc(shader: Shader, name: cstring, value: ^matrix[4,4]f32) {
 	location := gl.GetUniformLocation(shader.id, name)
 	gl.UniformMatrix4fv(location, 1, gl.FALSE, &value[0][0])
 }

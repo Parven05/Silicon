@@ -67,24 +67,65 @@ init_engine :: proc() {
 	texture_01 = init_texture(gl.TEXTURE_2D, gl.REPEAT, gl.LINEAR_MIPMAP_LINEAR, gl.LINEAR)
 	SUCCESS = load_texture(TEXTURE_PATH_01, gl.TEXTURE_2D, gl.RGB, gl.RGB)
 	if !SUCCESS {
-		log.error("Failed to load texture")
+		log.errorf("Failed to load texture: %v", texture_01.id)
 	} else {
-		log.info("Texture loaded successfully")
+		log.infof("Texture loaded successfully: %v", texture_01.id)
 	}
 
 	// setup buffers
-	vao = create_VAO()
-	vbo = create_VBO()
+	vao, SUCCESS = create_VAO()
+	if !SUCCESS {
+		log.errorf("Failed to create vertex array object: %v", vao.id)
+	} else {
+		log.infof("Vertex array object created successfully: %v", vao.id)
+	}
 
-	bind_VAO(&vao)
-	bind_VBO(&vbo, cube_vertices, gl.STATIC_DRAW)
+	vbo, SUCCESS = create_VBO()
+	if !SUCCESS {
+		log.errorf("Failed to create vertex buffer object: %v", vbo.id)
+	} else {
+		log.infof("Vertex buffer object created successfully: %v", vbo.id)
+	}
+
+ 	SUCCESS = bind_VAO(&vao)
+  	if !SUCCESS {
+ 		log.errorf("Failed to bind vertex array object: %v", vao.id)
+   } else {
+   		log.infof("Vertex array object binded successfully: %v", vao.id)
+   }
+
+  	SUCCESS = bind_VBO(&vbo, cube_vertices, gl.STATIC_DRAW)
+   	if !SUCCESS {
+  		log.errorf("Failed to bind vertex buffer object: %v", vbo.id)
+    } else {
+    		log.infof("Vertex buffer object binded successfully: %v", vbo.id)
+    }
 
 	stride : i32 = 5
-	link_attrib(0, 3, stride, 0)	 // position attribute
-	link_attrib(1, 2, stride, 3)	 // texture attribute
+	// position attribute
+	SUCCESS = link_attrib(0, 3, stride, 0)
+	if !SUCCESS {
+		log.errorf("Failed to link attributes to vertex array object: %v", vao.id)
+	} else {
+		log.infof("Linked attributes to vertex array object successfully: %v", vao.id)
+	}
+
+	// texture attribute
+	SUCCESS = link_attrib(1, 2, stride, 3)
+	if !SUCCESS {
+		log.errorf("Failed to link attributes to vertex array object: %v", vao.id)
+	} else {
+		log.infof("Linked attributes to vertex array object successfully: %v", vao.id)
+	}
 
 	// setup camera
-	init_camera(&camera)
+	SUCCESS = init_camera(&camera)
+	if !SUCCESS {
+		log.error("Failed to initialize camera")
+	} else {
+		log.info("Camera initialize successfully")
+	}
+
 	camera.aspect_ratio = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
 }
 
