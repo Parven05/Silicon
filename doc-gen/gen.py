@@ -10,6 +10,7 @@ Files without an order number are sorted alphabetically after numbered files.
 import json
 import re
 import textwrap
+from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 
@@ -25,42 +26,27 @@ TEMPLATE_PATH = BASE_DIR / "template.html"
 SORT_ORDER = {"STRUCT": 1, "ENUM": 2, "PROC": 3}
 
 # ---------------------------------------------------------------------------
-# Compiled patterns (all at module level — compiled once)
+# Compiled patterns
 # ---------------------------------------------------------------------------
-_DECL_RE = re.compile(r"(\w+)\s*::\s*(struct|proc|enum|union)")
-_RET_RE  = re.compile(r"->\s*([^{]+)")
-_ATTR_RE = re.compile(r"@(?:\([^)]*\)|\w+)\s*$")
-_WS_RE   = re.compile(r"\s+")
+_DECL_RE      = re.compile(r"(\w+)\s*::\s*(struct|proc|enum|union)")
+_RET_RE       = re.compile(r"->\s*([^{]+)")
+_ATTR_RE      = re.compile(r"@(?:\([^)]*\)|\w+)\s*$")
+_WS_RE        = re.compile(r"\s+")
 _ID_UNSAFE_RE = re.compile(r"[^A-Za-z0-9]")
-_TMPL_RE = re.compile(r"\{\{(content|toc_json|item_count)\}\}")
-# Matches an order comment on the first line: `// 1` or `// 42` (digits only)
-_ORDER_RE = re.compile(r"^//\s*(\d+)\s*$")
+_TMPL_RE      = re.compile(r"\{\{(content|toc_json|item_count|generated_at)\}\}")
+_ORDER_RE     = re.compile(r"^//\s*(\d+)\s*$")
 
 
 # ---------------------------------------------------------------------------
 # Parsing helpers
 # ---------------------------------------------------------------------------
-def get_file_order(content: str) -> tuple[int, str]:
-    """
-    Read the order number from the very first line of the file.
-    Returns (order, filename_fallback) so files sort correctly:
-      - Numbered files first, in numeric order
-      - Unnumbered files after, in alphabetical order
-    Unnumbered files get order=999999 so they always sort last.
-    """
+def get_file_order(content: str) -> int:
     first_line = content.split("\n", 1)[0].strip()
     m = _ORDER_RE.match(first_line)
-    if m:
-        return int(m.group(1)), ""
-    return 999999, ""
+    return int(m.group(1)) if m else 999999
 
 
 def get_block(text: str, start: int) -> str | None:
-    """
-    Return the balanced-brace block starting at `start`.
-    Returns the declaration line for brace-free procs, or
-    None on unclosed braces (malformed source — skip the symbol).
-    """
     n = len(text)
     line_end = text.find("\n", start)
     if line_end == -1:
@@ -86,7 +72,6 @@ def get_block(text: str, start: int) -> str | None:
 
 
 def _extract_proc_params(decl_line: str) -> str:
-    """Depth-aware parameter extraction for proc declarations."""
     proc_idx = decl_line.find(":: proc")
     if proc_idx == -1:
         return ""
@@ -111,27 +96,18 @@ def _extract_proc_params(decl_line: str) -> str:
 
 
 def extract_signature(block: str, cat: str) -> dict[str, str]:
-    """Extract params and return type from the first line of a PROC block."""
     if cat != "PROC":
         return {"params": "", "returns": ""}
-
     first_line = block.split("\n", 1)[0]
     params = _extract_proc_params(first_line)
-
     returns = ""
     rm = _RET_RE.search(first_line)
     if rm:
         returns = _WS_RE.sub(" ", rm.group(1).strip().rstrip("{").strip())
-
     return {"params": params, "returns": returns}
 
 
 def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str]]:
-    """
-    Walk backwards from `match_start` collecting comments and @attributes.
-    Scans at most 60 lines back. Returns (comments, attrs) in source order.
-    A blank line stops collection once any content has been seen.
-    """
     region_start = text.rfind("\n", 0, match_start)
     for _ in range(59):
         pos = text.rfind("\n", 0, region_start)
@@ -151,7 +127,6 @@ def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str
             attrs.insert(0, stripped)
             seen_any = True
         elif stripped.startswith(("//", "/*")) or stripped.endswith("*/"):
-            # Skip the order comment on line 1 — it's metadata, not a doc comment
             if _ORDER_RE.match(stripped):
                 break
             comments.insert(0, stripped)
@@ -165,13 +140,11 @@ def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str
 
 
 def format_snippet(comments: list[str], attrs: list[str], block: str) -> str:
-    """Dedent the block, prepend: comments → attributes → declaration."""
     dedented = textwrap.dedent(block).rstrip()
     return "\n".join(comments + attrs + [dedented]).strip()
 
 
 def package_path(file_path: Path, source_dir: Path) -> str:
-    """Relative path from src root, e.g. 'renderer/mesh.odin'."""
     try:
         return str(file_path.relative_to(source_dir))
     except ValueError:
@@ -179,7 +152,6 @@ def package_path(file_path: Path, source_dir: Path) -> str:
 
 
 def make_item_id(pkg: str, name: str) -> str:
-    """Collision-free HTML id from package path + symbol name."""
     return _ID_UNSAFE_RE.sub("-", pkg) + "--" + name
 
 
@@ -193,7 +165,6 @@ def _build_sig_html(item: dict) -> str:
     returns = item["sig"]["returns"]
     if not params and not returns:
         return ""
-
     parts = []
     if params:
         parts.append(
@@ -212,14 +183,26 @@ def _build_sig_html(item: dict) -> str:
     )
 
 
+def _build_refs_html(refs: list[str]) -> str:
+    """Build the 'Used by' bar listing symbols that reference this one."""
+    if not refs:
+        return ""
+    links = " ".join(
+        f"<a class='ref-link' href='#{escape(r)}'>{escape(r.split('--')[-1])}</a>"
+        for r in refs
+    )
+    return f"\n            <div class='refs-bar'><span class='refs-label'>used by</span> {links}</div>"
+
+
 def build_item_html(item: dict) -> str:
-    item_id   = escape(item["id"])
-    name      = escape(item["name"])
-    cat       = item["cat"]
-    pkg       = escape(item["pkg"])
-    code      = escape(item["code"])
-    badge_cls = cat.lower()
-    sig_html  = _build_sig_html(item)
+    item_id    = escape(item["id"])
+    name       = escape(item["name"])
+    cat        = item["cat"]
+    pkg        = escape(item["pkg"])
+    code       = escape(item["code"])
+    badge_cls  = cat.lower()
+    sig_html   = _build_sig_html(item)
+    refs_html  = _build_refs_html(item.get("used_by", []))
     attrs_html = "".join(
         f"<span class='attr'>{escape(a)}</span>" for a in item["attrs"]
     )
@@ -232,6 +215,7 @@ def build_item_html(item: dict) -> str:
         f"<span class='badge badge-{badge_cls}'>{cat}</span>"
         f"</summary>"
         f"{sig_html}"
+        f"{refs_html}"
         f"\n            <div class='content'>"
         f"<div class='code-header'>"
         f"<span class='code-file'>{pkg}</span>"
@@ -275,18 +259,14 @@ def build_html(items: list[dict]) -> str:
 # ---------------------------------------------------------------------------
 def parse_source(source_dir: Path) -> list[dict]:
     items: list[dict] = []
-
-    # Read all files and their order numbers first so we can sort correctly
-    file_data: list[tuple[int, str, Path, str]] = []  # (order, pkg, path, content)
+    file_data: list[tuple[int, str, Path, str]] = []
 
     for path in source_dir.rglob("*.odin"):
         content = path.read_text(encoding="utf-8")
         pkg     = package_path(path, source_dir)
-        order, _ = get_file_order(content)
+        order   = get_file_order(content)
         file_data.append((order, pkg, path, content))
 
-    # Sort by (order_number, pkg_path) — numbered files first in numeric order,
-    # unnumbered files after in alphabetical order
     file_data.sort(key=lambda x: (x[0], x[1]))
 
     for order, pkg, path, content in file_data:
@@ -296,26 +276,53 @@ def parse_source(source_dir: Path) -> list[dict]:
             block = get_block(content, m.start())
             if not block:
                 continue
-
             comments, attrs = preceding_metadata(content, m.start())
             items.append({
-                "id":       make_item_id(pkg, name),
-                "name":     name,
-                "cat":      cat,
-                "file":     path.name,
-                "pkg":      pkg,
+                "id":         make_item_id(pkg, name),
+                "name":       name,
+                "cat":        cat,
+                "file":       path.name,
+                "pkg":        pkg,
                 "file_order": order,
-                "attrs":    attrs,
-                "comments": comments,
-                "sig":      extract_signature(block, cat),
-                "code":     format_snippet(comments, attrs, block),
+                "attrs":      attrs,
+                "comments":   comments,
+                "sig":        extract_signature(block, cat),
+                "code":       format_snippet(comments, attrs, block),
+                "raw_code":   block,  # kept for reference analysis
+                "used_by":    [],     # filled in below
             })
 
-    # Sort within each file: type order then name. File order is preserved
-    # from above since Python sort is stable.
     items.sort(key=lambda x: (x["file_order"], x["pkg"], SORT_ORDER.get(x["cat"], 4), x["name"]))
 
-    # Annotate each item with how many symbols its file contains (for the header)
+    # --- "Used by" back-link analysis ---
+    # Build name -> item_id map
+    name_to_id: dict[str, str] = {}
+    for item in items:
+        if item["name"] not in name_to_id:
+            name_to_id[item["name"]] = item["id"]
+
+    # For each item, scan its raw code for references to other known symbols
+    ident_re = re.compile(r"\b([A-Za-z_]\w*)\b")
+    # Build reverse: target_id -> set of caller item_ids
+    used_by: dict[str, set[str]] = {item["id"]: set() for item in items}
+
+    for item in items:
+        caller_id = item["id"]
+        for m in ident_re.finditer(item["raw_code"]):
+            word = m.group(1)
+            if word == item["name"]:
+                continue  # skip self
+            if word in name_to_id:
+                target_id = name_to_id[word]
+                if target_id != caller_id:
+                    used_by[target_id].add(caller_id)
+
+    # Attach sorted used_by lists (sorted for stable output)
+    for item in items:
+        item["used_by"] = sorted(used_by.get(item["id"], set()))
+        del item["raw_code"]  # no longer needed
+
+    # Symbol count per file
     pkg_counts: dict[str, int] = {}
     for item in items:
         pkg_counts[item["pkg"]] = pkg_counts.get(item["pkg"], 0) + 1
@@ -343,10 +350,13 @@ def main() -> None:
             "cat":  item["cat"],
         })
 
+    now = datetime.now(timezone.utc).strftime("%B %d, %Y at %H:%M UTC")
+
     replacements = {
-        "content":    html_content,
-        "toc_json":   json.dumps(toc_data, ensure_ascii=False),
-        "item_count": str(len(items)),
+        "content":      html_content,
+        "toc_json":     json.dumps(toc_data, ensure_ascii=False),
+        "item_count":   str(len(items)),
+        "generated_at": now,
     }
 
     template = TEMPLATE_PATH.read_text(encoding="utf-8")

@@ -8,10 +8,8 @@
 </head>
 <body>
 
-<!-- Data injected by gen.py. type="application/json" means browsers never
-     execute these as JS, so the {{placeholders}} are valid before gen.py runs. -->
 <script id="toc-data"  type="application/json">{{toc_json}}</script>
-<script id="meta-data" type="application/json">{"item_count":{{item_count}}}</script>
+<script id="meta-data" type="application/json">{"item_count":{{item_count}},"generated_at":"{{generated_at}}"}</script>
 
 <!-- Sidebar -->
 <aside id="sidebar">
@@ -20,6 +18,9 @@
         <span id="sidebar-count"></span>
     </div>
     <div id="sidebar-content"></div>
+    <div id="sidebar-footer">
+        Generated <span id="gen-time"></span>
+    </div>
 </aside>
 
 <!-- Main -->
@@ -44,47 +45,61 @@
     <div id="toolbar">
         <input type="text" id="search" placeholder="Filter by name..." autocomplete="off" spellcheck="false">
         <div id="filter-btns">
-            <button class="filter-btn active" data-cat="ALL">All</button>
-            <button class="filter-btn" data-cat="STRUCT" style="--btn-color:var(--badge-struct-fg)">Struct</button>
-            <button class="filter-btn" data-cat="ENUM"   style="--btn-color:var(--badge-enum-fg)">Enum</button>
-            <button class="filter-btn" data-cat="PROC"   style="--btn-color:var(--badge-proc-fg)">Proc</button>
-            <button class="filter-btn" data-cat="UNION"  style="--btn-color:var(--badge-union-fg)">Union</button>
+            <button class="filter-btn active" data-cat="ALL">All <span class="filter-count"></span></button>
+            <button class="filter-btn" data-cat="STRUCT" style="--btn-color:var(--badge-struct-fg)">Struct <span class="filter-count"></span></button>
+            <button class="filter-btn" data-cat="ENUM"   style="--btn-color:var(--badge-enum-fg)">Enum <span class="filter-count"></span></button>
+            <button class="filter-btn" data-cat="PROC"   style="--btn-color:var(--badge-proc-fg)">Proc <span class="filter-count"></span></button>
+            <button class="filter-btn" data-cat="UNION"  style="--btn-color:var(--badge-union-fg)">Union <span class="filter-count"></span></button>
         </div>
         <div id="toolbar-right">
+            <button id="back-btn"     title="Go back (Alt+Left)">&#8592;</button>
             <button id="expand-all"   title="Expand all">&#8862;</button>
             <button id="collapse-all" title="Collapse all">&#8863;</button>
+            <button id="help-btn"     title="Keyboard shortcuts (?)">?</button>
         </div>
     </div>
 
-    <!-- Content — filled by gen.py -->
+    <!-- Content -->
     <div id="api-root">{{content}}</div>
 </main>
+
+<!-- Help modal -->
+<div id="help-modal" aria-hidden="true">
+    <div id="help-box">
+        <div id="help-title">Keyboard Shortcuts</div>
+        <div class="help-row"><kbd>Ctrl K</kbd> Focus search</div>
+        <div class="help-row"><kbd>Esc</kbd> Clear search</div>
+        <div class="help-row"><kbd>S</kbd> Toggle sidebar</div>
+        <div class="help-row"><kbd>T</kbd> Toggle theme</div>
+        <div class="help-row"><kbd>J</kbd> Next symbol</div>
+        <div class="help-row"><kbd>K</kbd> Previous symbol</div>
+        <div class="help-row"><kbd>Alt &#8592;</kbd> Go back</div>
+        <div class="help-row"><kbd>?</kbd> This help</div>
+        <button id="help-close">Close</button>
+    </div>
+</div>
 
 <script>
 "use strict";
 
 // ============================================================================
-// 1. Read injected data
+// 1. Data
 // ============================================================================
 var TOC  = JSON.parse(document.getElementById("toc-data").textContent);
 var META = JSON.parse(document.getElementById("meta-data").textContent);
 
 document.getElementById("sidebar-count").textContent = META.item_count + " symbols";
+document.getElementById("gen-time").textContent = META.generated_at;
 
-// Build a flat name -> id map from TOC for O(1) lookup during linking.
-// If the same name exists in multiple files, the first one wins (consistent
-// with declaration order since gen.py sorts by file then name).
 var SYMBOL_MAP = Object.create(null);
 Object.entries(TOC).forEach(function (entry) {
     entry[1].forEach(function (sym) {
-        if (!SYMBOL_MAP[sym.name]) {
-            SYMBOL_MAP[sym.name] = sym.id;
-        }
+        if (!SYMBOL_MAP[sym.name]) SYMBOL_MAP[sym.name] = sym.id;
     });
 });
 
 // ============================================================================
-// 2. Odin syntax highlighter — zero dependencies, single-pass
+// 2. Syntax highlighter
 // ============================================================================
 (function () {
     var RULES = [
@@ -117,9 +132,7 @@ Object.entries(TOC).forEach(function (entry) {
         } else {
             _covered.fill(0, 0, n);
         }
-
         var matches = [];
-
         for (var ri = 0; ri < RULES.length; ri++) {
             var rule = RULES[ri];
             rule.re.lastIndex = 0;
@@ -127,22 +140,17 @@ Object.entries(TOC).forEach(function (entry) {
             while ((m = rule.re.exec(raw)) !== null) {
                 var hlStart = m.index;
                 var hlEnd   = rule.cap ? m.index + m[1].length : m.index + m[0].length;
-
                 var skip = false;
                 for (var i = hlStart; i < hlEnd; i++) {
                     if (_covered[i]) { skip = true; break; }
                 }
                 if (skip) continue;
-
                 for (var j = hlStart; j < hlEnd; j++) _covered[j] = 1;
                 matches.push([hlStart, hlEnd, rule.cls]);
             }
         }
-
         matches.sort(function (a, b) { return a[0] - b[0]; });
-
-        var out = "";
-        var pos = 0;
+        var out = "", pos = 0;
         for (var k = 0; k < matches.length; k++) {
             var s = matches[k][0], e = matches[k][1], cls = matches[k][2];
             if (s > pos) out += esc(raw.slice(pos, s));
@@ -164,37 +172,20 @@ Object.entries(TOC).forEach(function (entry) {
 
 // ============================================================================
 // 3. Cross-reference linker
-//    Runs after highlighting. Walks every text node inside a highlighted
-//    <code> block, finds bare identifiers that match a known symbol, and
-//    wraps them in <a class="sym-link"> pointing to that symbol's <details>.
-//
-//    Only plain text nodes are processed — span children (already highlighted
-//    tokens) are skipped so we never break the highlighting structure.
-//    The declaration line itself is skipped to avoid self-linking.
 // ============================================================================
 (function () {
-    // Matches a bare word boundary identifier — used on raw text node content
     var IDENT_RE = /\b([A-Za-z_]\w*)\b/g;
 
     function linkTextNode(textNode, selfName) {
         var text = textNode.nodeValue;
         IDENT_RE.lastIndex = 0;
-        var m;
-        var parts = [];
-        var pos = 0;
-        var anyLinked = false;
+        var m, parts = [], pos = 0, anyLinked = false;
 
         while ((m = IDENT_RE.exec(text)) !== null) {
             var word = m[1];
-            // Skip self-references and words not in the symbol map
             if (word === selfName || !SYMBOL_MAP[word]) continue;
-
             var targetId = SYMBOL_MAP[word];
-            // Text before this match
-            if (m.index > pos) {
-                parts.push(document.createTextNode(text.slice(pos, m.index)));
-            }
-            // The linked identifier
+            if (m.index > pos) parts.push(document.createTextNode(text.slice(pos, m.index)));
             var a = document.createElement("a");
             a.className   = "sym-link";
             a.href        = "#" + targetId;
@@ -203,15 +194,7 @@ Object.entries(TOC).forEach(function (entry) {
             a.onclick = (function (id) {
                 return function (ev) {
                     ev.preventDefault();
-                    var el = document.getElementById(id);
-                    if (!el) return;
-                    el.open = true;
-                    // Highlight it if not done yet
-                    window.highlightAll(el);
-                    el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    // Flash the target so the user sees where they landed
-                    el.classList.add("flash");
-                    setTimeout(function () { el.classList.remove("flash"); }, 800);
+                    navigateTo(id);
                 };
             }(targetId));
             parts.push(a);
@@ -219,64 +202,71 @@ Object.entries(TOC).forEach(function (entry) {
             anyLinked = true;
         }
 
-        if (!anyLinked) return; // nothing to do — leave node untouched
-
-        // Append any trailing text
-        if (pos < text.length) {
-            parts.push(document.createTextNode(text.slice(pos)));
-        }
-
-        // Replace the original text node with the new nodes
+        if (!anyLinked) return;
+        if (pos < text.length) parts.push(document.createTextNode(text.slice(pos)));
         var parent = textNode.parentNode;
-        parts.forEach(function (node) {
-            parent.insertBefore(node, textNode);
-        });
+        parts.forEach(function (node) { parent.insertBefore(node, textNode); });
         parent.removeChild(textNode);
-    }
-
-    function linkCodeBlock(codeEl) {
-        if (codeEl.dataset.linked) return;
-        codeEl.dataset.linked = "1";
-
-        // Determine the symbol name this block belongs to, so we can skip
-        // self-references on the declaration line.
-        var details = codeEl.closest("details");
-        var selfName = details
-            ? (details.querySelector(".item-name") || {}).textContent || ""
-            : "";
-
-        // Walk only direct children of <code> — these are either:
-        //   - text nodes  (unhighlighted identifiers, whitespace, punctuation)
-        //   - <span>      (highlighted tokens — do NOT descend into these,
-        //                  linking inside a span would break token structure)
-        // We collect nodes first because linkTextNode mutates the DOM.
-        var children = Array.from(codeEl.childNodes);
-        children.forEach(function (node) {
-            if (node.nodeType === Node.TEXT_NODE) {
-                linkTextNode(node, selfName);
-            }
-            // Intentionally skip span children — they are highlighted tokens
-        });
     }
 
     window.linkAll = function (root) {
         var els = (root || document).querySelectorAll("code.language-odin[data-hl]:not([data-linked])");
         for (var i = 0; i < els.length; i++) {
-            linkCodeBlock(els[i]);
+            var el = els[i];
+            el.dataset.linked = "1";
+            var details  = el.closest("details");
+            var selfName = details ? (details.querySelector(".item-name") || {}).textContent || "" : "";
+            var children = Array.from(el.childNodes);
+            children.forEach(function (node) {
+                if (node.nodeType === Node.TEXT_NODE) linkTextNode(node, selfName);
+            });
         }
     };
 }());
 
 // ============================================================================
-// 4. App bootstrap
+// 4. Navigation history (back button)
+// ============================================================================
+var NAV_HISTORY = [];
+var NAV_MAX = 20;
+
+function navigateTo(itemId, pushHistory) {
+    var el = document.getElementById(itemId);
+    if (!el) return;
+
+    // Push current position to history before jumping
+    if (pushHistory !== false) {
+        var current = window.location.hash.slice(1);
+        if (current && current !== itemId) {
+            NAV_HISTORY.push(current);
+            if (NAV_HISTORY.length > NAV_MAX) NAV_HISTORY.shift();
+        }
+    }
+
+    el.open = true;
+    window.highlightAll(el);
+    window.linkAll(el);
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.classList.add("flash");
+    setTimeout(function () { el.classList.remove("flash"); }, 800);
+    history.replaceState(null, "", "#" + itemId);
+    updateBackBtn();
+}
+
+function updateBackBtn() {
+    document.getElementById("back-btn").disabled = NAV_HISTORY.length === 0;
+}
+
+// ============================================================================
+// 5. App bootstrap
 // ============================================================================
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Highlight then link — order matters: highlight first, then link
     window.highlightAll();
     window.linkAll();
+    updateBackBtn();
 
-    // --- Handle anchor on load (shared links / refresh with #hash) ---
+    // Anchor on load (shared links / refresh)
     (function () {
         var hash = window.location.hash.slice(1);
         if (!hash) return;
@@ -290,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 80);
     }());
 
-    // When a <details> opens, highlight then link that subtree
+    // Lazy highlight+link on open
     document.addEventListener("toggle", function (e) {
         if (e.target.tagName === "DETAILS" && e.target.open) {
             window.highlightAll(e.target);
@@ -298,7 +288,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }, true);
 
-    // --- Sidebar ---
+    // "Used by" ref-links — navigate with history
+    document.getElementById("api-root").addEventListener("click", function (e) {
+        var a = e.target.closest(".ref-link");
+        if (!a) return;
+        e.preventDefault();
+        var targetId = a.getAttribute("href").slice(1);
+        navigateTo(targetId);
+    });
+
+    // --- Sidebar build ---
     var sidebarContent = document.getElementById("sidebar-content");
 
     Object.entries(TOC).forEach(function (entry) {
@@ -309,19 +308,22 @@ document.addEventListener("DOMContentLoaded", function () {
         var group = document.createElement("div");
         group.className = "toc-group";
 
+        // Collapsible file header
         var hdr = document.createElement("div");
         hdr.className   = "toc-pkg";
-        hdr.textContent = pkg;
-        hdr.onclick = (function (id) {
-            return function () {
-                var sec = document.getElementById("sec-" + id);
-                if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
-            };
-        }(safeId));
-        group.appendChild(hdr);
+        hdr.dataset.id  = safeId;
+        hdr.innerHTML   = pkg + "<span class='toc-arrow'>&#9662;</span>";
 
         var list = document.createElement("ul");
         list.className = "toc-list";
+
+        // Toggle collapse on click — scroll to section on double-click / second intent
+        var collapsed = false;
+        hdr.onclick = function () {
+            collapsed = !collapsed;
+            list.style.display = collapsed ? "none" : "";
+            hdr.querySelector(".toc-arrow").style.transform = collapsed ? "rotate(-90deg)" : "";
+        };
 
         syms.forEach(function (sym) {
             var li = document.createElement("li");
@@ -332,25 +334,26 @@ document.addEventListener("DOMContentLoaded", function () {
             a.onclick = (function (itemId) {
                 return function (ev) {
                     ev.preventDefault();
-                    var el = document.getElementById(itemId);
-                    if (el) {
-                        el.open = true;
-                        window.highlightAll(el);
-                        window.linkAll(el);
-                        el.scrollIntoView({ behavior: "smooth", block: "start" });
-                        history.replaceState(null, "", "#" + itemId);
-                    }
+                    navigateTo(itemId);
+                    updateActiveSidebarLink(itemId);
                 };
             }(sym.id));
             li.appendChild(a);
             list.appendChild(li);
         });
 
+        group.appendChild(hdr);
         group.appendChild(list);
         sidebarContent.appendChild(group);
     });
 
-    // --- Sidebar toggle ---
+    function updateActiveSidebarLink(itemId) {
+        sidebarContent.querySelectorAll(".toc-link").forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + itemId);
+        });
+    }
+
+    // Sidebar toggle
     var sidebar     = document.getElementById("sidebar");
     var mainEl      = document.getElementById("main");
     var sidebarOpen = true;
@@ -363,29 +366,48 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     setSidebar(localStorage.getItem("sidebar") !== "0");
-    document.getElementById("sidebar-toggle").onclick = function () {
-        setSidebar(!sidebarOpen);
-    };
+    document.getElementById("sidebar-toggle").onclick = function () { setSidebar(!sidebarOpen); };
 
-    // --- Theme toggle ---
+    // Theme toggle
     var htmlEl = document.documentElement;
-
     function setTheme(t) {
         htmlEl.dataset.theme = t;
         localStorage.setItem("theme", t);
     }
-
     setTheme(localStorage.getItem("theme") || "dark");
     document.getElementById("theme-toggle").onclick = function () {
         setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark");
     };
 
-    // --- Search + category filter ---
+    // Back button
+    document.getElementById("back-btn").onclick = function () {
+        if (NAV_HISTORY.length === 0) return;
+        var prev = NAV_HISTORY.pop();
+        updateBackBtn();
+        navigateTo(prev, false);
+    };
+
+    // Filter buttons with counts
     var searchEl    = document.getElementById("search");
     var filterBtns  = document.querySelectorAll(".filter-btn");
     var activeCat   = "ALL";
     var allDetails  = Array.from(document.querySelectorAll("details"));
     var allSections = Array.from(document.querySelectorAll(".file-section"));
+
+    // Compute and display symbol counts per category
+    var catCounts = { ALL: allDetails.length, STRUCT: 0, ENUM: 0, PROC: 0, UNION: 0 };
+    allDetails.forEach(function (el) {
+        var badgeEl = el.querySelector(".badge");
+        var cat = badgeEl ? badgeEl.textContent.trim() : "";
+        if (catCounts[cat] !== undefined) catCounts[cat]++;
+    });
+    filterBtns.forEach(function (btn) {
+        var cat = btn.dataset.cat;
+        var countEl = btn.querySelector(".filter-count");
+        if (countEl && catCounts[cat] !== undefined) {
+            countEl.textContent = catCounts[cat];
+        }
+    });
 
     function applyFilters() {
         var term = searchEl.value.toLowerCase();
@@ -421,7 +443,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     });
 
-    // --- Expand / collapse all ---
+    // Expand / collapse all
     document.getElementById("expand-all").onclick = function () {
         allDetails.forEach(function (d) {
             if (d.style.display !== "none") {
@@ -436,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
         allDetails.forEach(function (d) { d.open = false; });
     };
 
-    // --- Copy code ---
+    // Copy code
     window.copyCode = function (btn) {
         var details = btn.closest("details");
         if (!details) return;
@@ -446,29 +468,62 @@ document.addEventListener("DOMContentLoaded", function () {
             var orig = btn.textContent;
             btn.textContent = "\u2713";
             btn.classList.add("copied");
-            setTimeout(function () {
-                btn.textContent = orig;
-                btn.classList.remove("copied");
-            }, 1500);
+            setTimeout(function () { btn.textContent = orig; btn.classList.remove("copied"); }, 1500);
         });
     };
 
-    // --- Keyboard shortcuts ---
+    // j/k navigation between visible symbols
+    var _jkIndex = -1;
+    function getVisibleDetails() {
+        return allDetails.filter(function (d) { return d.style.display !== "none"; });
+    }
+    function jkNavigate(dir) {
+        var visible = getVisibleDetails();
+        if (visible.length === 0) return;
+        _jkIndex = Math.max(0, Math.min(visible.length - 1, _jkIndex + dir));
+        var target = visible[_jkIndex];
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        target.classList.add("flash");
+        setTimeout(function () { target.classList.remove("flash"); }, 800);
+    }
+
+    // Help modal
+    var helpModal = document.getElementById("help-modal");
+    function showHelp() { helpModal.setAttribute("aria-hidden", "false"); }
+    function hideHelp() { helpModal.setAttribute("aria-hidden", "true"); }
+    document.getElementById("help-btn").onclick   = showHelp;
+    document.getElementById("help-close").onclick = hideHelp;
+    helpModal.addEventListener("click", function (e) {
+        if (e.target === helpModal) hideHelp();
+    });
+
+    // Keyboard shortcuts
     document.addEventListener("keydown", function (e) {
+        // Always handle in-input shortcuts
         if (e.target.tagName === "INPUT") {
-            if (e.key === "Escape") {
-                searchEl.value = "";
-                applyFilters();
-                searchEl.blur();
-            }
+            if (e.key === "Escape") { searchEl.value = ""; applyFilters(); searchEl.blur(); }
             return;
         }
+        // Escape closes modal
+        if (e.key === "Escape") { hideHelp(); return; }
+
         switch (e.key) {
             case "s": case "S": setSidebar(!sidebarOpen); break;
-            case "t": case "T":
-                setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark");
-                break;
+            case "t": case "T": setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark"); break;
+            case "j": case "J": jkNavigate(1);  break;
+            case "k": case "K": jkNavigate(-1); break;
+            case "?":           showHelp();      break;
             default:
+                // Alt+Left = back
+                if (e.altKey && e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    if (NAV_HISTORY.length > 0) {
+                        var prev = NAV_HISTORY.pop();
+                        updateBackBtn();
+                        navigateTo(prev, false);
+                    }
+                }
+                // Ctrl/Cmd+K = search
                 if ((e.ctrlKey || e.metaKey) && e.key === "k") {
                     e.preventDefault();
                     searchEl.focus();
@@ -476,6 +531,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
         }
     });
+
+    // Details open animation — CSS handles the visual, we just toggle a class
+    document.addEventListener("toggle", function (e) {
+        if (e.target.tagName === "DETAILS") {
+            e.target.classList.toggle("is-open", e.target.open);
+        }
+    }, true);
 });
 </script>
 </body>

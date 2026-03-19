@@ -1,5 +1,5 @@
 /* ============================================================================
-   Variables — dark theme (default)
+   Variables — dark theme
    ========================================================================== */
 :root,
 [data-theme="dark"] {
@@ -19,7 +19,6 @@
     --sb-text:   #999;
     --sb-hover:  #222;
 
-    /* Monokai — code blocks only */
     --m-bg:     #272822;
     --m-fg:     #f8f8f2;
     --m-pink:   #f92672;
@@ -31,7 +30,6 @@
     --m-orange: #fd971f;
     --m-teal:   #a1efe4;
 
-    /* Badge colours */
     --badge-struct:    #4e8fce33;
     --badge-struct-fg: #4e8fce;
     --badge-enum:      #a6e22e33;
@@ -60,14 +58,12 @@
     --sb-text:   #555;
     --sb-hover:  #e2e2e2;
 
-    /* Light Monokai — code bg clearly distinct from surrounding card (#fff) */
     --m-bg:     #e8e8e3;
     --m-fg:     #272822;
     --m-pink:   #c0185a;
     --m-green:  #4e7a10;
     --m-blue:   #106080;
     --m-yellow: #7a5800;
-    /* #6e6e6e on #e8e8e3 → ~4.6:1 contrast (passes WCAG AA for small text) */
     --m-gray:   #6e6e6e;
     --m-purple: #6a3ab0;
     --m-orange: #a05c10;
@@ -114,12 +110,7 @@ body {
     flex-shrink: 0;
 }
 
-#sidebar.hidden {
-    width: 0;
-    min-width: 0;
-    opacity: 0;
-    pointer-events: none;
-}
+#sidebar.hidden { width: 0; min-width: 0; opacity: 0; pointer-events: none; }
 
 #sidebar-header {
     padding: 14px 12px 10px;
@@ -154,6 +145,19 @@ body {
 #sidebar-content::-webkit-scrollbar-track { background: transparent; }
 #sidebar-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
+/* ── Sidebar footer (timestamp) ─────────────────────────────────────────── */
+#sidebar-footer {
+    padding: 8px 12px;
+    border-top: 1px solid var(--sb-border);
+    font-size: 0.65rem;
+    color: var(--text-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+/* ── TOC groups ─────────────────────────────────────────────────────────── */
 .toc-group { margin-bottom: 4px; }
 
 .toc-pkg {
@@ -168,9 +172,20 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
 }
 
 .toc-pkg:hover { color: var(--text); }
+
+.toc-arrow {
+    font-size: 0.6rem;
+    opacity: 0.5;
+    transition: transform 0.15s;
+    flex-shrink: 0;
+}
 
 .toc-list { list-style: none; padding: 0 0 4px 0; }
 
@@ -188,21 +203,17 @@ body {
     transition: background 0.1s, color 0.1s;
 }
 
-.toc-link:hover          { background: var(--sb-hover); color: var(--text); }
-.toc-link.toc-struct     { border-color: var(--badge-struct-fg); }
-.toc-link.toc-enum       { border-color: var(--badge-enum-fg); }
-.toc-link.toc-proc       { border-color: var(--badge-proc-fg); }
-.toc-link.toc-union      { border-color: var(--badge-union-fg); }
+.toc-link:hover        { background: var(--sb-hover); color: var(--text); }
+.toc-link.active       { color: var(--text); background: var(--sb-hover); font-weight: 600; }
+.toc-link.toc-struct   { border-color: var(--badge-struct-fg); }
+.toc-link.toc-enum     { border-color: var(--badge-enum-fg); }
+.toc-link.toc-proc     { border-color: var(--badge-proc-fg); }
+.toc-link.toc-union    { border-color: var(--badge-union-fg); }
 
 /* ============================================================================
    Main panel
    ========================================================================== */
-#main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 header {
     padding: 14px 20px 10px;
@@ -214,8 +225,11 @@ header {
     background: var(--bg2);
 }
 
-#header-left { display: flex; align-items: center; gap: 12px; }
+#header-left  { display: flex; align-items: center; gap: 12px; }
 #header-right { display: flex; align-items: center; gap: 6px; }
+
+/* ── Title row with GitHub icon ─────────────────────────────────────────── */
+#title-row { display: flex; align-items: center; gap: 8px; }
 
 h1 {
     font-size: 1rem;
@@ -224,6 +238,18 @@ h1 {
     letter-spacing: 0.01em;
     line-height: 1.2;
 }
+
+#github-link {
+    display: flex;
+    align-items: center;
+    color: var(--text-dim);
+    opacity: 0.6;
+    transition: opacity 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+
+#github-link:hover { opacity: 1; color: var(--text); }
+#github-link svg   { width: 16px; height: 16px; display: block; }
 
 .tagline { color: var(--text-dim); font-size: 0.72rem; margin-top: 2px; }
 
@@ -240,10 +266,9 @@ button {
     transition: background 0.1s, color 0.1s, border-color 0.1s;
 }
 
-button:hover { background: var(--card-hover); color: var(--text); }
-
-/* Shared class for icon-only buttons (sidebar + theme toggles) */
-.icon-btn { font-size: 0.95rem; padding: 3px 8px; border-color: transparent; }
+button:hover     { background: var(--card-hover); color: var(--text); }
+button:disabled  { opacity: 0.3; cursor: default; }
+.icon-btn        { font-size: 0.95rem; padding: 3px 8px; border-color: transparent; }
 
 /* ── Toolbar ────────────────────────────────────────────────────────────── */
 #toolbar {
@@ -268,16 +293,15 @@ button:hover { background: var(--card-hover); color: var(--text); }
     outline: none;
     font-family: monospace;
     font-size: 12px;
-    /* Reset browser-native styling (Safari adds rounded corners by default) */
     -webkit-appearance: none;
     appearance: none;
     transition: border-color 0.15s;
 }
 
-#search:focus       { border-color: var(--accent); }
+#search:focus        { border-color: var(--accent); }
 #search::placeholder { color: var(--text-faint); }
 
-#filter-btns  { display: flex; gap: 4px; }
+#filter-btns   { display: flex; gap: 4px; }
 #toolbar-right { display: flex; gap: 4px; margin-left: auto; }
 
 .filter-btn {
@@ -286,15 +310,21 @@ button:hover { background: var(--card-hover); color: var(--text); }
     border-color: var(--border2);
 }
 
-/* Single rule handles all category active states via CSS custom property
-   set inline on each button in the HTML. */
+.filter-count {
+    font-size: 0.65rem;
+    opacity: 0.65;
+    margin-left: 2px;
+}
+
 .filter-btn.active {
     background: var(--btn-color, var(--accent));
     border-color: var(--btn-color, var(--accent));
     color: #fff;
 }
 
-/* ── Content scroll area ────────────────────────────────────────────────── */
+.filter-btn.active .filter-count { opacity: 0.8; }
+
+/* ── Content area ───────────────────────────────────────────────────────── */
 #api-root {
     overflow-y: auto;
     flex: 1;
@@ -306,7 +336,7 @@ button:hover { background: var(--card-hover); color: var(--text); }
 #api-root::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
 /* ── File sections ──────────────────────────────────────────────────────── */
-.file-section            { margin-top: 24px; }
+.file-section             { margin-top: 24px; }
 .file-section:first-child { margin-top: 16px; }
 
 .file-header {
@@ -319,14 +349,42 @@ button:hover { background: var(--card-hover); color: var(--text); }
     border: 1px solid var(--border);
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
 }
 
-/* ── Details / summary ──────────────────────────────────────────────────── */
+.file-sym-count {
+    margin-left: auto;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--text-faint);
+    font-family: monospace;
+    letter-spacing: 0;
+}
+
+/* ── Details / summary — smooth open animation ──────────────────────────── */
 details {
     border: 1px solid var(--border);
     border-top: none;
     background: var(--card);
     transition: background 0.1s;
+}
+
+/* Height transition for smooth open/close */
+details .content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s ease;
+    overflow: hidden;
+}
+
+details.is-open .content {
+    grid-template-rows: 1fr;
+}
+
+/* Inner wrapper needed for grid trick */
+details .content > * {
+    min-height: 0;
 }
 
 summary {
@@ -354,7 +412,6 @@ summary:hover { background: var(--card-hover); }
     opacity: 0.85;
 }
 
-/* Badges */
 .badge {
     margin-left: auto;
     font-size: 0.65rem;
@@ -394,6 +451,44 @@ summary:hover { background: var(--card-hover); }
 
 .sig-val { color: var(--text); }
 .sig-ret { color: var(--m-teal); }
+
+/* ── "Used by" back-link bar ─────────────────────────────────────────────── */
+.refs-bar {
+    padding: 5px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.refs-label {
+    font-size: 0.65rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.ref-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-family: monospace;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    transition: background 0.1s;
+}
+
+.ref-link:hover {
+    background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
 
 /* ── Code block ─────────────────────────────────────────────────────────── */
 .content { border-top: 1px solid var(--border); }
@@ -444,14 +539,13 @@ summary:hover { background: var(--card-hover); }
 }
 
 /* ============================================================================
-   Syntax token colours (Monokai)
+   Syntax tokens (Monokai)
    ========================================================================== */
 .hl-cm  { color: var(--m-gray);   font-style: italic; }
 .hl-str { color: var(--m-yellow); }
 .hl-kw  { color: var(--m-pink);   font-weight: 600; }
 .hl-ty  { color: var(--m-blue); }
 .hl-fn  { color: var(--m-green); }
-/* .hl-bi uses teal — visually distinct from .hl-ty (blue) */
 .hl-bi  { color: var(--m-teal);   font-style: italic; }
 .hl-bl  { color: var(--m-purple); }
 .hl-nm  { color: var(--m-purple); }
@@ -459,49 +553,7 @@ summary:hover { background: var(--card-hover); }
 .hl-at  { color: var(--m-orange); font-style: italic; }
 .hl-op  { color: var(--m-pink);   opacity: 0.8; }
 
-/* ============================================================================
-   Responsive
-   ========================================================================== */
-/* ── GitHub link in header ──────────────────────────────────────────────── */
-#title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#github-link {
-    display: flex;
-    align-items: center;
-    color: var(--text-dim);
-    opacity: 0.6;
-    transition: opacity 0.15s, color 0.15s;
-    flex-shrink: 0;
-}
-
-#github-link:hover { opacity: 1; color: var(--text); }
-
-#github-link svg {
-    width: 16px;
-    height: 16px;
-    display: block;
-}
-
-/* ── Symbol count badge in file header ──────────────────────────────────── */
-.file-sym-count {
-    margin-left: auto;
-    font-size: 0.65rem;
-    font-weight: 400;
-    color: var(--text-faint);
-    font-family: monospace;
-    letter-spacing: 0;
-}
-
-.file-header {
-    display: flex;
-    align-items: center;
-}
-
-/* ── Cross-reference links inside code blocks ───────────────────────────── */
+/* ── Cross-reference links ───────────────────────────────────────────────── */
 .sym-link {
     color: inherit;
     text-decoration: none;
@@ -511,21 +563,77 @@ summary:hover { background: var(--card-hover); }
     transition: opacity 0.1s;
 }
 
-.sym-link:hover {
-    opacity: 1;
-    border-bottom-style: solid;
-}
+.sym-link:hover { opacity: 1; border-bottom-style: solid; }
 
-/* Flash animation — briefly highlights the target <details> after jump */
+/* ── Flash animation ─────────────────────────────────────────────────────── */
 @keyframes sym-flash {
     0%   { outline: 2px solid var(--accent); outline-offset: -1px; }
     100% { outline: 2px solid transparent;   outline-offset: -1px; }
 }
 
-details.flash {
-    animation: sym-flash 0.8s ease-out forwards;
+details.flash { animation: sym-flash 0.8s ease-out forwards; }
+
+/* ── Help modal ─────────────────────────────────────────────────────────── */
+#help-modal {
+    position: fixed;
+    inset: 0;
+    background: #00000088;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.15s;
 }
 
+#help-modal[aria-hidden="true"]  { opacity: 0; pointer-events: none; }
+#help-modal[aria-hidden="false"] { opacity: 1; }
+
+#help-box {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 20px 24px;
+    min-width: 260px;
+}
+
+#help-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+    color: var(--text);
+}
+
+.help-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    gap: 20px;
+}
+
+kbd {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+#help-close {
+    margin-top: 16px;
+    width: 100%;
+    padding: 6px;
+    font-size: 0.8rem;
+}
+
+/* ============================================================================
+   Responsive
+   ========================================================================== */
 @media (max-width: 700px) {
     #sidebar      { display: none; }
     body          { overflow: auto; }
@@ -534,4 +642,5 @@ details.flash {
     header        { padding: 10px; }
     #toolbar      { padding: 6px 10px; }
     .badge        { display: none; }
+    .filter-count { display: none; }
 }
