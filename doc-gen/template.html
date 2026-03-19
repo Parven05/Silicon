@@ -8,10 +8,9 @@
 </head>
 <body>
 
-<!-- TOC data and item count injected by gen.py into inert JSON script tags.
-     Keeping them out of the main <script> block means the JS is always
-     syntactically valid before gen.py runs, so VS Code does not flag errors. -->
-<script id="toc-data" type="application/json">{{toc_json}}</script>
+<!-- TOC data injected by gen.py into inert JSON script tags.
+     These are never executed as JS, so placeholders are valid before gen.py runs. -->
+<script id="toc-data"  type="application/json">{{toc_json}}</script>
 <script id="meta-data" type="application/json">{"item_count": {{item_count}}}</script>
 
 <!-- Sidebar -->
@@ -62,45 +61,52 @@
 "use strict";
 
 // ============================================================================
-// 1. Read injected data from JSON script tags (always valid JS before gen.py)
+// 1. Read injected data (JSON script tags — never executed as JS)
 // ============================================================================
-const TOC        = JSON.parse(document.getElementById("toc-data").textContent);
-const META       = JSON.parse(document.getElementById("meta-data").textContent);
+var TOC  = JSON.parse(document.getElementById("toc-data").textContent);
+var META = JSON.parse(document.getElementById("meta-data").textContent);
 
 document.getElementById("sidebar-count").textContent = META.item_count + " symbols";
 
 // ============================================================================
 // 2. Odin syntax highlighter — zero dependencies, single-pass
+//    Fix: capture group offset computed via regex indices, not string search,
+//    so a proc named "proc" or a type named "struct" highlights correctly.
 // ============================================================================
 (function () {
-    const RULES = [
-        // Block comments
-        { cls: "cm", re: /\/\*[\s\S]*?\*\//g },
+    // Rules with cap:true use a capturing group — the group index is always 1.
+    // We rely on m.index + offset computed from the match object, not indexOf,
+    // to handle cases where the capture text appears earlier in the full match.
+    var RULES = [
+        // Block comments — highest priority; claim before anything else
+        { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
         // Line comments
-        { cls: "cm", re: /\/\/[^\n]*/g },
+        { cls: "cm",  re: /\/\/[^\n]*/g },
         // Strings (double-quoted)
         { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
-        // Character literals (single-quoted)
+        // Character literals
         { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
-        // Procedure name: foo :: proc
-        { cls: "fn",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*proc\b)/g,               cap: 1 },
-        // Type name: Foo :: struct / enum / union
-        { cls: "ty",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*(?:struct|enum|union)\b)/g, cap: 1 },
+        // Procedure name before ::  proc  — cap group 1 = the name only
+        // We use a two-group pattern: (name)(whitespace :: proc) so group 1
+        // is reliably the name without any ambiguity.
+        { cls: "fn",  re: /\b([A-Za-z_]\w*)(\s*::\s*proc\b)/g,                cap: true },
+        // Type name before :: struct/enum/union — same two-group approach
+        { cls: "ty",  re: /\b([A-Za-z_]\w*)(\s*::\s*(?:struct|enum|union)\b)/g, cap: true },
         // Keywords
         { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
         // Built-in types
         { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
         // Booleans and nil
         { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
-        // Built-in procedures
+        // Built-in procedures — teal, not blue, to distinguish from types
         { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
         // Compiler directives
         { cls: "dr",  re: /#\w+/g },
         // Attributes
-        { cls: "at",  re: /@\s*\([^)]*\)|@\w+/g },
-        // Numeric literals (hex, binary, octal, float, int)
+        { cls: "at",  re: /@(?:\([^)]*\)|\w+)/g },
+        // Numeric literals
         { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
-        // Operators and punctuation
+        // Operators
         { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
     ];
 
@@ -109,36 +115,44 @@ document.getElementById("sidebar-count").textContent = META.item_count + " symbo
     }
 
     function highlight(raw) {
-        const n       = raw.length;
-        const covered = new Uint8Array(n);
-        const matches = [];
+        var n       = raw.length;
+        var covered = new Uint8Array(n);
+        var matches = [];
 
-        for (const rule of RULES) {
+        for (var ri = 0; ri < RULES.length; ri++) {
+            var rule = RULES[ri];
             rule.re.lastIndex = 0;
-            let m;
+            var m;
             while ((m = rule.re.exec(raw)) !== null) {
-                const fStart  = m.index;
-                const hlStart = rule.cap != null
-                    ? fStart + m[0].indexOf(m[rule.cap])
-                    : fStart;
-                const hlEnd = hlStart + (rule.cap != null ? m[rule.cap].length : m[0].length);
+                var hlStart, hlEnd;
+                if (rule.cap) {
+                    // group 1 is the name; group 2 is the :: suffix.
+                    // m.index is the start of the whole match.
+                    // group 1 always starts at m.index (it is the first thing matched).
+                    hlStart = m.index;
+                    hlEnd   = m.index + m[1].length;
+                } else {
+                    hlStart = m.index;
+                    hlEnd   = m.index + m[0].length;
+                }
 
-                let skip = false;
-                for (let i = hlStart; i < hlEnd; i++) {
+                var skip = false;
+                for (var i = hlStart; i < hlEnd; i++) {
                     if (covered[i]) { skip = true; break; }
                 }
                 if (skip) continue;
 
-                for (let i = hlStart; i < hlEnd; i++) covered[i] = 1;
+                for (var j = hlStart; j < hlEnd; j++) covered[j] = 1;
                 matches.push([hlStart, hlEnd, rule.cls]);
             }
         }
 
-        matches.sort((a, b) => a[0] - b[0]);
+        matches.sort(function (a, b) { return a[0] - b[0]; });
 
-        let out = "";
-        let pos = 0;
-        for (const [s, e, cls] of matches) {
+        var out = "";
+        var pos = 0;
+        for (var k = 0; k < matches.length; k++) {
+            var s = matches[k][0], e = matches[k][1], cls = matches[k][2];
             if (s > pos) out += esc(raw.slice(pos, s));
             out += "<span class=\"hl-" + cls + "\">" + esc(raw.slice(s, e)) + "</span>";
             pos = e;
@@ -148,11 +162,12 @@ document.getElementById("sidebar-count").textContent = META.item_count + " symbo
     }
 
     window.highlightAll = function (root) {
-        const scope = root || document;
-        scope.querySelectorAll("code.language-odin:not([data-hl])").forEach(function (el) {
-            el.dataset.hl = "1";
-            el.innerHTML = highlight(el.textContent);
-        });
+        var scope = root || document;
+        var els = scope.querySelectorAll("code.language-odin:not([data-hl])");
+        for (var i = 0; i < els.length; i++) {
+            els[i].dataset.hl = "1";
+            els[i].innerHTML = highlight(els[i].textContent);
+        }
     };
 }());
 
@@ -161,17 +176,17 @@ document.getElementById("sidebar-count").textContent = META.item_count + " symbo
 // ============================================================================
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Highlight all visible code blocks on load
+    // Highlight all visible code on load
     window.highlightAll();
 
-    // Re-highlight when a details block is opened (lazy blocks)
+    // Re-highlight lazily when a <details> is opened
     document.addEventListener("toggle", function (e) {
         if (e.target.tagName === "DETAILS" && e.target.open) {
             window.highlightAll(e.target);
         }
     }, true);
 
-    // Sidebar build
+    // Build sidebar from TOC data
     var sidebarContent = document.getElementById("sidebar-content");
     for (var pkg in TOC) {
         if (!Object.prototype.hasOwnProperty.call(TOC, pkg)) continue;
@@ -197,19 +212,20 @@ document.addEventListener("DOMContentLoaded", function () {
         syms.forEach(function (sym) {
             var li = document.createElement("li");
             var a  = document.createElement("a");
-            a.href      = "#item-" + sym.name;
-            a.className = "toc-link toc-" + sym.cat.toLowerCase();
+            // Use the collision-free id generated by gen.py
+            a.href        = "#" + sym.id;
+            a.className   = "toc-link toc-" + sym.cat.toLowerCase();
             a.textContent = sym.name;
-            (function (name) {
+            (function (itemId) {
                 a.onclick = function (ev) {
                     ev.preventDefault();
-                    var el = document.getElementById("item-" + name);
+                    var el = document.getElementById(itemId);
                     if (el) {
                         el.open = true;
                         el.scrollIntoView({ behavior: "smooth", block: "start" });
                     }
                 };
-            }(sym.name));
+            }(sym.id));
             li.appendChild(a);
             list.appendChild(li);
         });
@@ -218,8 +234,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Sidebar toggle
-    var sidebar    = document.getElementById("sidebar");
-    var mainEl     = document.getElementById("main");
+    var sidebar     = document.getElementById("sidebar");
+    var mainEl      = document.getElementById("main");
     var sidebarOpen = true;
 
     function setSidebar(open) {
@@ -233,14 +249,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("sidebar-toggle").onclick = function () { setSidebar(!sidebarOpen); };
 
     // Theme toggle
-    var html = document.documentElement;
+    var htmlEl = document.documentElement;
     function setTheme(t) {
-        html.dataset.theme = t;
+        htmlEl.dataset.theme = t;
         localStorage.setItem("theme", t);
     }
     setTheme(localStorage.getItem("theme") || "dark");
     document.getElementById("theme-toggle").onclick = function () {
-        setTheme(html.dataset.theme === "dark" ? "light" : "dark");
+        setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark");
     };
 
     // Search + category filter
@@ -251,14 +267,15 @@ document.addEventListener("DOMContentLoaded", function () {
     function applyFilters() {
         var term = searchEl.value.toLowerCase();
         document.querySelectorAll("details").forEach(function (el) {
-            var nameEl = el.querySelector("summary .item-name");
+            var nameEl  = el.querySelector("summary .item-name");
             var badgeEl = el.querySelector(".badge");
-            var name = nameEl ? nameEl.textContent.toLowerCase() : "";
-            var cat  = badgeEl ? badgeEl.textContent.trim() : "";
-            var nameOk = name.indexOf(term) !== -1;
-            var catOk  = activeCat === "ALL" || cat === activeCat;
+            var name    = nameEl  ? nameEl.textContent.toLowerCase() : "";
+            var cat     = badgeEl ? badgeEl.textContent.trim()        : "";
+            var nameOk  = name.indexOf(term) !== -1;
+            var catOk   = activeCat === "ALL" || cat === activeCat;
             el.style.display = (nameOk && catOk) ? "" : "none";
         });
+        // Hide file-section headers when all their children are filtered out
         document.querySelectorAll(".file-section").forEach(function (sec) {
             var anyVisible = false;
             sec.querySelectorAll("details").forEach(function (d) {
@@ -279,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     });
 
-    // Expand / collapse all
+    // Expand / collapse all (respects current filter)
     document.getElementById("expand-all").onclick = function () {
         document.querySelectorAll("details").forEach(function (d) {
             if (d.style.display !== "none") {
@@ -293,9 +310,11 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll("details").forEach(function (d) { d.open = false; });
     };
 
-    // Copy code
+    // Copy code — use closest("details") so it works regardless of
+    // how deeply nested the button is inside the content div.
     window.copyCode = function (btn) {
-        var code = btn.closest(".content").querySelector("code");
+        var code = btn.closest("details").querySelector("code");
+        if (!code) return;
         navigator.clipboard.writeText(code.textContent).then(function () {
             var orig = btn.textContent;
             btn.textContent = "✓";
@@ -319,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (e.key === "s" || e.key === "S") { setSidebar(!sidebarOpen); return; }
         if (e.key === "t" || e.key === "T") {
-            setTheme(html.dataset.theme === "dark" ? "light" : "dark");
+            setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark");
             return;
         }
         if ((e.ctrlKey || e.metaKey) && e.key === "k") {

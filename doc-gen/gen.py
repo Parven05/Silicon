@@ -25,8 +25,9 @@ SORT_ORDER = {"STRUCT": 1, "ENUM": 2, "PROC": 3}
 # ---------------------------------------------------------------------------
 _DECL_RE = re.compile(r"(\w+)\s*::\s*(struct|proc|enum|union)")
 _RET_RE = re.compile(r"->\s*([^{]+)")
-_PARAM_RE = re.compile(r"\(([^)]*)\)")
-_ATTR_RE = re.compile(r"@\s*\([^)]*\)|@\w+")
+# Matches @(anything) or @word — used with .match() not .fullmatch()
+# so it correctly handles attributes even when stripped line has trailing content.
+_ATTR_RE = re.compile(r"@(?:\([^)]*\)|\w+)\s*$")
 _WS_RE = re.compile(r"\s+")
 
 
@@ -62,47 +63,49 @@ def get_block(text: str, start: int) -> str | None:
     return None  # unclosed brace; skip
 
 
-def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str]]:
+def _extract_proc_params(decl_line: str) -> str:
     """
-    Walk backwards from `match_start` and collect:
-      - contiguous comment lines  (returned as plain strings, stripped)
-      - @attribute lines          (returned as plain strings, stripped)
-    A blank line stops collection once any content has been seen.
+    Extract the parameter list from a proc declaration line, handling nested
+    parentheses correctly (e.g. `foo :: proc(cb: proc() -> b, x: int)`).
+    Searches for `:: proc` then reads the balanced parens after it.
+    Returns the inner content, or "" if not found.
     """
-    lines = text[:match_start].splitlines()
-    comments: list[str] = []
-    attrs: list[str] = []
+    # Find the start of the parameter list — the '(' that follows ':: proc'
+    proc_idx = decl_line.find(":: proc")
+    if proc_idx == -1:
+        return ""
+    search_from = proc_idx + len(":: proc")
 
-    for line in reversed(lines):
-        stripped = line.strip()
-        if _ATTR_RE.fullmatch(stripped):
-            attrs.insert(0, stripped)
-        elif stripped.startswith(("//", "/*")) or stripped.endswith("*/"):
-            comments.insert(0, stripped)
-        elif stripped == "" and not comments and not attrs:
-            continue
-        else:
-            break
+    paren_start = decl_line.find("(", search_from)
+    if paren_start == -1:
+        return ""
 
-    return comments, attrs
+    depth = 0
+    for i in range(paren_start, len(decl_line)):
+        ch = decl_line[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                inner = decl_line[paren_start + 1 : i]
+                return _WS_RE.sub(" ", inner.strip())
+
+    return ""  # unbalanced — skip
 
 
 def extract_signature(block: str, cat: str) -> dict[str, str]:
     """
-    For PROC blocks extract params and return type.
-    Returns {"params": str, "returns": str} - both may be empty.
+    For PROC blocks extract params (depth-aware) and return type.
+    Returns {"params": str, "returns": str} — both may be empty.
     """
     if cat != "PROC":
         return {"params": "", "returns": ""}
 
     first_line = block.split("\n")[0]
-    params = ""
+    params = _extract_proc_params(first_line)
+
     returns = ""
-
-    pm = _PARAM_RE.search(first_line)
-    if pm:
-        params = _WS_RE.sub(" ", pm.group(1).strip())
-
     rm = _RET_RE.search(first_line)
     if rm:
         returns = _WS_RE.sub(" ", rm.group(1).strip().rstrip("{").strip())
@@ -110,10 +113,49 @@ def extract_signature(block: str, cat: str) -> dict[str, str]:
     return {"params": params, "returns": returns}
 
 
+def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str]]:
+    """
+    Walk backwards from `match_start` and collect, in source order:
+      - @attribute lines  (sit directly above the declaration)
+      - comment lines     (sit above the attributes)
+    A blank line stops collection once any content has been seen.
+
+    Return order: (comments, attrs) — comments first so format_snippet
+    can emit them in the correct source order: comments -> attrs -> decl.
+    """
+    lines = text[:match_start].splitlines()
+    comments: list[str] = []
+    attrs: list[str] = []
+    seen_any = False
+
+    for line in reversed(lines):
+        stripped = line.strip()
+        if _ATTR_RE.search(stripped):
+            # Only treat as attribute if the line IS an attribute (not code
+            # that happens to contain @something in the middle).
+            attrs.insert(0, stripped)
+            seen_any = True
+        elif stripped.startswith(("//", "/*")) or stripped.endswith("*/"):
+            comments.insert(0, stripped)
+            seen_any = True
+        elif stripped == "" and not seen_any:
+            # Blank line before we have seen anything — keep scanning
+            continue
+        else:
+            # Non-empty, non-comment, non-attribute line — stop
+            break
+
+    return comments, attrs
+
+
 def format_snippet(comments: list[str], attrs: list[str], block: str) -> str:
-    """Dedent code block, prepend attributes then comments."""
+    """
+    Dedent the code block, then prepend in correct source order:
+    comments -> attributes -> declaration block.
+    """
     dedented = textwrap.dedent(block).rstrip()
-    prefix = attrs + comments
+    # Correct order: comments first, then attributes, then the block
+    prefix = comments + attrs
     return "\n".join(prefix + [dedented]).strip()
 
 
@@ -123,6 +165,15 @@ def package_path(file_path: Path, source_dir: Path) -> str:
         return str(file_path.relative_to(source_dir))
     except ValueError:
         return file_path.name
+
+
+def make_item_id(pkg: str, name: str) -> str:
+    """
+    Build a collision-free HTML id from package path + symbol name.
+    e.g. 'renderer/mesh.odin' + 'Mesh' -> 'renderer-mesh-odin--Mesh'
+    """
+    safe_pkg = re.sub(r"[^A-Za-z0-9]", "-", pkg)
+    return f"{safe_pkg}--{name}"
 
 
 # ---------------------------------------------------------------------------
@@ -151,6 +202,7 @@ def _build_sig_html(item: dict) -> str:
 
 
 def build_item_html(item: dict) -> str:
+    item_id = escape(item["id"])
     name = escape(item["name"])
     cat = item["cat"]
     pkg = escape(item["pkg"])
@@ -162,7 +214,7 @@ def build_item_html(item: dict) -> str:
     )
 
     parts = [
-        f"\n        <details id='item-{name}'>",
+        f"\n        <details id='{item_id}'>",
         "\n            <summary>",
         f"<span class='item-name'>{name}</span>",
         attrs_html,
@@ -229,8 +281,10 @@ def parse_source(source_dir: Path) -> list[dict]:
 
             comments, attrs = preceding_metadata(content, m.start())
             sig = extract_signature(block, cat)
+            item_id = make_item_id(pkg, name)
 
             items.append({
+                "id": item_id,
                 "name": name,
                 "cat": cat,
                 "file": path.name,
@@ -258,6 +312,7 @@ def main() -> None:
     toc_data: dict[str, list[dict]] = {}
     for item in items:
         toc_data.setdefault(item["pkg"], []).append({
+            "id": item["id"],
             "name": item["name"],
             "cat": item["cat"],
         })

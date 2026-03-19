@@ -69,7 +69,7 @@
     --m-green:     #5a8a1a;
     --m-blue:      #1a7a9a;
     --m-yellow:    #8a6a00;
-    --m-gray:      #909090;
+    --m-gray:      #6e6e6e;
     --m-purple:    #7a50c8;
     --m-orange:    #c07020;
     --m-teal:      #1a9a80;
@@ -340,7 +340,6 @@ details {
     transition: background 0.1s;
 }
 
-details[open] { background: var(--card); }
 
 summary {
     padding: 7px 12px;
@@ -464,7 +463,7 @@ summary:hover { background: var(--card-hover); }
 .hl-kw  { color: var(--m-pink);   font-weight: 600; }
 .hl-ty  { color: var(--m-blue); }
 .hl-fn  { color: var(--m-green); }
-.hl-bi  { color: var(--m-blue);   font-style: italic; }
+.hl-bi  { color: var(--m-teal);   font-style: italic; }
 .hl-bl  { color: var(--m-purple); }
 .hl-nm  { color: var(--m-purple); }
 .hl-dr  { color: var(--m-orange); }
