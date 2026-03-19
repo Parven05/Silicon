@@ -29,7 +29,7 @@
             <button id="sidebar-toggle" class="icon-btn" title="Toggle sidebar (S)">&#9776;</button>
             <div>
                 <h1>Silicon Rendering Engine</h1>
-                <div class="tagline">Technical Documentation</div>
+                <div class="tagline">Core Technical Documentation</div>
             </div>
         </div>
         <div id="header-right">
@@ -61,25 +61,29 @@
 "use strict";
 
 // ============================================================================
-// 1. Read injected data (never executed as JS — safe before gen.py runs)
+// 1. Read injected data
 // ============================================================================
 var TOC  = JSON.parse(document.getElementById("toc-data").textContent);
 var META = JSON.parse(document.getElementById("meta-data").textContent);
 
 document.getElementById("sidebar-count").textContent = META.item_count + " symbols";
 
+// Build a flat name -> id map from TOC for O(1) lookup during linking.
+// If the same name exists in multiple files, the first one wins (consistent
+// with declaration order since gen.py sorts by file then name).
+var SYMBOL_MAP = Object.create(null);
+Object.entries(TOC).forEach(function (entry) {
+    entry[1].forEach(function (sym) {
+        if (!SYMBOL_MAP[sym.name]) {
+            SYMBOL_MAP[sym.name] = sym.id;
+        }
+    });
+});
+
 // ============================================================================
 // 2. Odin syntax highlighter — zero dependencies, single-pass
 // ============================================================================
 (function () {
-    // Each rule claims character ranges in a Uint8Array so later rules cannot
-    // overwrite already-claimed regions (comments beat keywords, etc.).
-    //
-    // Rules with cap:true use TWO capture groups:
-    //   group 1 = the identifier to colour
-    //   group 2 = the :: suffix (consumed but not coloured)
-    // hlStart = m.index (group 1 always starts at the match start)
-    // hlEnd   = m.index + m[1].length  (exact, no indexOf needed)
     var RULES = [
         { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
         { cls: "cm",  re: /\/\/[^\n]*/g },
@@ -101,14 +105,10 @@ document.getElementById("sidebar-count").textContent = META.item_count + " symbo
         return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // Reusable buffer — resized as needed, avoiding per-call allocation on
-    // pages with many symbols.
     var _covered = new Uint8Array(0);
 
     function highlight(raw) {
         var n = raw.length;
-
-        // Grow the shared buffer if needed, then zero the relevant slice
         if (_covered.length < n) {
             _covered = new Uint8Array(n * 2);
         } else {
@@ -125,14 +125,12 @@ document.getElementById("sidebar-count").textContent = META.item_count + " symbo
                 var hlStart = m.index;
                 var hlEnd   = rule.cap ? m.index + m[1].length : m.index + m[0].length;
 
-                // Check overlap
                 var skip = false;
                 for (var i = hlStart; i < hlEnd; i++) {
                     if (_covered[i]) { skip = true; break; }
                 }
                 if (skip) continue;
 
-                // Claim range
                 for (var j = hlStart; j < hlEnd; j++) _covered[j] = 1;
                 matches.push([hlStart, hlEnd, rule.cls]);
             }
@@ -162,25 +160,130 @@ document.getElementById("sidebar-count").textContent = META.item_count + " symbo
 }());
 
 // ============================================================================
-// 3. App bootstrap
+// 3. Cross-reference linker
+//    Runs after highlighting. Walks every text node inside a highlighted
+//    <code> block, finds bare identifiers that match a known symbol, and
+//    wraps them in <a class="sym-link"> pointing to that symbol's <details>.
+//
+//    Only plain text nodes are processed — span children (already highlighted
+//    tokens) are skipped so we never break the highlighting structure.
+//    The declaration line itself is skipped to avoid self-linking.
+// ============================================================================
+(function () {
+    // Matches a bare word boundary identifier — used on raw text node content
+    var IDENT_RE = /\b([A-Za-z_]\w*)\b/g;
+
+    function linkTextNode(textNode, selfName) {
+        var text = textNode.nodeValue;
+        IDENT_RE.lastIndex = 0;
+        var m;
+        var parts = [];
+        var pos = 0;
+        var anyLinked = false;
+
+        while ((m = IDENT_RE.exec(text)) !== null) {
+            var word = m[1];
+            // Skip self-references and words not in the symbol map
+            if (word === selfName || !SYMBOL_MAP[word]) continue;
+
+            var targetId = SYMBOL_MAP[word];
+            // Text before this match
+            if (m.index > pos) {
+                parts.push(document.createTextNode(text.slice(pos, m.index)));
+            }
+            // The linked identifier
+            var a = document.createElement("a");
+            a.className   = "sym-link";
+            a.href        = "#" + targetId;
+            a.textContent = word;
+            a.title       = "Go to " + word;
+            a.onclick = (function (id) {
+                return function (ev) {
+                    ev.preventDefault();
+                    var el = document.getElementById(id);
+                    if (!el) return;
+                    el.open = true;
+                    // Highlight it if not done yet
+                    window.highlightAll(el);
+                    el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    // Flash the target so the user sees where they landed
+                    el.classList.add("flash");
+                    setTimeout(function () { el.classList.remove("flash"); }, 800);
+                };
+            }(targetId));
+            parts.push(a);
+            pos = m.index + word.length;
+            anyLinked = true;
+        }
+
+        if (!anyLinked) return; // nothing to do — leave node untouched
+
+        // Append any trailing text
+        if (pos < text.length) {
+            parts.push(document.createTextNode(text.slice(pos)));
+        }
+
+        // Replace the original text node with the new nodes
+        var parent = textNode.parentNode;
+        parts.forEach(function (node) {
+            parent.insertBefore(node, textNode);
+        });
+        parent.removeChild(textNode);
+    }
+
+    function linkCodeBlock(codeEl) {
+        if (codeEl.dataset.linked) return;
+        codeEl.dataset.linked = "1";
+
+        // Determine the symbol name this block belongs to, so we can skip
+        // self-references on the declaration line.
+        var details = codeEl.closest("details");
+        var selfName = details
+            ? (details.querySelector(".item-name") || {}).textContent || ""
+            : "";
+
+        // Walk only direct children of <code> — these are either:
+        //   - text nodes  (unhighlighted identifiers, whitespace, punctuation)
+        //   - <span>      (highlighted tokens — do NOT descend into these,
+        //                  linking inside a span would break token structure)
+        // We collect nodes first because linkTextNode mutates the DOM.
+        var children = Array.from(codeEl.childNodes);
+        children.forEach(function (node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                linkTextNode(node, selfName);
+            }
+            // Intentionally skip span children — they are highlighted tokens
+        });
+    }
+
+    window.linkAll = function (root) {
+        var els = (root || document).querySelectorAll("code.language-odin[data-hl]:not([data-linked])");
+        for (var i = 0; i < els.length; i++) {
+            linkCodeBlock(els[i]);
+        }
+    };
+}());
+
+// ============================================================================
+// 4. App bootstrap
 // ============================================================================
 document.addEventListener("DOMContentLoaded", function () {
 
-    // --- Initial highlight ---
+    // Highlight then link — order matters: highlight first, then link
     window.highlightAll();
+    window.linkAll();
 
-    // Re-highlight when a <details> is opened (lazy — only that subtree)
+    // When a <details> opens, highlight then link that subtree
     document.addEventListener("toggle", function (e) {
         if (e.target.tagName === "DETAILS" && e.target.open) {
             window.highlightAll(e.target);
+            window.linkAll(e.target);
         }
     }, true);
 
     // --- Sidebar ---
     var sidebarContent = document.getElementById("sidebar-content");
 
-    // Use Object.entries — modern browsers only, consistent with the rest of
-    // the codebase (dataset, classList, querySelectorAll are all modern APIs).
     Object.entries(TOC).forEach(function (entry) {
         var pkg    = entry[0];
         var syms   = entry[1];
@@ -215,6 +318,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     var el = document.getElementById(itemId);
                     if (el) {
                         el.open = true;
+                        window.highlightAll(el);
+                        window.linkAll(el);
                         el.scrollIntoView({ behavior: "smooth", block: "start" });
                     }
                 };
@@ -258,18 +363,14 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // --- Search + category filter ---
-    var searchEl   = document.getElementById("search");
-    var filterBtns = document.querySelectorAll(".filter-btn");
-    var activeCat  = "ALL";
-
-    // Cache all details + their section parents once for fast repeated filtering
-    var allDetails = Array.from(document.querySelectorAll("details"));
+    var searchEl    = document.getElementById("search");
+    var filterBtns  = document.querySelectorAll(".filter-btn");
+    var activeCat   = "ALL";
+    var allDetails  = Array.from(document.querySelectorAll("details"));
     var allSections = Array.from(document.querySelectorAll(".file-section"));
 
     function applyFilters() {
         var term = searchEl.value.toLowerCase();
-
-        // Single pass over details — track visible count per section
         var sectionVisible = new Map();
         allSections.forEach(function (s) { sectionVisible.set(s, false); });
 
@@ -286,7 +387,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Show/hide sections in one pass
         allSections.forEach(function (sec) {
             sec.style.display = sectionVisible.get(sec) ? "" : "none";
         });
@@ -309,6 +409,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (d.style.display !== "none") {
                 d.open = true;
                 window.highlightAll(d);
+                window.linkAll(d);
             }
         });
     };
@@ -318,9 +419,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // --- Copy code ---
-    // Event delegation on #api-root — zero inline handlers in generated HTML.
-    // The onclick="copyCode(this)" in generated HTML still works because
-    // copyCode is on window, but delegation is the cleaner path going forward.
     window.copyCode = function (btn) {
         var details = btn.closest("details");
         if (!details) return;
@@ -328,7 +426,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!code) return;
         navigator.clipboard.writeText(code.textContent).then(function () {
             var orig = btn.textContent;
-            btn.textContent = "\u2713";  // ✓
+            btn.textContent = "\u2713";
             btn.classList.add("copied");
             setTimeout(function () {
                 btn.textContent = orig;
@@ -339,7 +437,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- Keyboard shortcuts ---
     document.addEventListener("keydown", function (e) {
-        // Always handle Escape in search
         if (e.target.tagName === "INPUT") {
             if (e.key === "Escape") {
                 searchEl.value = "";

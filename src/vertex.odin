@@ -1,3 +1,4 @@
+// 4
 package silicon
 
 cube_vertices := []f32 {
