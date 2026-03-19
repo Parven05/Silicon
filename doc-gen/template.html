@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-monokai.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <header><h1>{{title}}</h1><div class="tagline">{{tagline}}</div></header>
+        <input type="text" id="search" placeholder="Search API...">
+        <div id="api-root">{{content}}</div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script>
+        Prism.languages.odin = Prism.languages.extend('clike', {
+            'keyword': /\b(?:package|import|proc|struct|enum|union|return|defer|if|else|for|switch|case|dynamic|map|bit_set)\b/,
+            'operator': /->|::|:=|\.\.|[\+\-\*\/%=<>!&|\^~]+/,
+            'attr-name': /@\w+/,
+            'builtin': /\b(?:[uif]\d+|bool|string|rawptr|any|int|uint)\b/
+        });
+        document.getElementById('search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('details').forEach(el => {
+                const name = el.querySelector('summary').innerText.toLowerCase();
+                el.style.display = name.includes(term) ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

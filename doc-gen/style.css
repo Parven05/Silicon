@@ -1,0 +1,30 @@
+:root {
+    --bg: #121212; --card: #1a1a1a; --text: #dcdcdc; --border: #252525;
+    --m-bg: #272822; --m-pink: #f92672; --m-blue: #66d9ef;
+    --m-green: #a6e22e; --m-yellow: #e6db74; --m-gray: #75715e;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
+.container { width: 100%; max-width: 950px; }
+header { margin-bottom: 20px; border-left: 3px solid #333; padding-left: 15px; }
+h1 { font-size: 1.4rem; margin: 0; color: #fff; }
+.tagline { color: #666; font-size: 0.8rem; }
+#search { width: 100%; background: #1e1e1e; border: 1px solid var(--border); padding: 10px 15px; color: #fff; border-radius: 4px; margin-bottom: 20px; outline: none; }
+
+.file-section { margin-top: 30px; }
+.file-header { font-size: 0.7rem; font-weight: 800; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+
+details { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 4px; background: var(--card); overflow: hidden; }
+summary { padding: 10px 15px; cursor: pointer; display: flex; align-items: center; list-style: none; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #aaa; }
+summary:hover { background: #222; color: #fff; }
+.badge { margin-left: auto; font-size: 0.55rem; padding: 2px 6px; border-radius: 2px; border: 1px solid #333; color: #666; font-weight: 700; }
+
+.content { padding: 0; border-top: 1px solid var(--border); }
+pre[class*="language-"] { margin: 0 !important; padding: 15px !important; background: var(--m-bg) !important; border-radius: 0 !important; }
+code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; text-shadow: none !important; color: #f8f8f2 !important; }
+
+/* Monokai Syntax */
+.token.comment { color: var(--m-gray) !important; }
+.token.keyword, .token.operator { color: var(--m-pink) !important; }
+.token.function { color: var(--m-green) !important; }
+.token.string { color: var(--m-yellow) !important; }
+.token.builtin, .token.attr-name { color: var(--m-blue) !important; }
