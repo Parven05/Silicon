@@ -25,6 +25,9 @@
     <div id="sidebar-footer">Generated <span id="gen-time"></span></div>
 </aside>
 
+<!-- Resize handle -->
+<div id="sidebar-resize" title="Drag to resize sidebar"></div>
+
 <!-- Main -->
 <main id="main">
     <header>
@@ -76,9 +79,6 @@
 <div id="help-modal" aria-hidden="true">
     <div id="help-box">
         <div id="help-title">Keyboard Shortcuts</div>
-        <div class="help-row"><kbd>Ctrl K</kbd><span>Focus search</span></div>
-        <div class="help-row"><kbd>Esc</kbd><span>Clear search / close</span></div>
-        <div class="help-row"><kbd>Enter</kbd><span>Open first result</span></div>
         <div class="help-row"><kbd>S</kbd><span>Toggle sidebar</span></div>
         <div class="help-row"><kbd>T</kbd><span>Toggle theme</span></div>
         <div class="help-row"><kbd>J</kbd><span>Next symbol</span></div>
@@ -316,13 +316,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var pkgLabel = document.createElement("span");
         pkgLabel.className   = "toc-pkg-label";
-        pkgLabel.textContent = pkg;
+        // Strip path prefix and .odin extension — display basename only
+        var pkgBasename = pkg.replace(/^.*[\/]/, "").replace(/\.odin$/i, "");
+        pkgLabel.textContent = pkgBasename;
+
+        var pkgCount = document.createElement("span");
+        pkgCount.className   = "toc-pkg-count";
+        pkgCount.textContent = syms.length;
 
         var arrow = document.createElement("span");
         arrow.className = "toc-arrow";
         arrow.innerHTML = "&#9662;";
 
         hdr.appendChild(pkgLabel);
+        hdr.appendChild(pkgCount);
         hdr.appendChild(arrow);
 
         // Symbol list
@@ -667,6 +674,49 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
         }
     });
+
+    // =========================================================================
+    // Sidebar resize drag
+    // =========================================================================
+    (function () {
+        var handle   = document.getElementById("sidebar-resize");
+        var sb       = document.getElementById("sidebar");
+        var dragging = false;
+        var startX, startW;
+        var MIN_W = 160, MAX_W = 420;
+
+        handle.addEventListener("mousedown", function (e) {
+            dragging = true;
+            startX   = e.clientX;
+            startW   = sb.offsetWidth;
+            handle.classList.add("dragging");
+            document.body.style.cursor     = "col-resize";
+            document.body.style.userSelect = "none";
+        });
+
+        document.addEventListener("mousemove", function (e) {
+            if (!dragging) return;
+            var w = Math.min(MAX_W, Math.max(MIN_W, startW + (e.clientX - startX)));
+            sb.style.width    = w + "px";
+            sb.style.minWidth = w + "px";
+            localStorage.setItem("sidebar-width", w);
+        });
+
+        document.addEventListener("mouseup", function () {
+            if (!dragging) return;
+            dragging = false;
+            handle.classList.remove("dragging");
+            document.body.style.cursor     = "";
+            document.body.style.userSelect = "";
+        });
+
+        // Restore persisted width
+        var saved = parseInt(localStorage.getItem("sidebar-width"), 10);
+        if (saved >= MIN_W && saved <= MAX_W) {
+            sb.style.width    = saved + "px";
+            sb.style.minWidth = saved + "px";
+        }
+    }());
 });
 </script>
 </body>

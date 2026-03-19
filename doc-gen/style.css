@@ -99,8 +99,8 @@ body {
    Sidebar
    ========================================================================== */
 #sidebar {
-    width: 220px;
-    min-width: 220px;
+    width: 240px;
+    min-width: 200px;
     background: var(--sb-bg);
     border-right: 1px solid var(--sb-border);
     display: flex;
@@ -111,6 +111,19 @@ body {
 }
 
 #sidebar.hidden { width: 0; min-width: 0; opacity: 0; pointer-events: none; }
+
+/* Drag-to-resize handle */
+#sidebar-resize {
+    width: 4px;
+    cursor: col-resize;
+    background: transparent;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    z-index: 10;
+}
+
+#sidebar-resize:hover,
+#sidebar-resize.dragging { background: var(--accent); }
 
 #sidebar-header {
     padding: 10px 8px 10px 12px;
@@ -184,7 +197,7 @@ body {
     font-family: monospace;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -266,10 +279,24 @@ body {
 .toc-icon-proc   { background: var(--badge-proc);   color: var(--badge-proc-fg); }
 .toc-icon-union  { background: var(--badge-union);  color: var(--badge-union-fg); }
 
-.toc-link-name { overflow: hidden; text-overflow: ellipsis; }
+.toc-link-name { overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+
+/* Symbol count badge next to each file group */
+.toc-pkg-count {
+    font-size: 0.6rem;
+    color: var(--text-faint);
+    font-weight: 400;
+    flex-shrink: 0;
+    letter-spacing: 0;
+    font-family: monospace;
+}
 
 /* Scroll-spy active file in sidebar */
+.toc-pkg.spy-active {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
 .toc-pkg.spy-active .toc-pkg-label { color: var(--accent); }
+.toc-pkg.spy-active .toc-arrow { opacity: 0.8; }
 
 /* Search highlight inside sidebar names */
 .search-hl {
@@ -304,7 +331,8 @@ h1 {
     font-size: 1rem;
     font-weight: 700;
     color: var(--text);
-    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     line-height: 1.2;
 }
 
@@ -516,7 +544,7 @@ summary:hover { background: var(--card-hover); }
     font-size: 0.65rem;
     color: var(--text-faint);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
 }
 
 .sig-val { color: var(--text); }
@@ -540,7 +568,7 @@ summary:hover { background: var(--card-hover); }
     font-size: 0.65rem;
     color: var(--text-faint);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     margin-right: 4px;
     flex-shrink: 0;
 }

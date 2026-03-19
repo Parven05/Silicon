@@ -235,13 +235,15 @@ def build_html(items: list[dict]) -> str:
         if pkg != last_pkg:
             if last_pkg:
                 parts.append("</div>")
-            safe_id   = escape(_ID_UNSAFE_RE.sub("-", pkg))
-            pkg_label = escape(pkg)
-            sym_count = item["pkg_count"]
+            safe_id    = escape(_ID_UNSAFE_RE.sub("-", pkg))
+            pkg_label  = escape(pkg)
+            # Strip .odin for display — basename only, no extension
+            pkg_display = escape(Path(pkg).stem)
+            sym_count  = item["pkg_count"]
             parts.append(
                 f"<div class='file-section' id='sec-{safe_id}'>"
                 f"<div class='file-header' data-pkg='{pkg_label}'>"
-                f"{pkg_label}"
+                f"{pkg_display}"
                 f"<span class='file-sym-count'>{sym_count}</span>"
                 f"</div>"
             )
