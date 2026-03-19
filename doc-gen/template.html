@@ -308,21 +308,46 @@ document.addEventListener("DOMContentLoaded", function () {
         var group = document.createElement("div");
         group.className = "toc-group";
 
-        // Collapsible file header
+        // Collapsible file header — state persisted in localStorage per pkg
         var hdr = document.createElement("div");
-        hdr.className   = "toc-pkg";
-        hdr.dataset.id  = safeId;
-        hdr.innerHTML   = pkg + "<span class='toc-arrow'>&#9662;</span>";
+        hdr.className  = "toc-pkg";
+        hdr.dataset.id = safeId;
+
+        var pkgLabel = document.createElement("span");
+        pkgLabel.className   = "toc-pkg-label";
+        pkgLabel.textContent = pkg;
+
+        var arrow = document.createElement("span");
+        arrow.className = "toc-arrow";
+        arrow.innerHTML = "&#9662;";
+
+        hdr.appendChild(pkgLabel);
+        hdr.appendChild(arrow);
 
         var list = document.createElement("ul");
         list.className = "toc-list";
 
-        // Toggle collapse on click — scroll to section on double-click / second intent
-        var collapsed = false;
+        // Restore collapse state from localStorage — default is collapsed
+        var storeKey = "toc-collapse-" + safeId;
+        var stored = localStorage.getItem(storeKey);
+        var isCollapsed = stored === null ? true : stored === "1";
+
+        function applyCollapse(animate) {
+            if (isCollapsed) {
+                list.classList.add("collapsed");
+                arrow.style.transform = "rotate(-90deg)";
+            } else {
+                list.classList.remove("collapsed");
+                arrow.style.transform = "";
+            }
+        }
+
+        applyCollapse(false);
+
         hdr.onclick = function () {
-            collapsed = !collapsed;
-            list.style.display = collapsed ? "none" : "";
-            hdr.querySelector(".toc-arrow").style.transform = collapsed ? "rotate(-90deg)" : "";
+            isCollapsed = !isCollapsed;
+            localStorage.setItem(storeKey, isCollapsed ? "1" : "0");
+            applyCollapse(true);
         };
 
         syms.forEach(function (sym) {

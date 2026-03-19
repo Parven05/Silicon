@@ -169,13 +169,19 @@ body {
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: flex;
     align-items: center;
     justify-content: space-between;
     user-select: none;
+    gap: 6px;
+}
+
+.toc-pkg-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
 }
 
 .toc-pkg:hover { color: var(--text); }
@@ -187,7 +193,21 @@ body {
     flex-shrink: 0;
 }
 
-.toc-list { list-style: none; padding: 0 0 4px 0; }
+.toc-list {
+    list-style: none;
+    padding: 0 0 4px 0;
+    overflow: hidden;
+    max-height: 1000px;
+    opacity: 1;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+}
+
+.toc-list.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    pointer-events: none;
+}
 
 .toc-link {
     display: block;
