@@ -113,13 +113,29 @@ body {
 #sidebar.hidden { width: 0; min-width: 0; opacity: 0; pointer-events: none; }
 
 #sidebar-header {
-    padding: 14px 12px 10px;
+    padding: 10px 8px 10px 12px;
     border-bottom: 1px solid var(--sb-border);
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    align-items: center;
+    gap: 6px;
     flex-shrink: 0;
 }
+
+#sidebar-header-btns {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+#sidebar-header-btns button {
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-color: transparent;
+    color: var(--text-faint);
+}
+
+#sidebar-header-btns button:hover { color: var(--text-dim); background: var(--sb-hover); }
 
 #sidebar-title {
     font-weight: 700;
@@ -229,6 +245,39 @@ body {
 .toc-link.toc-enum     { border-color: var(--badge-enum-fg); }
 .toc-link.toc-proc     { border-color: var(--badge-proc-fg); }
 .toc-link.toc-union    { border-color: var(--badge-union-fg); }
+
+/* Type icon in sidebar links */
+.toc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-right: 5px;
+    letter-spacing: 0;
+}
+
+.toc-icon-struct { background: var(--badge-struct); color: var(--badge-struct-fg); }
+.toc-icon-enum   { background: var(--badge-enum);   color: var(--badge-enum-fg); }
+.toc-icon-proc   { background: var(--badge-proc);   color: var(--badge-proc-fg); }
+.toc-icon-union  { background: var(--badge-union);  color: var(--badge-union-fg); }
+
+.toc-link-name { overflow: hidden; text-overflow: ellipsis; }
+
+/* Scroll-spy active file in sidebar */
+.toc-pkg.spy-active .toc-pkg-label { color: var(--accent); }
+
+/* Search highlight inside sidebar names */
+.search-hl {
+    background: color-mix(in srgb, var(--accent) 30%, transparent);
+    color: var(--text);
+    border-radius: 2px;
+    padding: 0 1px;
+}
 
 /* ============================================================================
    Main panel
@@ -349,6 +398,7 @@ button:disabled  { opacity: 0.3; cursor: default; }
     overflow-y: auto;
     flex: 1;
     padding: 0 20px 40px;
+    position: relative;
 }
 
 #api-root::-webkit-scrollbar       { width: 6px; }
@@ -593,6 +643,38 @@ summary:hover { background: var(--card-hover); }
 
 details.flash { animation: sym-flash 0.8s ease-out forwards; }
 
+/* ── No results empty state ─────────────────────────────────────────────── */
+#no-results {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+#no-results[aria-hidden="true"]  { opacity: 0; }
+#no-results[aria-hidden="false"] { opacity: 1; }
+
+#no-results-icon {
+    font-size: 2.5rem;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+}
+
+#no-results-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+}
+
+#no-results-sub {
+    font-size: 0.75rem;
+    color: var(--text-faint);
+}
+
 /* ── Help modal ─────────────────────────────────────────────────────────── */
 #help-modal {
     position: fixed;
@@ -632,6 +714,8 @@ details.flash { animation: sym-flash 0.8s ease-out forwards; }
     color: var(--text-dim);
     gap: 20px;
 }
+
+.help-row span { color: var(--text-dim); }
 
 kbd {
     background: var(--bg2);
