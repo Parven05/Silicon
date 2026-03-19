@@ -3,92 +3,90 @@
    ========================================================================== */
 :root,
 [data-theme="dark"] {
-    --bg:          #1a1a1a;
-    --bg2:         #1e1e1e;
-    --card:        #252525;
-    --card-hover:  #2a2a2a;
-    --border:      #2e2e2e;
-    --border2:     #383838;
-    --text:        #d4d4d4;
-    --text-dim:    #777;
-    --text-faint:  #444;
-    --accent:      #4e8fce;
+    --bg:        #1a1a1a;
+    --bg2:       #1e1e1e;
+    --card:      #252525;
+    --card-hover:#2a2a2a;
+    --border:    #2e2e2e;
+    --border2:   #383838;
+    --text:      #d4d4d4;
+    --text-dim:  #777;
+    --text-faint:#444;
+    --accent:    #4e8fce;
 
-    /* Sidebar */
-    --sb-bg:       #161616;
-    --sb-border:   #2a2a2a;
-    --sb-text:     #999;
-    --sb-hover:    #222;
-    --sb-active:   #4e8fce22;
+    --sb-bg:     #161616;
+    --sb-border: #2a2a2a;
+    --sb-text:   #999;
+    --sb-hover:  #222;
 
-    /* Monokai palette — code blocks only */
-    --m-bg:        #272822;
-    --m-fg:        #f8f8f2;
-    --m-pink:      #f92672;
-    --m-green:     #a6e22e;
-    --m-blue:      #66d9ef;
-    --m-yellow:    #e6db74;
-    --m-gray:      #75715e;
-    --m-purple:    #ae81ff;
-    --m-orange:    #fd971f;
-    --m-teal:      #a1efe4;
+    /* Monokai — code blocks only */
+    --m-bg:     #272822;
+    --m-fg:     #f8f8f2;
+    --m-pink:   #f92672;
+    --m-green:  #a6e22e;
+    --m-blue:   #66d9ef;
+    --m-yellow: #e6db74;
+    --m-gray:   #75715e;
+    --m-purple: #ae81ff;
+    --m-orange: #fd971f;
+    --m-teal:   #a1efe4;
 
     /* Badge colours */
-    --badge-struct: #4e8fce33;
+    --badge-struct:    #4e8fce33;
     --badge-struct-fg: #4e8fce;
-    --badge-enum:   #a6e22e33;
-    --badge-enum-fg: #a6e22e;
-    --badge-proc:   #f9267233;
-    --badge-proc-fg: #f92672;
-    --badge-union:  #ae81ff33;
-    --badge-union-fg: #ae81ff;
+    --badge-enum:      #a6e22e33;
+    --badge-enum-fg:   #a6e22e;
+    --badge-proc:      #f9267233;
+    --badge-proc-fg:   #f92672;
+    --badge-union:     #ae81ff33;
+    --badge-union-fg:  #ae81ff;
 }
 
 /* ── Light theme ─────────────────────────────────────────────────────────── */
 [data-theme="light"] {
-    --bg:          #f5f5f5;
-    --bg2:         #f0f0f0;
-    --card:        #ffffff;
-    --card-hover:  #f8f8f8;
-    --border:      #e0e0e0;
-    --border2:     #d0d0d0;
-    --text:        #1e1e1e;
-    --text-dim:    #666;
-    --text-faint:  #bbb;
-    --accent:      #1a6cb0;
+    --bg:        #f5f5f5;
+    --bg2:       #efefef;
+    --card:      #ffffff;
+    --card-hover:#f8f8f8;
+    --border:    #e0e0e0;
+    --border2:   #d0d0d0;
+    --text:      #1e1e1e;
+    --text-dim:  #666;
+    --text-faint:#bbb;
+    --accent:    #1a6cb0;
 
-    --sb-bg:       #ebebeb;
-    --sb-border:   #ddd;
-    --sb-text:     #555;
-    --sb-hover:    #e2e2e2;
-    --sb-active:   #1a6cb022;
+    --sb-bg:     #ebebeb;
+    --sb-border: #ddd;
+    --sb-text:   #555;
+    --sb-hover:  #e2e2e2;
 
-    --m-bg:        #fafafa;
-    --m-fg:        #272822;
-    --m-pink:      #d0296a;
-    --m-green:     #5a8a1a;
-    --m-blue:      #1a7a9a;
-    --m-yellow:    #8a6a00;
-    --m-gray:      #6e6e6e;
-    --m-purple:    #7a50c8;
-    --m-orange:    #c07020;
-    --m-teal:      #1a9a80;
+    /* Light Monokai — code bg clearly distinct from surrounding card (#fff) */
+    --m-bg:     #e8e8e3;
+    --m-fg:     #272822;
+    --m-pink:   #c0185a;
+    --m-green:  #4e7a10;
+    --m-blue:   #106080;
+    --m-yellow: #7a5800;
+    /* #6e6e6e on #e8e8e3 → ~4.6:1 contrast (passes WCAG AA for small text) */
+    --m-gray:   #6e6e6e;
+    --m-purple: #6a3ab0;
+    --m-orange: #a05c10;
+    --m-teal:   #107060;
 
-    --badge-struct: #1a6cb022;
+    --badge-struct:    #1a6cb022;
     --badge-struct-fg: #1a6cb0;
-    --badge-enum:   #5a8a1a22;
-    --badge-enum-fg: #5a8a1a;
-    --badge-proc:   #d0296a22;
-    --badge-proc-fg: #d0296a;
-    --badge-union:  #7a50c822;
-    --badge-union-fg: #7a50c8;
+    --badge-enum:      #4e7a1022;
+    --badge-enum-fg:   #4e7a10;
+    --badge-proc:      #c0185a22;
+    --badge-proc-fg:   #c0185a;
+    --badge-union:     #6a3ab022;
+    --badge-union-fg:  #6a3ab0;
 }
 
 /* ============================================================================
    Reset
    ========================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body { height: 100%; }
 
 body {
@@ -152,7 +150,7 @@ body {
     padding: 8px 0;
 }
 
-#sidebar-content::-webkit-scrollbar { width: 4px; }
+#sidebar-content::-webkit-scrollbar       { width: 4px; }
 #sidebar-content::-webkit-scrollbar-track { background: transparent; }
 #sidebar-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
@@ -174,10 +172,7 @@ body {
 
 .toc-pkg:hover { color: var(--text); }
 
-.toc-list {
-    list-style: none;
-    padding: 0 0 4px 0;
-}
+.toc-list { list-style: none; padding: 0 0 4px 0; }
 
 .toc-link {
     display: block;
@@ -193,11 +188,11 @@ body {
     transition: background 0.1s, color 0.1s;
 }
 
-.toc-link:hover { background: var(--sb-hover); color: var(--text); }
-.toc-link.toc-struct { border-color: var(--badge-struct-fg); }
-.toc-link.toc-enum   { border-color: var(--badge-enum-fg); }
-.toc-link.toc-proc   { border-color: var(--badge-proc-fg); }
-.toc-link.toc-union  { border-color: var(--badge-union-fg); }
+.toc-link:hover          { background: var(--sb-hover); color: var(--text); }
+.toc-link.toc-struct     { border-color: var(--badge-struct-fg); }
+.toc-link.toc-enum       { border-color: var(--badge-enum-fg); }
+.toc-link.toc-proc       { border-color: var(--badge-proc-fg); }
+.toc-link.toc-union      { border-color: var(--badge-union-fg); }
 
 /* ============================================================================
    Main panel
@@ -207,7 +202,6 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: margin-left 0.2s;
 }
 
 header {
@@ -221,6 +215,7 @@ header {
 }
 
 #header-left { display: flex; align-items: center; gap: 12px; }
+#header-right { display: flex; align-items: center; gap: 6px; }
 
 h1 {
     font-size: 1rem;
@@ -232,9 +227,7 @@ h1 {
 
 .tagline { color: var(--text-dim); font-size: 0.72rem; margin-top: 2px; }
 
-#header-right { display: flex; align-items: center; gap: 6px; }
-
-/* ── Icon buttons ─────────────────────────────────────────────────────────── */
+/* ── Buttons ────────────────────────────────────────────────────────────── */
 button {
     background: none;
     border: 1px solid var(--border2);
@@ -243,16 +236,16 @@ button {
     border-radius: 3px;
     padding: 4px 7px;
     font-size: 0.8rem;
-    transition: background 0.1s, color 0.1s, border-color 0.1s;
     font-family: inherit;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
 }
 
-button:hover { background: var(--card-hover); color: var(--text); border-color: var(--border2); }
+button:hover { background: var(--card-hover); color: var(--text); }
 
-#sidebar-toggle { font-size: 0.95rem; padding: 3px 8px; border-color: transparent; }
-#theme-toggle   { font-size: 1rem;    padding: 3px 7px; }
+/* Shared class for icon-only buttons (sidebar + theme toggles) */
+.icon-btn { font-size: 0.95rem; padding: 3px 8px; border-color: transparent; }
 
-/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+/* ── Toolbar ────────────────────────────────────────────────────────────── */
 #toolbar {
     display: flex;
     align-items: center;
@@ -269,22 +262,23 @@ button:hover { background: var(--card-hover); color: var(--text); border-color: 
     min-width: 140px;
     background: var(--bg);
     border: 1px solid var(--border2);
+    border-radius: 3px;
     padding: 5px 10px;
     color: var(--text);
     outline: none;
     font-family: monospace;
     font-size: 12px;
-    border-radius: 3px;
-    /* Explicit reset: some browsers (Safari, Firefox) add native rounding */
+    /* Reset browser-native styling (Safari adds rounded corners by default) */
     -webkit-appearance: none;
     appearance: none;
     transition: border-color 0.15s;
 }
 
-#search:focus { border-color: var(--accent); }
+#search:focus       { border-color: var(--accent); }
 #search::placeholder { color: var(--text-faint); }
 
-#filter-btns { display: flex; gap: 4px; }
+#filter-btns  { display: flex; gap: 4px; }
+#toolbar-right { display: flex; gap: 4px; margin-left: auto; }
 
 .filter-btn {
     font-size: 0.72rem;
@@ -292,18 +286,13 @@ button:hover { background: var(--card-hover); color: var(--text); border-color: 
     border-color: var(--border2);
 }
 
+/* Single rule handles all category active states via CSS custom property
+   set inline on each button in the HTML. */
 .filter-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--btn-color, var(--accent));
+    border-color: var(--btn-color, var(--accent));
     color: #fff;
 }
-
-.filter-btn[data-cat="STRUCT"].active { background: var(--badge-struct-fg); border-color: var(--badge-struct-fg); }
-.filter-btn[data-cat="ENUM"].active   { background: var(--badge-enum-fg);   border-color: var(--badge-enum-fg); }
-.filter-btn[data-cat="PROC"].active   { background: var(--badge-proc-fg);   border-color: var(--badge-proc-fg); }
-.filter-btn[data-cat="UNION"].active  { background: var(--badge-union-fg);  border-color: var(--badge-union-fg); }
-
-#toolbar-right { display: flex; gap: 4px; margin-left: auto; }
 
 /* ── Content scroll area ────────────────────────────────────────────────── */
 #api-root {
@@ -312,12 +301,12 @@ button:hover { background: var(--card-hover); color: var(--text); border-color: 
     padding: 0 20px 40px;
 }
 
-#api-root::-webkit-scrollbar { width: 6px; }
+#api-root::-webkit-scrollbar       { width: 6px; }
 #api-root::-webkit-scrollbar-track { background: transparent; }
 #api-root::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-/* ── File sections ───────────────────────────────────────────────────────── */
-.file-section { margin-top: 24px; }
+/* ── File sections ──────────────────────────────────────────────────────── */
+.file-section            { margin-top: 24px; }
 .file-section:first-child { margin-top: 16px; }
 
 .file-header {
@@ -332,14 +321,13 @@ button:hover { background: var(--card-hover); color: var(--text); border-color: 
     text-transform: uppercase;
 }
 
-/* ── Details / summary ───────────────────────────────────────────────────── */
+/* ── Details / summary ──────────────────────────────────────────────────── */
 details {
     border: 1px solid var(--border);
     border-top: none;
     background: var(--card);
     transition: background 0.1s;
 }
-
 
 summary {
     padding: 7px 12px;
@@ -382,7 +370,7 @@ summary:hover { background: var(--card-hover); }
 .badge-proc   { background: var(--badge-proc);   color: var(--badge-proc-fg); }
 .badge-union  { background: var(--badge-union);  color: var(--badge-union-fg); }
 
-/* ── Signature bar ───────────────────────────────────────────────────────── */
+/* ── Signature bar ──────────────────────────────────────────────────────── */
 .sig-bar {
     padding: 5px 14px;
     border-top: 1px solid var(--border);
@@ -416,7 +404,7 @@ summary:hover { background: var(--card-hover); }
     justify-content: space-between;
     padding: 4px 10px 4px 14px;
     background: var(--m-bg);
-    border-bottom: 1px solid #1e1e1800;
+    border-bottom: 1px solid transparent;
     opacity: 0.85;
 }
 
@@ -434,7 +422,7 @@ summary:hover { background: var(--card-hover); }
     background: transparent;
 }
 
-.copy-btn:hover { color: var(--m-fg); background: #ffffff15; border-color: transparent; }
+.copy-btn:hover  { color: var(--m-fg); background: #ffffff15; border-color: transparent; }
 .copy-btn.copied { color: var(--m-green) !important; }
 
 .content pre {
@@ -463,6 +451,7 @@ summary:hover { background: var(--card-hover); }
 .hl-kw  { color: var(--m-pink);   font-weight: 600; }
 .hl-ty  { color: var(--m-blue); }
 .hl-fn  { color: var(--m-green); }
+/* .hl-bi uses teal — visually distinct from .hl-ty (blue) */
 .hl-bi  { color: var(--m-teal);   font-style: italic; }
 .hl-bl  { color: var(--m-purple); }
 .hl-nm  { color: var(--m-purple); }
@@ -474,12 +463,11 @@ summary:hover { background: var(--card-hover); }
    Responsive
    ========================================================================== */
 @media (max-width: 700px) {
-    #sidebar { display: none; }
-    body { overflow: auto; }
-    #main { overflow: visible; }
-    #api-root { overflow: visible; }
-    .badge { display: none; }
-    #toolbar { padding: 6px 10px; }
-    #api-root { padding: 0 10px 40px; }
-    header { padding: 10px; }
+    #sidebar      { display: none; }
+    body          { overflow: auto; }
+    #main         { overflow: visible; }
+    #api-root     { overflow: visible; padding: 0 10px 40px; }
+    header        { padding: 10px; }
+    #toolbar      { padding: 6px 10px; }
+    .badge        { display: none; }
 }
