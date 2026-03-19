@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "src/**"          # re-deploy when source changes
-      - "doc-gen/**"      # re-deploy when doc-gen files change
+      - "docs/**"      # re-deploy when doc-gen files change
   workflow_dispatch:      # allow manual trigger from GitHub UI
 
 permissions:
