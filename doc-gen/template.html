@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,138 +7,328 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Silicon Rendering Engine</h1>
-            <div class="tagline">Core Technical Documentation</div>
-        </header>
-        <input type="text" id="search" placeholder="Filter by name...">
-        <div id="api-root">{{content}}</div>
+
+<!-- TOC data and item count injected by gen.py into inert JSON script tags.
+     Keeping them out of the main <script> block means the JS is always
+     syntactically valid before gen.py runs, so VS Code does not flag errors. -->
+<script id="toc-data" type="application/json">{{toc_json}}</script>
+<script id="meta-data" type="application/json">{"item_count": {{item_count}}}</script>
+
+<!-- Sidebar -->
+<aside id="sidebar">
+    <div id="sidebar-header">
+        <span id="sidebar-title">Silicon</span>
+        <span id="sidebar-count"></span>
+    </div>
+    <div id="sidebar-content"></div>
+</aside>
+
+<!-- Main -->
+<main id="main">
+    <header>
+        <div id="header-left">
+            <button id="sidebar-toggle" title="Toggle sidebar (S)">&#9776;</button>
+            <div>
+                <h1>Silicon Rendering Engine</h1>
+                <div class="tagline">Core Technical Documentation</div>
+            </div>
+        </div>
+        <div id="header-right">
+            <button id="theme-toggle" title="Toggle theme (T)">&#9680;</button>
+        </div>
+    </header>
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+        <input type="text" id="search" placeholder="Filter by name..." autocomplete="off" spellcheck="false">
+        <div id="filter-btns">
+            <button class="filter-btn active" data-cat="ALL">All</button>
+            <button class="filter-btn" data-cat="STRUCT">Struct</button>
+            <button class="filter-btn" data-cat="ENUM">Enum</button>
+            <button class="filter-btn" data-cat="PROC">Proc</button>
+            <button class="filter-btn" data-cat="UNION">Union</button>
+        </div>
+        <div id="toolbar-right">
+            <button id="expand-all"   title="Expand all">&#8862;</button>
+            <button id="collapse-all" title="Collapse all">&#8863;</button>
+        </div>
     </div>
 
-    <script>
-    // ---------------------------------------------------------------------------
-    // Odin syntax highlighter — no external dependencies
-    // Tokenises in one pass; each rule is greedy and non-overlapping.
-    // ---------------------------------------------------------------------------
-    (function () {
-        "use strict";
+    <!-- Content -->
+    <div id="api-root">{{content}}</div>
+</main>
 
-        // Token definitions ordered by priority (first match wins)
-        const RULES = [
-            // Block comments
-            { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
-            // Line comments
-            { cls: "cm",  re: /\/\/[^\n]*/g },
-            // Strings (double-quoted)
-            { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
-            // Character literals
-            { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
-            // Procedure name:  foo :: proc
-            { cls: "fn",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*proc\b)/g, cap: 1 },
-            // Struct / enum / union type name:  Foo :: struct
-            { cls: "ty",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*(?:struct|enum|union)\b)/g, cap: 1 },
-            // Keywords
-            { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
-            // Built-in types
-            { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
-            // Boolean / nil literals
-            { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
-            // Built-in procedures
-            { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
-            // Directives
-            { cls: "dr",  re: /#\w+/g },
-            // Numbers (hex, binary, oct, float, int — with optional underscore separators)
-            { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
-            // Operators and punctuation
-            { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
-        ];
+<script>
+"use strict";
 
-        function highlight(raw) {
-            // Map each character index → replacement span (or null)
-            const n = raw.length;
-            // We'll collect [start, end, cls, text] non-overlapping matches
-            const matches = [];
-            const covered = new Uint8Array(n); // 1 = already claimed
+// ============================================================================
+// 1. Read injected data from JSON script tags (always valid JS before gen.py)
+// ============================================================================
+const TOC        = JSON.parse(document.getElementById("toc-data").textContent);
+const META       = JSON.parse(document.getElementById("meta-data").textContent);
 
-            for (const rule of RULES) {
-                rule.re.lastIndex = 0;
-                let m;
-                while ((m = rule.re.exec(raw)) !== null) {
-                    // If rule has a capture group, highlight only that group
-                    const fullStart = m.index;
-                    const fullEnd   = fullStart + m[0].length;
-                    const hlStart   = rule.cap != null ? fullStart + m[0].indexOf(m[rule.cap]) : fullStart;
-                    const hlEnd     = hlStart + (rule.cap != null ? m[rule.cap].length : m[0].length);
+document.getElementById("sidebar-count").textContent = META.item_count + " symbols";
 
-                    // Check no overlap
-                    let skip = false;
-                    for (let i = hlStart; i < hlEnd; i++) {
-                        if (covered[i]) { skip = true; break; }
-                    }
-                    if (skip) continue;
+// ============================================================================
+// 2. Odin syntax highlighter — zero dependencies, single-pass
+// ============================================================================
+(function () {
+    const RULES = [
+        // Block comments
+        { cls: "cm", re: /\/\*[\s\S]*?\*\//g },
+        // Line comments
+        { cls: "cm", re: /\/\/[^\n]*/g },
+        // Strings (double-quoted)
+        { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
+        // Character literals (single-quoted)
+        { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
+        // Procedure name: foo :: proc
+        { cls: "fn",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*proc\b)/g,               cap: 1 },
+        // Type name: Foo :: struct / enum / union
+        { cls: "ty",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*(?:struct|enum|union)\b)/g, cap: 1 },
+        // Keywords
+        { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
+        // Built-in types
+        { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
+        // Booleans and nil
+        { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
+        // Built-in procedures
+        { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
+        // Compiler directives
+        { cls: "dr",  re: /#\w+/g },
+        // Attributes
+        { cls: "at",  re: /@\s*\([^)]*\)|@\w+/g },
+        // Numeric literals (hex, binary, octal, float, int)
+        { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
+        // Operators and punctuation
+        { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
+    ];
 
-                    for (let i = hlStart; i < hlEnd; i++) covered[i] = 1;
-                    matches.push([hlStart, hlEnd, rule.cls]);
+    function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function highlight(raw) {
+        const n       = raw.length;
+        const covered = new Uint8Array(n);
+        const matches = [];
+
+        for (const rule of RULES) {
+            rule.re.lastIndex = 0;
+            let m;
+            while ((m = rule.re.exec(raw)) !== null) {
+                const fStart  = m.index;
+                const hlStart = rule.cap != null
+                    ? fStart + m[0].indexOf(m[rule.cap])
+                    : fStart;
+                const hlEnd = hlStart + (rule.cap != null ? m[rule.cap].length : m[0].length);
+
+                let skip = false;
+                for (let i = hlStart; i < hlEnd; i++) {
+                    if (covered[i]) { skip = true; break; }
                 }
-            }
+                if (skip) continue;
 
-            // Sort by position
-            matches.sort((a, b) => a[0] - b[0]);
-
-            // Build output
-            let out = "";
-            let pos = 0;
-            for (const [start, end, cls] of matches) {
-                if (start > pos) out += escHtml(raw.slice(pos, start));
-                out += `<span class="hl-${cls}">${escHtml(raw.slice(start, end))}</span>`;
-                pos = end;
+                for (let i = hlStart; i < hlEnd; i++) covered[i] = 1;
+                matches.push([hlStart, hlEnd, rule.cls]);
             }
-            if (pos < n) out += escHtml(raw.slice(pos));
-            return out;
         }
 
-        function escHtml(s) {
-            return s.replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;");
+        matches.sort((a, b) => a[0] - b[0]);
+
+        let out = "";
+        let pos = 0;
+        for (const [s, e, cls] of matches) {
+            if (s > pos) out += esc(raw.slice(pos, s));
+            out += "<span class=\"hl-" + cls + "\">" + esc(raw.slice(s, e)) + "</span>";
+            pos = e;
         }
+        if (pos < n) out += esc(raw.slice(pos));
+        return out;
+    }
 
-        function highlightAll() {
-            document.querySelectorAll("code.language-odin:not([data-hl])").forEach(el => {
-                el.dataset.hl = "1";
-                // The text content was already HTML-escaped by gen.py, so read textContent
-                el.innerHTML = highlight(el.textContent);
-            });
-        }
-
-        // Run on initial load
-        document.addEventListener("DOMContentLoaded", highlightAll);
-
-        // Re-run when a <details> is opened (lazy blocks)
-        document.addEventListener("toggle", (e) => {
-            if (e.target.tagName === "DETAILS" && e.target.open) {
-                highlightAll();
-            }
-        }, true);
-
-        // Search filter
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("search").addEventListener("input", (e) => {
-                const term = e.target.value.toLowerCase();
-                document.querySelectorAll("details").forEach(el => {
-                    const name = el.querySelector("summary").textContent.toLowerCase();
-                    el.style.display = name.includes(term) ? "" : "none";
-                });
-                // Hide empty file sections
-                document.querySelectorAll(".file-section").forEach(sec => {
-                    const visible = [...sec.querySelectorAll("details")]
-                        .some(d => d.style.display !== "none");
-                    sec.style.display = visible ? "" : "none";
-                });
-            });
+    window.highlightAll = function (root) {
+        const scope = root || document;
+        scope.querySelectorAll("code.language-odin:not([data-hl])").forEach(function (el) {
+            el.dataset.hl = "1";
+            el.innerHTML = highlight(el.textContent);
         });
-    })();
-    </script>
+    };
+}());
+
+// ============================================================================
+// 3. App bootstrap
+// ============================================================================
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Highlight all visible code blocks on load
+    window.highlightAll();
+
+    // Re-highlight when a details block is opened (lazy blocks)
+    document.addEventListener("toggle", function (e) {
+        if (e.target.tagName === "DETAILS" && e.target.open) {
+            window.highlightAll(e.target);
+        }
+    }, true);
+
+    // Sidebar build
+    var sidebarContent = document.getElementById("sidebar-content");
+    for (var pkg in TOC) {
+        if (!Object.prototype.hasOwnProperty.call(TOC, pkg)) continue;
+        var syms   = TOC[pkg];
+        var safeId = pkg.replace(/[/\\.]/g, "-");
+
+        var group = document.createElement("div");
+        group.className = "toc-group";
+
+        var hdr = document.createElement("div");
+        hdr.className   = "toc-pkg";
+        hdr.textContent = pkg;
+        (function (id) {
+            hdr.onclick = function () {
+                var sec = document.getElementById("sec-" + id);
+                if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+            };
+        }(safeId));
+        group.appendChild(hdr);
+
+        var list = document.createElement("ul");
+        list.className = "toc-list";
+        syms.forEach(function (sym) {
+            var li = document.createElement("li");
+            var a  = document.createElement("a");
+            a.href      = "#item-" + sym.name;
+            a.className = "toc-link toc-" + sym.cat.toLowerCase();
+            a.textContent = sym.name;
+            (function (name) {
+                a.onclick = function (ev) {
+                    ev.preventDefault();
+                    var el = document.getElementById("item-" + name);
+                    if (el) {
+                        el.open = true;
+                        el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                };
+            }(sym.name));
+            li.appendChild(a);
+            list.appendChild(li);
+        });
+        group.appendChild(list);
+        sidebarContent.appendChild(group);
+    }
+
+    // Sidebar toggle
+    var sidebar    = document.getElementById("sidebar");
+    var mainEl     = document.getElementById("main");
+    var sidebarOpen = true;
+
+    function setSidebar(open) {
+        sidebarOpen = open;
+        sidebar.classList.toggle("hidden", !open);
+        mainEl.classList.toggle("sidebar-hidden", !open);
+        localStorage.setItem("sidebar", open ? "1" : "0");
+    }
+
+    setSidebar(localStorage.getItem("sidebar") !== "0");
+    document.getElementById("sidebar-toggle").onclick = function () { setSidebar(!sidebarOpen); };
+
+    // Theme toggle
+    var html = document.documentElement;
+    function setTheme(t) {
+        html.dataset.theme = t;
+        localStorage.setItem("theme", t);
+    }
+    setTheme(localStorage.getItem("theme") || "dark");
+    document.getElementById("theme-toggle").onclick = function () {
+        setTheme(html.dataset.theme === "dark" ? "light" : "dark");
+    };
+
+    // Search + category filter
+    var searchEl   = document.getElementById("search");
+    var filterBtns = document.querySelectorAll(".filter-btn");
+    var activeCat  = "ALL";
+
+    function applyFilters() {
+        var term = searchEl.value.toLowerCase();
+        document.querySelectorAll("details").forEach(function (el) {
+            var nameEl = el.querySelector("summary .item-name");
+            var badgeEl = el.querySelector(".badge");
+            var name = nameEl ? nameEl.textContent.toLowerCase() : "";
+            var cat  = badgeEl ? badgeEl.textContent.trim() : "";
+            var nameOk = name.indexOf(term) !== -1;
+            var catOk  = activeCat === "ALL" || cat === activeCat;
+            el.style.display = (nameOk && catOk) ? "" : "none";
+        });
+        document.querySelectorAll(".file-section").forEach(function (sec) {
+            var anyVisible = false;
+            sec.querySelectorAll("details").forEach(function (d) {
+                if (d.style.display !== "none") anyVisible = true;
+            });
+            sec.style.display = anyVisible ? "" : "none";
+        });
+    }
+
+    searchEl.addEventListener("input", applyFilters);
+
+    filterBtns.forEach(function (btn) {
+        btn.onclick = function () {
+            filterBtns.forEach(function (b) { b.classList.remove("active"); });
+            btn.classList.add("active");
+            activeCat = btn.dataset.cat;
+            applyFilters();
+        };
+    });
+
+    // Expand / collapse all
+    document.getElementById("expand-all").onclick = function () {
+        document.querySelectorAll("details").forEach(function (d) {
+            if (d.style.display !== "none") {
+                d.open = true;
+                window.highlightAll(d);
+            }
+        });
+    };
+
+    document.getElementById("collapse-all").onclick = function () {
+        document.querySelectorAll("details").forEach(function (d) { d.open = false; });
+    };
+
+    // Copy code
+    window.copyCode = function (btn) {
+        var code = btn.closest(".content").querySelector("code");
+        navigator.clipboard.writeText(code.textContent).then(function () {
+            var orig = btn.textContent;
+            btn.textContent = "✓";
+            btn.classList.add("copied");
+            setTimeout(function () {
+                btn.textContent = orig;
+                btn.classList.remove("copied");
+            }, 1500);
+        });
+    };
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown", function (e) {
+        if (e.target.tagName === "INPUT") {
+            if (e.key === "Escape") {
+                searchEl.value = "";
+                applyFilters();
+                searchEl.blur();
+            }
+            return;
+        }
+        if (e.key === "s" || e.key === "S") { setSidebar(!sidebarOpen); return; }
+        if (e.key === "t" || e.key === "T") {
+            setTheme(html.dataset.theme === "dark" ? "light" : "dark");
+            return;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+            e.preventDefault();
+            searchEl.focus();
+            searchEl.select();
+        }
+    });
+});
+</script>
 </body>
 </html>

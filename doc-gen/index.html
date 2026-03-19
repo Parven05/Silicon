@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,107 +7,162 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Silicon Rendering Engine</h1>
-            <div class="tagline">Core Technical Documentation</div>
-        </header>
-        <input type="text" id="search" placeholder="Filter by name...">
-        <div id="api-root"><div class='file-section'><div class='file-header'>buffers.odin</div>
-        <details>
-            <summary>EBO<span class='badge'>STRUCT</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>EBO :: struct {
+
+<!-- TOC data and item count injected by gen.py into inert JSON script tags.
+     Keeping them out of the main <script> block means the JS is always
+     syntactically valid before gen.py runs, so VS Code does not flag errors. -->
+<script id="toc-data" type="application/json">{"buffers.odin": [{"name": "EBO", "cat": "STRUCT"}, {"name": "VAO", "cat": "STRUCT"}, {"name": "VBO", "cat": "STRUCT"}, {"name": "bind_EBO", "cat": "PROC"}, {"name": "bind_VAO", "cat": "PROC"}, {"name": "bind_VBO", "cat": "PROC"}, {"name": "create_EBO", "cat": "PROC"}, {"name": "create_VAO", "cat": "PROC"}, {"name": "create_VBO", "cat": "PROC"}, {"name": "delete_EBO", "cat": "PROC"}, {"name": "delete_VAO", "cat": "PROC"}, {"name": "delete_VBO", "cat": "PROC"}, {"name": "link_attrib", "cat": "PROC"}], "camera.odin": [{"name": "Camera", "cat": "STRUCT"}, {"name": "Camera_mode", "cat": "ENUM"}, {"name": "get_camera_mode", "cat": "PROC"}, {"name": "get_camera_view", "cat": "PROC"}, {"name": "init_camera", "cat": "PROC"}], "engine.odin": [{"name": "clear_window", "cat": "PROC"}, {"name": "delete_engine", "cat": "PROC"}, {"name": "enable_feature", "cat": "PROC"}, {"name": "init_engine", "cat": "PROC"}, {"name": "post_render_engine", "cat": "PROC"}, {"name": "pre_render_engine", "cat": "PROC"}, {"name": "process_input", "cat": "PROC"}, {"name": "render_engine", "cat": "PROC"}, {"name": "run_engine", "cat": "PROC"}, {"name": "set_glfw_callback", "cat": "PROC"}], "input.odin": [{"name": "close_window", "cat": "PROC"}, {"name": "mouse_callback", "cat": "PROC"}, {"name": "mouse_scroll_callback", "cat": "PROC"}, {"name": "move_camera", "cat": "PROC"}, {"name": "reset_camera", "cat": "PROC"}, {"name": "set_input_mode", "cat": "PROC"}], "main.odin": [{"name": "main", "cat": "PROC"}], "shader.odin": [{"name": "Shader", "cat": "STRUCT"}, {"name": "init_shader", "cat": "PROC"}, {"name": "set_uniform", "cat": "PROC"}, {"name": "use_shader", "cat": "PROC"}], "texture.odin": [{"name": "Texture", "cat": "STRUCT"}, {"name": "activate_texture", "cat": "PROC"}, {"name": "bind_texture", "cat": "PROC"}, {"name": "init_texture", "cat": "PROC"}, {"name": "load_texture", "cat": "PROC"}], "transform.odin": [{"name": "Transform", "cat": "STRUCT"}, {"name": "apply_transform", "cat": "PROC"}, {"name": "init_transform", "cat": "PROC"}, {"name": "move", "cat": "PROC"}, {"name": "rotate", "cat": "PROC"}, {"name": "scale", "cat": "PROC"}], "ui.odin": [{"name": "delete_ui", "cat": "PROC"}, {"name": "draw_f32_colored_ui", "cat": "PROC"}, {"name": "draw_status_bottom_bar_ui", "cat": "PROC"}, {"name": "draw_vec2_colored_ui", "cat": "PROC"}, {"name": "draw_vec3_colored_ui", "cat": "PROC"}, {"name": "init_ui", "cat": "PROC"}, {"name": "pre_render_ui", "cat": "PROC"}, {"name": "render_ui", "cat": "PROC"}], "window.odin": [{"name": "delete_window", "cat": "PROC"}, {"name": "fb_size_callback", "cat": "PROC"}, {"name": "init_window", "cat": "PROC"}, {"name": "set_current_window_size", "cat": "PROC"}, {"name": "set_deltatime", "cat": "PROC"}, {"name": "swap_buffer_window", "cat": "PROC"}, {"name": "window_close", "cat": "PROC"}]}</script>
+<script id="meta-data" type="application/json">{"item_count": 65}</script>
+
+<!-- Sidebar -->
+<aside id="sidebar">
+    <div id="sidebar-header">
+        <span id="sidebar-title">Silicon</span>
+        <span id="sidebar-count"></span>
+    </div>
+    <div id="sidebar-content"></div>
+</aside>
+
+<!-- Main -->
+<main id="main">
+    <header>
+        <div id="header-left">
+            <button id="sidebar-toggle" title="Toggle sidebar (S)">&#9776;</button>
+            <div>
+                <h1>Silicon Rendering Engine</h1>
+                <div class="tagline">Core Technical Documentation</div>
+            </div>
+        </div>
+        <div id="header-right">
+            <button id="theme-toggle" title="Toggle theme (T)">&#9680;</button>
+        </div>
+    </header>
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+        <input type="text" id="search" placeholder="Filter by name..." autocomplete="off" spellcheck="false">
+        <div id="filter-btns">
+            <button class="filter-btn active" data-cat="ALL">All</button>
+            <button class="filter-btn" data-cat="STRUCT">Struct</button>
+            <button class="filter-btn" data-cat="ENUM">Enum</button>
+            <button class="filter-btn" data-cat="PROC">Proc</button>
+            <button class="filter-btn" data-cat="UNION">Union</button>
+        </div>
+        <div id="toolbar-right">
+            <button id="expand-all"   title="Expand all">&#8862;</button>
+            <button id="collapse-all" title="Collapse all">&#8863;</button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div id="api-root"><div class='file-section' id='sec-buffers-odin'><div class='file-header' data-pkg='buffers.odin'>buffers.odin</div>
+        <details id='item-EBO'>
+            <summary><span class='item-name'>EBO</span><span class='badge badge-struct'>STRUCT</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>EBO :: struct {
     id: u32,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>VAO<span class='badge'>STRUCT</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>VAO :: struct {
+        <details id='item-VAO'>
+            <summary><span class='item-name'>VAO</span><span class='badge badge-struct'>STRUCT</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>VAO :: struct {
     id: u32,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>VBO<span class='badge'>STRUCT</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>VBO :: struct {
+        <details id='item-VBO'>
+            <summary><span class='item-name'>VBO</span><span class='badge badge-struct'>STRUCT</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>VBO :: struct {
     id: u32,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>bind_EBO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_EBO :: proc(ebo:^EBO, indices: []u32, usage:u32) -&gt; (bool) {
+        <details id='item-bind_EBO'>
+            <summary><span class='item-name'>bind_EBO</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>ebo:^EBO, indices: []u32, usage:u32</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>bind_EBO :: proc(ebo:^EBO, indices: []u32, usage:u32) -&gt; (bool) {
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo.id)
     gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices) * len(indices), raw_data(indices), usage)
     return true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>bind_VAO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_VAO :: proc(vao:^VAO) -&gt; (bool) {
+        <details id='item-bind_VAO'>
+            <summary><span class='item-name'>bind_VAO</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>vao:^VAO</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>bind_VAO :: proc(vao:^VAO) -&gt; (bool) {
     gl.BindVertexArray(vao.id)
     return true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>bind_VBO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_VBO :: proc(vbo:^VBO, vertices: []f32, usage:u32) -&gt; (bool) {
+        <details id='item-bind_VBO'>
+            <summary><span class='item-name'>bind_VBO</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>vbo:^VBO, vertices: []f32, usage:u32</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>bind_VBO :: proc(vbo:^VBO, vertices: []f32, usage:u32) -&gt; (bool) {
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo.id)
     gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices) * len(vertices), raw_data(vertices), usage)
     return true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>create_EBO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>create_EBO :: proc() -&gt; (EBO, bool) {
+        <details id='item-create_EBO'>
+            <summary><span class='item-name'>create_EBO</span><span class='attr'>@require_results</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(EBO, bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>@require_results
+create_EBO :: proc() -&gt; (EBO, bool) {
     ebo_id: u32
     gl.GenBuffers(1, &amp;ebo_id)
     return EBO{id = ebo_id}, true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>create_VAO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>create_VAO :: proc() -&gt; (VAO, bool) {
+        <details id='item-create_VAO'>
+            <summary><span class='item-name'>create_VAO</span><span class='attr'>@require_results</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(VAO, bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>@require_results
+create_VAO :: proc() -&gt; (VAO, bool) {
     vao_id: u32
     gl.GenVertexArrays(1, &amp;vao_id)
     return VAO{id = vao_id}, true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>create_VBO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>create_VBO :: proc() -&gt; (VBO, bool) {
+        <details id='item-create_VBO'>
+            <summary><span class='item-name'>create_VBO</span><span class='attr'>@require_results</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(VBO, bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>@require_results
+create_VBO :: proc() -&gt; (VBO, bool) {
     vbo_id: u32
     gl.GenBuffers(1, &amp;vbo_id)
     return VBO{id = vbo_id}, true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>delete_EBO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_EBO :: proc(ebo:^EBO) {
+        <details id='item-delete_EBO'>
+            <summary><span class='item-name'>delete_EBO</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>ebo:^EBO</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>delete_EBO :: proc(ebo:^EBO) {
     gl.DeleteBuffers(1, &amp;ebo.id)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>delete_VAO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_VAO :: proc(vao:^VAO) {
+        <details id='item-delete_VAO'>
+            <summary><span class='item-name'>delete_VAO</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>vao:^VAO</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>delete_VAO :: proc(vao:^VAO) {
     gl.DeleteVertexArrays(1, &amp;vao.id)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>delete_VBO<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_VBO :: proc(vbo:^VBO) {
+        <details id='item-delete_VBO'>
+            <summary><span class='item-name'>delete_VBO</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>vbo:^VBO</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>delete_VBO :: proc(vbo:^VBO) {
     gl.DeleteBuffers(1, &amp;vbo.id)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>link_attrib<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>link_attrib :: proc(index: u32, size, stride: i32, offset: u32) -&gt; (bool) {
+        <details id='item-link_attrib'>
+            <summary><span class='item-name'>link_attrib</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>index: u32, size, stride: i32, offset: u32</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>buffers.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>link_attrib :: proc(index: u32, size, stride: i32, offset: u32) -&gt; (bool) {
 	gl.VertexAttribPointer(index, size, gl.FLOAT, false, stride * size_of(f32), uintptr(offset * size_of(f32)))
 	gl.EnableVertexAttribArray(index)
 	return true
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>camera.odin</div>
-        <details>
-            <summary>Camera<span class='badge'>STRUCT</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>Camera :: struct {
+        </details></div><div class='file-section' id='sec-camera-odin'><div class='file-header' data-pkg='camera.odin'>camera.odin</div>
+        <details id='item-Camera'>
+            <summary><span class='item-name'>Camera</span><span class='badge badge-struct'>STRUCT</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>camera.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>Camera :: struct {
 	pos:   			la.Vector3f32,
 	rot: 			la.Vector3f32,
 	target: 		la.Vector3f32,
@@ -118,16 +173,18 @@
 	far:   			f32,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>Camera_mode<span class='badge'>ENUM</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>Camera_mode :: enum {
+        <details id='item-Camera_mode'>
+            <summary><span class='item-name'>Camera_mode</span><span class='badge badge-enum'>ENUM</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>camera.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>Camera_mode :: enum {
 	PERSPECTIVE,
 	ORTHOGRAPHIC,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>get_camera_mode<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>get_camera_mode :: proc(cam_mode: Camera_mode, camera: ^Camera) -&gt; la.Matrix4f32  {
+        <details id='item-get_camera_mode'>
+            <summary><span class='item-name'>get_camera_mode</span><span class='attr'>@require_results</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>cam_mode: Camera_mode, camera: ^Camera</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>la.Matrix4f32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>camera.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>@require_results
+get_camera_mode :: proc(cam_mode: Camera_mode, camera: ^Camera) -&gt; la.Matrix4f32  {
 	switch cam_mode {
 	case .PERSPECTIVE:
 		return la.matrix4_perspective_f32(ma.to_radians_f32(camera.fov), f32(camera.aspect_ratio.x) / f32(camera.aspect_ratio.y), camera.near, camera.far)
@@ -138,15 +195,18 @@
 	return 0
 }</code></pre></div>
         </details>
-        <details>
-            <summary>get_camera_view<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>get_camera_view :: proc(camera: ^Camera) -&gt; la.Matrix4f32 {
+        <details id='item-get_camera_view'>
+            <summary><span class='item-name'>get_camera_view</span><span class='attr'>@require_results</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>camera: ^Camera</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>la.Matrix4f32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>camera.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>@require_results
+get_camera_view :: proc(camera: ^Camera) -&gt; la.Matrix4f32 {
 	return la.matrix4_look_at_f32(camera.pos, camera.pos + camera.target, camera.up)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>init_camera<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>init_camera :: proc(camera: ^Camera) -&gt; (bool) {
+        <details id='item-init_camera'>
+            <summary><span class='item-name'>init_camera</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>camera: ^Camera</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>camera.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>init_camera :: proc(camera: ^Camera) -&gt; (bool) {
 	pitch : f32 = 0.0
 	yaw : f32 = -90.0
 
@@ -159,31 +219,32 @@
 	camera.far = 100.0
 	return true
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>engine.odin</div>
-        <details>
-            <summary>clear_window<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>clear_window :: proc() {
+        </details></div><div class='file-section' id='sec-engine-odin'><div class='file-header' data-pkg='engine.odin'>engine.odin</div>
+        <details id='item-clear_window'>
+            <summary><span class='item-name'>clear_window</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>clear_window :: proc() {
 	gl.ClearColor(0.20, 0.20, 0.20, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>delete_engine<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_engine :: proc() {
+        <details id='item-delete_engine'>
+            <summary><span class='item-name'>delete_engine</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>delete_engine :: proc() {
 	delete_VBO(&amp;vbo)
 	delete_VAO(&amp;vao)
 	delete_window()
 }</code></pre></div>
         </details>
-        <details>
-            <summary>enable_feature<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>enable_feature :: proc(cap: u32)  {
+        <details id='item-enable_feature'>
+            <summary><span class='item-name'>enable_feature</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>cap: u32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>enable_feature :: proc(cap: u32)  {
 	gl.Enable(cap)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>init_engine<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>init_engine :: proc() {
+        <details id='item-init_engine'>
+            <summary><span class='item-name'>init_engine</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>init_engine :: proc() {
 	context.logger = log.create_console_logger()
 
 	// setup window
@@ -276,15 +337,15 @@
 	camera.aspect_ratio = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>post_render_engine<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>post_render_engine :: proc() {
+        <details id='item-post_render_engine'>
+            <summary><span class='item-name'>post_render_engine</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>post_render_engine :: proc() {
 	swap_buffer_window()
 }</code></pre></div>
         </details>
-        <details>
-            <summary>pre_render_engine<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>pre_render_engine :: proc() {
+        <details id='item-pre_render_engine'>
+            <summary><span class='item-name'>pre_render_engine</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>pre_render_engine :: proc() {
 	clear_window()
 	set_current_window_size()
 
@@ -299,18 +360,18 @@
 	set_uniform(shader, &quot;view&quot;, &amp;camera_view)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>process_input<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>process_input :: proc() {
+        <details id='item-process_input'>
+            <summary><span class='item-name'>process_input</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>process_input :: proc() {
 	set_deltatime()
 	close_window(window)
 	move_camera(&amp;camera)
 	reset_camera(&amp;camera)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>render_engine<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>render_engine :: proc() {
+        <details id='item-render_engine'>
+            <summary><span class='item-name'>render_engine</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>render_engine :: proc() {
 	bind_VAO(&amp;vao)
 	for i in 0..&lt;10 {
 		init_transform(&amp;cube_transform)
@@ -322,9 +383,9 @@
 	}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>run_engine<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>run_engine :: proc() {
+        <details id='item-run_engine'>
+            <summary><span class='item-name'>run_engine</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>run_engine :: proc() {
 	init_engine()
 	defer delete_engine()
 
@@ -345,26 +406,28 @@
 	}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>set_glfw_callback<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>set_glfw_callback :: proc() {
+        <details id='item-set_glfw_callback'>
+            <summary><span class='item-name'>set_glfw_callback</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>engine.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>set_glfw_callback :: proc() {
 	glfw.SetWindowUserPointer(window, &amp;camera)
 	glfw.SetCursorPosCallback(window, mouse_callback)
 	glfw.SetScrollCallback(window, mouse_scroll_callback)
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>input.odin</div>
-        <details>
-            <summary>close_window<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>*/
+        </details></div><div class='file-section' id='sec-input-odin'><div class='file-header' data-pkg='input.odin'>input.odin</div>
+        <details id='item-close_window'>
+            <summary><span class='item-name'>close_window</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>window: glfw.WindowHandle</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>input.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>*/
 close_window:: proc(window: glfw.WindowHandle) {
 	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
 		glfw.SetWindowShouldClose(window, true)
 	}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>mouse_callback<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>// callback functions
+        <details id='item-mouse_callback'>
+            <summary><span class='item-name'>mouse_callback</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>window: glfw.WindowHandle, x_pos: f64, y_pos: f64</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>input.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>// callback functions
 mouse_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 	camera_ptr := (^Camera)(glfw.GetWindowUserPointer(window))
 
@@ -398,9 +461,10 @@ mouse_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_pos: f64, y_p
 	camera_ptr.target = la.normalize(direction)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>mouse_scroll_callback<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>mouse_scroll_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_offset, y_offset: f64) {
+        <details id='item-mouse_scroll_callback'>
+            <summary><span class='item-name'>mouse_scroll_callback</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>window: glfw.WindowHandle, x_offset, y_offset: f64</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>input.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>mouse_scroll_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_offset, y_offset: f64) {
 	camera_ptr := (^Camera)(glfw.GetWindowUserPointer(window))
 
 	// limit field of view
@@ -409,9 +473,10 @@ mouse_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_pos: f64, y_p
 	if (camera_ptr.fov &gt; 45.0) {camera_ptr.fov = 45.0}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>move_camera<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>move_camera:: proc(camera: ^Camera) {
+        <details id='item-move_camera'>
+            <summary><span class='item-name'>move_camera</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>camera: ^Camera</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>input.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>move_camera:: proc(camera: ^Camera) {
 	base_camera_speed := 4.0 * f32(delta_time)
 	camera_speed_multiplier := 6.0
 	current_camera_speed := base_camera_speed
@@ -435,37 +500,39 @@ mouse_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_pos: f64, y_p
 	}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>reset_camera<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>reset_camera:: proc(camera: ^Camera) {
+        <details id='item-reset_camera'>
+            <summary><span class='item-name'>reset_camera</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>camera: ^Camera</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>input.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>reset_camera:: proc(camera: ^Camera) {
 	if (glfw.GetKey(window, glfw.KEY_R) == glfw.PRESS) {
 		camera.pos = {0.0, 0.0, 0.0}
 		camera.fov = 45.0
 	}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>set_input_mode<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>// utility functions
+        <details id='item-set_input_mode'>
+            <summary><span class='item-name'>set_input_mode</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>input.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>// utility functions
 set_input_mode :: proc() {
 	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>main.odin</div>
-        <details>
-            <summary>main<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>main :: proc() {
+        </details></div><div class='file-section' id='sec-main-odin'><div class='file-header' data-pkg='main.odin'>main.odin</div>
+        <details id='item-main'>
+            <summary><span class='item-name'>main</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>main.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>main :: proc() {
 	run_engine()
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>shader.odin</div>
-        <details>
-            <summary>Shader<span class='badge'>STRUCT</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>Shader :: struct {
+        </details></div><div class='file-section' id='sec-shader-odin'><div class='file-header' data-pkg='shader.odin'>shader.odin</div>
+        <details id='item-Shader'>
+            <summary><span class='item-name'>Shader</span><span class='badge badge-struct'>STRUCT</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>shader.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>Shader :: struct {
 	id: u32,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>init_shader<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>init_shader :: proc(vertex_path, fragment_path: string) -&gt; (Shader, bool) {
+        <details id='item-init_shader'>
+            <summary><span class='item-name'>init_shader</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>vertex_path, fragment_path: string</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(Shader, bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>shader.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>init_shader :: proc(vertex_path, fragment_path: string) -&gt; (Shader, bool) {
 	// Read file
 	program, ok := gl.load_shaders_file(vertex_path, fragment_path)
 	if !ok {
@@ -474,41 +541,47 @@ set_input_mode :: proc() {
 	return Shader{id = program}, true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>set_uniform<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>set_uniform :: proc(shader: Shader, name: cstring, value: ^matrix[4,4]f32) {
+        <details id='item-set_uniform'>
+            <summary><span class='item-name'>set_uniform</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>shader: Shader, name: cstring, value: ^matrix[4,4]f32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>shader.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>set_uniform :: proc(shader: Shader, name: cstring, value: ^matrix[4,4]f32) {
 	location := gl.GetUniformLocation(shader.id, name)
 	gl.UniformMatrix4fv(location, 1, gl.FALSE, &amp;value[0][0])
 }</code></pre></div>
         </details>
-        <details>
-            <summary>use_shader<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>use_shader :: proc(shader: Shader) {
+        <details id='item-use_shader'>
+            <summary><span class='item-name'>use_shader</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>shader: Shader</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>shader.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>use_shader :: proc(shader: Shader) {
 	gl.UseProgram(shader.id)
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>texture.odin</div>
-        <details>
-            <summary>Texture<span class='badge'>STRUCT</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>Texture :: struct {
+        </details></div><div class='file-section' id='sec-texture-odin'><div class='file-header' data-pkg='texture.odin'>texture.odin</div>
+        <details id='item-Texture'>
+            <summary><span class='item-name'>Texture</span><span class='badge badge-struct'>STRUCT</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>texture.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>Texture :: struct {
     id: u32,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>activate_texture<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>// Utility functions
+        <details id='item-activate_texture'>
+            <summary><span class='item-name'>activate_texture</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>texture: u32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>texture.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>// Utility functions
 activate_texture :: proc (texture: u32) {
     gl.ActiveTexture(texture)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>bind_texture<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_texture :: proc (target: u32, texture: Texture) {
+        <details id='item-bind_texture'>
+            <summary><span class='item-name'>bind_texture</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>target: u32, texture: Texture</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>texture.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>bind_texture :: proc (target: u32, texture: Texture) {
     gl.BindTexture(target, texture.id)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>init_texture<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>init_texture :: proc (target: u32, wrap, filter_min, filter_max: i32) -&gt; (Texture) {
+        <details id='item-init_texture'>
+            <summary><span class='item-name'>init_texture</span><span class='attr'>@require_results</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>target: u32, wrap, filter_min, filter_max: i32</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(Texture)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>texture.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>@require_results
+init_texture :: proc (target: u32, wrap, filter_min, filter_max: i32) -&gt; (Texture) {
     texture: u32
     gl.GenTextures(1, &amp;texture)
     gl.BindTexture(target, texture)
@@ -521,9 +594,10 @@ activate_texture :: proc (texture: u32) {
     return Texture{id = texture}
 }</code></pre></div>
         </details>
-        <details>
-            <summary>load_texture<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>load_texture :: proc (filepath: cstring, target: u32, internal_format:i32, format:u32) -&gt; (bool) {
+        <details id='item-load_texture'>
+            <summary><span class='item-name'>load_texture</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>filepath: cstring, target: u32, internal_format:i32, format:u32</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>texture.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>load_texture :: proc (filepath: cstring, target: u32, internal_format:i32, format:u32) -&gt; (bool) {
     width, height, num_channel : i32
     data := stb.load(filepath, &amp;width, &amp;height, &amp;num_channel, 0)
 
@@ -540,55 +614,61 @@ activate_texture :: proc (texture: u32) {
      return true
 
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>transform.odin</div>
-        <details>
-            <summary>Transform<span class='badge'>STRUCT</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>Transform :: struct {
+        </details></div><div class='file-section' id='sec-transform-odin'><div class='file-header' data-pkg='transform.odin'>transform.odin</div>
+        <details id='item-Transform'>
+            <summary><span class='item-name'>Transform</span><span class='badge badge-struct'>STRUCT</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>Transform :: struct {
 	id : la.Matrix4f32,
 }</code></pre></div>
         </details>
-        <details>
-            <summary>apply_transform<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>apply_transform :: proc(shader: Shader, trans: ^Transform) {
+        <details id='item-apply_transform'>
+            <summary><span class='item-name'>apply_transform</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>shader: Shader, trans: ^Transform</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>apply_transform :: proc(shader: Shader, trans: ^Transform) {
 	set_uniform(shader, &quot;model&quot;, &amp;trans.id )
 }</code></pre></div>
         </details>
-        <details>
-            <summary>init_transform<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>*/
+        <details id='item-init_transform'>
+            <summary><span class='item-name'>init_transform</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>trans: ^Transform</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>*/
 init_transform :: proc(trans: ^Transform) {
 	trans.id = la.MATRIX4F32_IDENTITY
 }</code></pre></div>
         </details>
-        <details>
-            <summary>move<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>move :: proc(obj: la.Vector3f32, trans: ^Transform) {
+        <details id='item-move'>
+            <summary><span class='item-name'>move</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>obj: la.Vector3f32, trans: ^Transform</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>move :: proc(obj: la.Vector3f32, trans: ^Transform) {
 	trans.id = trans.id * la.matrix4_translate_f32(obj)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>rotate<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>rotate :: proc(angle: f32, v:la.Vector3f32, trans: ^Transform) {
+        <details id='item-rotate'>
+            <summary><span class='item-name'>rotate</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>angle: f32, v:la.Vector3f32, trans: ^Transform</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>rotate :: proc(angle: f32, v:la.Vector3f32, trans: ^Transform) {
 	trans.id = trans.id * la.matrix4_rotate_f32(ma.to_radians(angle), v)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>scale<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>scale :: proc(v:la.Vector3f32, trans: ^Transform) {
+        <details id='item-scale'>
+            <summary><span class='item-name'>scale</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>v:la.Vector3f32, trans: ^Transform</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>scale :: proc(v:la.Vector3f32, trans: ^Transform) {
 	trans.id = trans.id * la.matrix4_scale_f32(v)
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>ui.odin</div>
-        <details>
-            <summary>delete_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_ui :: proc() {
+        </details></div><div class='file-section' id='sec-ui-odin'><div class='file-header' data-pkg='ui.odin'>ui.odin</div>
+        <details id='item-delete_ui'>
+            <summary><span class='item-name'>delete_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>delete_ui :: proc() {
 	imgui_impl_opengl3.Shutdown()
 	imgui_impl_glfw.Shutdown()
 	im.DestroyContext()
 }</code></pre></div>
         </details>
-        <details>
-            <summary>draw_f32_colored_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>draw_f32_colored_ui :: proc(label: string, format: cstring, v: f32) {
+        <details id='item-draw_f32_colored_ui'>
+            <summary><span class='item-name'>draw_f32_colored_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>label: string, format: cstring, v: f32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>draw_f32_colored_ui :: proc(label: string, format: cstring, v: f32) {
     im.Text(&quot;%s: &quot;, label)
     im.SameLine(0, 0)
 
@@ -596,9 +676,10 @@ init_transform :: proc(trans: ^Transform) {
     im.SameLine(0, 4)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>draw_status_bottom_bar_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>draw_status_bottom_bar_ui :: proc(camera: ^Camera) {
+        <details id='item-draw_status_bottom_bar_ui'>
+            <summary><span class='item-name'>draw_status_bottom_bar_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>camera: ^Camera</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>draw_status_bottom_bar_ui :: proc(camera: ^Camera) {
 	bar_height : f32 = 25.0
 	im.SetNextWindowPos({0, f32(current_window_height) - bar_height})
 	im.SetNextWindowSize({f32(current_window_width) + 2, bar_height})
@@ -630,9 +711,10 @@ init_transform :: proc(trans: ^Transform) {
 	im.End()
 }</code></pre></div>
         </details>
-        <details>
-            <summary>draw_vec2_colored_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>draw_vec2_colored_ui :: proc(label: string, v: [3]f32) {
+        <details id='item-draw_vec2_colored_ui'>
+            <summary><span class='item-name'>draw_vec2_colored_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>label: string, v: [3]f32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>draw_vec2_colored_ui :: proc(label: string, v: [3]f32) {
     im.Text(&quot;%s: &quot;, label)
     im.SameLine(0, 0)
 
@@ -645,9 +727,10 @@ init_transform :: proc(trans: ^Transform) {
     im.SameLine(0, 0)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>draw_vec3_colored_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>// utility functions
+        <details id='item-draw_vec3_colored_ui'>
+            <summary><span class='item-name'>draw_vec3_colored_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>label: string, v: [3]f32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>// utility functions
 draw_vec3_colored_ui :: proc(label: string, v: [3]f32) {
     im.Text(&quot;%s: &quot;, label)
     im.SameLine(0, 0)
@@ -666,45 +749,48 @@ draw_vec3_colored_ui :: proc(label: string, v: [3]f32) {
     im.SameLine(0, 0)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>init_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>init_ui :: proc() {
+        <details id='item-init_ui'>
+            <summary><span class='item-name'>init_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>init_ui :: proc() {
 	im.CreateContext()
 	imgui_impl_glfw.InitForOpenGL(window, true)
 	imgui_impl_opengl3.Init(&quot;#version 460&quot;)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>pre_render_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>pre_render_ui :: proc() {
+        <details id='item-pre_render_ui'>
+            <summary><span class='item-name'>pre_render_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>pre_render_ui :: proc() {
 	// ui default
 	imgui_impl_opengl3.NewFrame()
 	imgui_impl_glfw.NewFrame()
 	im.NewFrame()
 }</code></pre></div>
         </details>
-        <details>
-            <summary>render_ui<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>render_ui :: proc() {
+        <details id='item-render_ui'>
+            <summary><span class='item-name'>render_ui</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>ui.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>render_ui :: proc() {
 	im.Render()
 	imgui_impl_opengl3.RenderDrawData(im.GetDrawData())
 }</code></pre></div>
-        </details></div><div class='file-section'><div class='file-header'>window.odin</div>
-        <details>
-            <summary>delete_window<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_window :: proc() {
+        </details></div><div class='file-section' id='sec-window-odin'><div class='file-header' data-pkg='window.odin'>window.odin</div>
+        <details id='item-delete_window'>
+            <summary><span class='item-name'>delete_window</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>window.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>delete_window :: proc() {
 	glfw.Terminate()
 }</code></pre></div>
         </details>
-        <details>
-            <summary>fb_size_callback<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>fb_size_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, width, height: i32) {
+        <details id='item-fb_size_callback'>
+            <summary><span class='item-name'>fb_size_callback</span><span class='attr'>@(private=&quot;file&quot;)</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>window: glfw.WindowHandle, width, height: i32</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>window.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>@(private=&quot;file&quot;)
+fb_size_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>init_window<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) -&gt; (bool) {
+        <details id='item-init_window'>
+            <summary><span class='item-name'>init_window</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>window_width: i32, window_height: i32, window_title: cstring</span> &nbsp;&middot;&nbsp; <span class='sig-label'>returns</span> <span class='sig-val sig-ret'>(bool)</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>window.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) -&gt; (bool) {
 	if !glfw.Init() {
 		return false
 	}
@@ -727,162 +813,311 @@ draw_vec3_colored_ui :: proc(label: string, v: [3]f32) {
 	return true
 }</code></pre></div>
         </details>
-        <details>
-            <summary>set_current_window_size<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>set_current_window_size :: proc() {
+        <details id='item-set_current_window_size'>
+            <summary><span class='item-name'>set_current_window_size</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>window.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>set_current_window_size :: proc() {
 	current_window_width, current_window_height = glfw.GetWindowSize(window)
 }</code></pre></div>
         </details>
-        <details>
-            <summary>set_deltatime<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>// utility functions
+        <details id='item-set_deltatime'>
+            <summary><span class='item-name'>set_deltatime</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>window.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>// utility functions
 set_deltatime :: proc () {
 	current_frame := glfw.GetTime()
 	delta_time = current_frame - last_frame
 	last_frame = current_frame
 }</code></pre></div>
         </details>
-        <details>
-            <summary>swap_buffer_window<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>swap_buffer_window :: proc() {
+        <details id='item-swap_buffer_window'>
+            <summary><span class='item-name'>swap_buffer_window</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='content'><div class='code-header'><span class='code-file'>window.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>swap_buffer_window :: proc() {
 	glfw.SwapBuffers(window)
 	glfw.PollEvents()
 }</code></pre></div>
         </details>
-        <details>
-            <summary>window_close<span class='badge'>PROC</span></summary>
-            <div class='content'><pre class='language-odin'><code class='language-odin'>window_close :: proc() -&gt; bool {
+        <details id='item-window_close'>
+            <summary><span class='item-name'>window_close</span><span class='badge badge-proc'>PROC</span></summary>
+            <div class='sig-bar'><span class='sig-label'>returns</span> <span class='sig-val sig-ret'>bool</span></div>
+            <div class='content'><div class='code-header'><span class='code-file'>window.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>window_close :: proc() -&gt; bool {
 	for (!glfw.WindowShouldClose(window)) {
 		return false
 	}
 	return true
 }</code></pre></div>
         </details></div></div>
-    </div>
+</main>
 
-    <script>
-    // ---------------------------------------------------------------------------
-    // Odin syntax highlighter — no external dependencies
-    // Tokenises in one pass; each rule is greedy and non-overlapping.
-    // ---------------------------------------------------------------------------
-    (function () {
-        "use strict";
+<script>
+"use strict";
 
-        // Token definitions ordered by priority (first match wins)
-        const RULES = [
-            // Block comments
-            { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
-            // Line comments
-            { cls: "cm",  re: /\/\/[^\n]*/g },
-            // Strings (double-quoted)
-            { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
-            // Character literals
-            { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
-            // Procedure name:  foo :: proc
-            { cls: "fn",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*proc\b)/g, cap: 1 },
-            // Struct / enum / union type name:  Foo :: struct
-            { cls: "ty",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*(?:struct|enum|union)\b)/g, cap: 1 },
-            // Keywords
-            { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
-            // Built-in types
-            { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
-            // Boolean / nil literals
-            { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
-            // Built-in procedures
-            { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
-            // Directives
-            { cls: "dr",  re: /#\w+/g },
-            // Numbers (hex, binary, oct, float, int — with optional underscore separators)
-            { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
-            // Operators and punctuation
-            { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
-        ];
+// ============================================================================
+// 1. Read injected data from JSON script tags (always valid JS before gen.py)
+// ============================================================================
+const TOC        = JSON.parse(document.getElementById("toc-data").textContent);
+const META       = JSON.parse(document.getElementById("meta-data").textContent);
 
-        function highlight(raw) {
-            // Map each character index → replacement span (or null)
-            const n = raw.length;
-            // We'll collect [start, end, cls, text] non-overlapping matches
-            const matches = [];
-            const covered = new Uint8Array(n); // 1 = already claimed
+document.getElementById("sidebar-count").textContent = META.item_count + " symbols";
 
-            for (const rule of RULES) {
-                rule.re.lastIndex = 0;
-                let m;
-                while ((m = rule.re.exec(raw)) !== null) {
-                    // If rule has a capture group, highlight only that group
-                    const fullStart = m.index;
-                    const fullEnd   = fullStart + m[0].length;
-                    const hlStart   = rule.cap != null ? fullStart + m[0].indexOf(m[rule.cap]) : fullStart;
-                    const hlEnd     = hlStart + (rule.cap != null ? m[rule.cap].length : m[0].length);
+// ============================================================================
+// 2. Odin syntax highlighter — zero dependencies, single-pass
+// ============================================================================
+(function () {
+    const RULES = [
+        // Block comments
+        { cls: "cm", re: /\/\*[\s\S]*?\*\//g },
+        // Line comments
+        { cls: "cm", re: /\/\/[^\n]*/g },
+        // Strings (double-quoted)
+        { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
+        // Character literals (single-quoted)
+        { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
+        // Procedure name: foo :: proc
+        { cls: "fn",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*proc\b)/g,               cap: 1 },
+        // Type name: Foo :: struct / enum / union
+        { cls: "ty",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*(?:struct|enum|union)\b)/g, cap: 1 },
+        // Keywords
+        { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
+        // Built-in types
+        { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
+        // Booleans and nil
+        { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
+        // Built-in procedures
+        { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
+        // Compiler directives
+        { cls: "dr",  re: /#\w+/g },
+        // Attributes
+        { cls: "at",  re: /@\s*\([^)]*\)|@\w+/g },
+        // Numeric literals (hex, binary, octal, float, int)
+        { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
+        // Operators and punctuation
+        { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
+    ];
 
-                    // Check no overlap
-                    let skip = false;
-                    for (let i = hlStart; i < hlEnd; i++) {
-                        if (covered[i]) { skip = true; break; }
-                    }
-                    if (skip) continue;
+    function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
 
-                    for (let i = hlStart; i < hlEnd; i++) covered[i] = 1;
-                    matches.push([hlStart, hlEnd, rule.cls]);
+    function highlight(raw) {
+        const n       = raw.length;
+        const covered = new Uint8Array(n);
+        const matches = [];
+
+        for (const rule of RULES) {
+            rule.re.lastIndex = 0;
+            let m;
+            while ((m = rule.re.exec(raw)) !== null) {
+                const fStart  = m.index;
+                const hlStart = rule.cap != null
+                    ? fStart + m[0].indexOf(m[rule.cap])
+                    : fStart;
+                const hlEnd = hlStart + (rule.cap != null ? m[rule.cap].length : m[0].length);
+
+                let skip = false;
+                for (let i = hlStart; i < hlEnd; i++) {
+                    if (covered[i]) { skip = true; break; }
                 }
-            }
+                if (skip) continue;
 
-            // Sort by position
-            matches.sort((a, b) => a[0] - b[0]);
-
-            // Build output
-            let out = "";
-            let pos = 0;
-            for (const [start, end, cls] of matches) {
-                if (start > pos) out += escHtml(raw.slice(pos, start));
-                out += `<span class="hl-${cls}">${escHtml(raw.slice(start, end))}</span>`;
-                pos = end;
+                for (let i = hlStart; i < hlEnd; i++) covered[i] = 1;
+                matches.push([hlStart, hlEnd, rule.cls]);
             }
-            if (pos < n) out += escHtml(raw.slice(pos));
-            return out;
         }
 
-        function escHtml(s) {
-            return s.replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;");
+        matches.sort((a, b) => a[0] - b[0]);
+
+        let out = "";
+        let pos = 0;
+        for (const [s, e, cls] of matches) {
+            if (s > pos) out += esc(raw.slice(pos, s));
+            out += "<span class=\"hl-" + cls + "\">" + esc(raw.slice(s, e)) + "</span>";
+            pos = e;
         }
+        if (pos < n) out += esc(raw.slice(pos));
+        return out;
+    }
 
-        function highlightAll() {
-            document.querySelectorAll("code.language-odin:not([data-hl])").forEach(el => {
-                el.dataset.hl = "1";
-                // The text content was already HTML-escaped by gen.py, so read textContent
-                el.innerHTML = highlight(el.textContent);
-            });
-        }
-
-        // Run on initial load
-        document.addEventListener("DOMContentLoaded", highlightAll);
-
-        // Re-run when a <details> is opened (lazy blocks)
-        document.addEventListener("toggle", (e) => {
-            if (e.target.tagName === "DETAILS" && e.target.open) {
-                highlightAll();
-            }
-        }, true);
-
-        // Search filter
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("search").addEventListener("input", (e) => {
-                const term = e.target.value.toLowerCase();
-                document.querySelectorAll("details").forEach(el => {
-                    const name = el.querySelector("summary").textContent.toLowerCase();
-                    el.style.display = name.includes(term) ? "" : "none";
-                });
-                // Hide empty file sections
-                document.querySelectorAll(".file-section").forEach(sec => {
-                    const visible = [...sec.querySelectorAll("details")]
-                        .some(d => d.style.display !== "none");
-                    sec.style.display = visible ? "" : "none";
-                });
-            });
+    window.highlightAll = function (root) {
+        const scope = root || document;
+        scope.querySelectorAll("code.language-odin:not([data-hl])").forEach(function (el) {
+            el.dataset.hl = "1";
+            el.innerHTML = highlight(el.textContent);
         });
-    })();
-    </script>
+    };
+}());
+
+// ============================================================================
+// 3. App bootstrap
+// ============================================================================
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Highlight all visible code blocks on load
+    window.highlightAll();
+
+    // Re-highlight when a details block is opened (lazy blocks)
+    document.addEventListener("toggle", function (e) {
+        if (e.target.tagName === "DETAILS" && e.target.open) {
+            window.highlightAll(e.target);
+        }
+    }, true);
+
+    // Sidebar build
+    var sidebarContent = document.getElementById("sidebar-content");
+    for (var pkg in TOC) {
+        if (!Object.prototype.hasOwnProperty.call(TOC, pkg)) continue;
+        var syms   = TOC[pkg];
+        var safeId = pkg.replace(/[/\\.]/g, "-");
+
+        var group = document.createElement("div");
+        group.className = "toc-group";
+
+        var hdr = document.createElement("div");
+        hdr.className   = "toc-pkg";
+        hdr.textContent = pkg;
+        (function (id) {
+            hdr.onclick = function () {
+                var sec = document.getElementById("sec-" + id);
+                if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+            };
+        }(safeId));
+        group.appendChild(hdr);
+
+        var list = document.createElement("ul");
+        list.className = "toc-list";
+        syms.forEach(function (sym) {
+            var li = document.createElement("li");
+            var a  = document.createElement("a");
+            a.href      = "#item-" + sym.name;
+            a.className = "toc-link toc-" + sym.cat.toLowerCase();
+            a.textContent = sym.name;
+            (function (name) {
+                a.onclick = function (ev) {
+                    ev.preventDefault();
+                    var el = document.getElementById("item-" + name);
+                    if (el) {
+                        el.open = true;
+                        el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                };
+            }(sym.name));
+            li.appendChild(a);
+            list.appendChild(li);
+        });
+        group.appendChild(list);
+        sidebarContent.appendChild(group);
+    }
+
+    // Sidebar toggle
+    var sidebar    = document.getElementById("sidebar");
+    var mainEl     = document.getElementById("main");
+    var sidebarOpen = true;
+
+    function setSidebar(open) {
+        sidebarOpen = open;
+        sidebar.classList.toggle("hidden", !open);
+        mainEl.classList.toggle("sidebar-hidden", !open);
+        localStorage.setItem("sidebar", open ? "1" : "0");
+    }
+
+    setSidebar(localStorage.getItem("sidebar") !== "0");
+    document.getElementById("sidebar-toggle").onclick = function () { setSidebar(!sidebarOpen); };
+
+    // Theme toggle
+    var html = document.documentElement;
+    function setTheme(t) {
+        html.dataset.theme = t;
+        localStorage.setItem("theme", t);
+    }
+    setTheme(localStorage.getItem("theme") || "dark");
+    document.getElementById("theme-toggle").onclick = function () {
+        setTheme(html.dataset.theme === "dark" ? "light" : "dark");
+    };
+
+    // Search + category filter
+    var searchEl   = document.getElementById("search");
+    var filterBtns = document.querySelectorAll(".filter-btn");
+    var activeCat  = "ALL";
+
+    function applyFilters() {
+        var term = searchEl.value.toLowerCase();
+        document.querySelectorAll("details").forEach(function (el) {
+            var nameEl = el.querySelector("summary .item-name");
+            var badgeEl = el.querySelector(".badge");
+            var name = nameEl ? nameEl.textContent.toLowerCase() : "";
+            var cat  = badgeEl ? badgeEl.textContent.trim() : "";
+            var nameOk = name.indexOf(term) !== -1;
+            var catOk  = activeCat === "ALL" || cat === activeCat;
+            el.style.display = (nameOk && catOk) ? "" : "none";
+        });
+        document.querySelectorAll(".file-section").forEach(function (sec) {
+            var anyVisible = false;
+            sec.querySelectorAll("details").forEach(function (d) {
+                if (d.style.display !== "none") anyVisible = true;
+            });
+            sec.style.display = anyVisible ? "" : "none";
+        });
+    }
+
+    searchEl.addEventListener("input", applyFilters);
+
+    filterBtns.forEach(function (btn) {
+        btn.onclick = function () {
+            filterBtns.forEach(function (b) { b.classList.remove("active"); });
+            btn.classList.add("active");
+            activeCat = btn.dataset.cat;
+            applyFilters();
+        };
+    });
+
+    // Expand / collapse all
+    document.getElementById("expand-all").onclick = function () {
+        document.querySelectorAll("details").forEach(function (d) {
+            if (d.style.display !== "none") {
+                d.open = true;
+                window.highlightAll(d);
+            }
+        });
+    };
+
+    document.getElementById("collapse-all").onclick = function () {
+        document.querySelectorAll("details").forEach(function (d) { d.open = false; });
+    };
+
+    // Copy code
+    window.copyCode = function (btn) {
+        var code = btn.closest(".content").querySelector("code");
+        navigator.clipboard.writeText(code.textContent).then(function () {
+            var orig = btn.textContent;
+            btn.textContent = "✓";
+            btn.classList.add("copied");
+            setTimeout(function () {
+                btn.textContent = orig;
+                btn.classList.remove("copied");
+            }, 1500);
+        });
+    };
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown", function (e) {
+        if (e.target.tagName === "INPUT") {
+            if (e.key === "Escape") {
+                searchEl.value = "";
+                applyFilters();
+                searchEl.blur();
+            }
+            return;
+        }
+        if (e.key === "s" || e.key === "S") { setSidebar(!sidebarOpen); return; }
+        if (e.key === "t" || e.key === "T") {
+            setTheme(html.dataset.theme === "dark" ? "light" : "dark");
+            return;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+            e.preventDefault();
+            searchEl.focus();
+            searchEl.select();
+        }
+    });
+});
+</script>
 </body>
 </html>
