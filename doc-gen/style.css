@@ -331,9 +331,15 @@ h1 {
     font-size: 1rem;
     font-weight: 700;
     color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.01em;
     line-height: 1.2;
+}
+
+#title-sub {
+    font-weight: 400;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0;
 }
 
 #github-link {
@@ -639,17 +645,21 @@ summary:hover { background: var(--card-hover); }
 /* ============================================================================
    Syntax tokens (Monokai)
    ========================================================================== */
-.hl-cm  { color: var(--m-gray);   font-style: italic; }
-.hl-str { color: var(--m-yellow); }
-.hl-kw  { color: var(--m-pink);   font-weight: 600; }
-.hl-ty  { color: var(--m-blue); }
-.hl-fn  { color: var(--m-green); }
-.hl-bi  { color: var(--m-teal);   font-style: italic; }
-.hl-bl  { color: var(--m-purple); }
-.hl-nm  { color: var(--m-purple); }
-.hl-dr  { color: var(--m-orange); }
-.hl-at  { color: var(--m-orange); font-style: italic; }
-.hl-op  { color: var(--m-pink);   opacity: 0.8; }
+.hl-cm  { color: var(--m-gray);   font-style: italic; }   /* comments        */
+.hl-str { color: var(--m-yellow); }                        /* strings         */
+.hl-kw  { color: var(--m-pink);   font-weight: 600; }     /* keywords        */
+.hl-ty  { color: var(--m-blue); }                          /* types           */
+.hl-fn  { color: var(--m-green); }                         /* proc names      */
+.hl-bi  { color: var(--m-teal);   font-style: italic; }   /* built-ins       */
+.hl-bl  { color: var(--m-purple); }                        /* true/false/nil  */
+.hl-nm  { color: var(--m-purple); }                        /* numbers         */
+.hl-dr  { color: var(--m-orange); }                        /* directives      */
+.hl-at  { color: var(--m-orange); font-style: italic; }   /* attributes      */
+.hl-op  { color: var(--m-fg);     opacity: 0.55; }        /* operators       */
+.hl-dc  { color: var(--m-pink);   opacity: 0.7; }         /* ::  declaration */
+.hl-as  { color: var(--m-pink);   opacity: 0.7; }         /* :=  assignment  */
+.hl-pt  { color: var(--m-pink);   opacity: 0.75; }        /* ^   pointer     */
+.hl-ar  { color: var(--m-teal);   opacity: 0.9; }         /* ->  return type */
 
 /* ── Cross-reference links ───────────────────────────────────────────────── */
 .sym-link {
@@ -703,65 +713,7 @@ details.flash { animation: sym-flash 0.8s ease-out forwards; }
     color: var(--text-faint);
 }
 
-/* ── Help modal ─────────────────────────────────────────────────────────── */
-#help-modal {
-    position: fixed;
-    inset: 0;
-    background: #00000088;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    transition: opacity 0.15s;
-}
-
-#help-modal[aria-hidden="true"]  { opacity: 0; pointer-events: none; }
-#help-modal[aria-hidden="false"] { opacity: 1; }
-
-#help-box {
-    background: var(--card);
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 20px 24px;
-    min-width: 260px;
-}
-
-#help-title {
-    font-weight: 700;
-    font-size: 0.9rem;
-    margin-bottom: 14px;
-    color: var(--text);
-}
-
-.help-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 0;
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    gap: 20px;
-}
-
-.help-row span { color: var(--text-dim); }
-
-kbd {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: 3px;
-    padding: 2px 6px;
-    font-family: monospace;
-    font-size: 0.75rem;
-    color: var(--text);
-    white-space: nowrap;
-}
-
-#help-close {
-    margin-top: 16px;
-    width: 100%;
-    padding: 6px;
-    font-size: 0.8rem;
-}
+/* Help modal removed */
 
 /* ============================================================================
    Responsive

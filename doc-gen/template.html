@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Silicon Rendering Engine</title>
+    <title>Silicon Doc</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,10 +35,10 @@
             <button id="sidebar-toggle" class="icon-btn" title="Toggle sidebar (S)">&#9776;</button>
             <div>
                 <div id="title-row">
-                    <h1>Silicon Rendering Engine</h1>
+                    <h1>Silicon <span id='title-sub'>an OpenGL Renderer</span></h1>
                     <a id="github-link" href="https://github.com/Parven05/Silicon" target="_blank" rel="noopener" title="View on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
                 </div>
-                <div class="tagline">Core Technical Documentation</div>
+                <div class="tagline">Code Documentation</div>
             </div>
         </div>
         <div id="header-right">
@@ -60,7 +60,6 @@
             <button id="back-btn"     title="Go back (Alt+Left)">&#8592;</button>
             <button id="expand-all"   title="Expand all">&#8862;</button>
             <button id="collapse-all" title="Collapse all">&#8863;</button>
-            <button id="help-btn"     title="Keyboard shortcuts (?)">?</button>
         </div>
     </div>
 
@@ -74,20 +73,6 @@
         <div id="no-results-sub">Try a different name or category</div>
     </div>
 </main>
-
-<!-- Help modal -->
-<div id="help-modal" aria-hidden="true">
-    <div id="help-box">
-        <div id="help-title">Keyboard Shortcuts</div>
-        <div class="help-row"><kbd>S</kbd><span>Toggle sidebar</span></div>
-        <div class="help-row"><kbd>T</kbd><span>Toggle theme</span></div>
-        <div class="help-row"><kbd>J</kbd><span>Next symbol</span></div>
-        <div class="help-row"><kbd>K</kbd><span>Previous symbol</span></div>
-        <div class="help-row"><kbd>Alt &#8592;</kbd><span>Go back</span></div>
-        <div class="help-row"><kbd>?</kbd><span>This help</span></div>
-        <button id="help-close">Close</button>
-    </div>
-</div>
 
 <script>
 "use strict";
@@ -109,24 +94,51 @@ Object.entries(TOC).forEach(function (entry) {
 });
 
 // ============================================================================
-// 2. Syntax highlighter
+// 2. Syntax highlighter — Odin-aware, single-pass
 // ============================================================================
 (function () {
     var RULES = [
+        // Strings & comments first — protect internals from keyword matches
         { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
         { cls: "cm",  re: /\/\/[^\n]*/g },
+        { cls: "str", re: /`[^`]*`/g },
         { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
         { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
+
+        // Declaration names — before keyword rule so names aren't double-coloured
         { cls: "fn",  re: /\b([A-Za-z_]\w*)(\s*::\s*proc\b)/g,                  cap: true },
         { cls: "ty",  re: /\b([A-Za-z_]\w*)(\s*::\s*(?:struct|enum|union)\b)/g, cap: true },
-        { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
-        { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
-        { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
-        { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
-        { cls: "dr",  re: /#\w+/g },
+
+        // Directives & attributes
+        { cls: "dr",  re: /#[a-z_]+/g },
         { cls: "at",  re: /@(?:\([^)]*\)|\w+)/g },
-        { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
-        { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
+
+        // Keywords
+        { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|matrix|return|defer|if|else|when|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
+
+        // Built-in types (includes b8/b16/b32/b64 and cstring)
+        { cls: "ty",  re: /\b(?:bool|b8|b16|b32|b64|byte|rune|string|cstring|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
+
+        // Boolean & nil
+        { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
+
+        // Built-in procedures (expanded list)
+        { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|new_clone|free|free_all|delete|append|append_elem|append_elems|append_nothing|assign_at|clear|reserve|resize|shrink|copy|unordered_remove|ordered_remove|pop|push|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|unreachable|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln|assertf|panicf)\b/g },
+
+        // Numeric literals — hex, binary, octal, float, int with _ separators
+        { cls: "nm",  re: /\b(?:0x[\da-fA-F][\da-fA-F_]*|0b[01][01_]*|0o[0-7][0-7_]*|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d[\d_]*)?i?)\b/g },
+
+        // :: and := get distinct classes so they stand out clearly
+        { cls: "dc",  re: /::/g },
+        { cls: "as",  re: /:=/g },
+        // Pointer prefix ^
+        { cls: "pt",  re: /\^/g },
+        // Return type arrow ->
+        { cls: "ar",  re: /->/g },
+        // Range ..
+        { cls: "op",  re: /\.\./g },
+        // Remaining operators
+        { cls: "op",  re: /[+\-*/%=<>!&|~?]+/g },
     ];
 
     function esc(s) {
@@ -177,36 +189,63 @@ Object.entries(TOC).forEach(function (entry) {
 
 // ============================================================================
 // 3. Cross-reference linker
+//
+// Fix: after highlighting, identifiers live inside <span class="hl-*"> nodes,
+// NOT in raw text nodes. The old linker only walked text nodes so it missed
+// almost every symbol reference.
+//
+// New approach — walk every direct child of <code>:
+//   text nodes  → scan for symbols in punctuation/whitespace runs
+//   span.hl-fn / .hl-ty / .hl-bi → if textContent is a known symbol, wrap
+//                                    its inner content in a <a class="sym-link">
+//   span.hl-cm / .hl-str / .hl-kw → skip entirely (don't link inside these)
 // ============================================================================
 (function () {
+    var LINKABLE = { "hl-fn": true, "hl-ty": true, "hl-bi": true };
+    var SKIP_CLS = { "hl-cm": true, "hl-str": true, "hl-kw": true,
+                     "hl-dr": true, "hl-at": true,  "hl-nm": true,
+                     "hl-bl": true, "hl-dc": true,  "hl-as": true };
+
     var IDENT_RE = /\b([A-Za-z_]\w*)\b/g;
 
-    function linkTextNode(textNode, selfName) {
-        var text = textNode.nodeValue;
+    function makeLink(word, targetId) {
+        var a = document.createElement("a");
+        a.className   = "sym-link";
+        a.href        = "#" + targetId;
+        a.textContent = word;
+        a.title       = "Go to " + word;
+        a.onclick = (function (id) {
+            return function (ev) { ev.preventDefault(); navigateTo(id); };
+        }(targetId));
+        return a;
+    }
+
+    function linkTextNode(node, selfName) {
+        var text = node.nodeValue;
         IDENT_RE.lastIndex = 0;
-        var m, parts = [], pos = 0, anyLinked = false;
+        var m, parts = [], pos = 0, any = false;
         while ((m = IDENT_RE.exec(text)) !== null) {
             var word = m[1];
             if (word === selfName || !SYMBOL_MAP[word]) continue;
-            var targetId = SYMBOL_MAP[word];
             if (m.index > pos) parts.push(document.createTextNode(text.slice(pos, m.index)));
-            var a = document.createElement("a");
-            a.className   = "sym-link";
-            a.href        = "#" + targetId;
-            a.textContent = word;
-            a.title       = "Go to " + word;
-            a.onclick = (function (id) {
-                return function (ev) { ev.preventDefault(); navigateTo(id); };
-            }(targetId));
-            parts.push(a);
+            parts.push(makeLink(word, SYMBOL_MAP[word]));
             pos = m.index + word.length;
-            anyLinked = true;
+            any = true;
         }
-        if (!anyLinked) return;
+        if (!any) return;
         if (pos < text.length) parts.push(document.createTextNode(text.slice(pos)));
-        var parent = textNode.parentNode;
-        parts.forEach(function (node) { parent.insertBefore(node, textNode); });
-        parent.removeChild(textNode);
+        var parent = node.parentNode;
+        parts.forEach(function (n) { parent.insertBefore(n, node); });
+        parent.removeChild(node);
+    }
+
+    function linkSpan(span, selfName) {
+        var word = span.textContent;
+        if (!word || word === selfName || !SYMBOL_MAP[word]) return;
+        if (span.querySelector("a.sym-link")) return; // already linked
+        var a = makeLink(word, SYMBOL_MAP[word]);
+        while (span.firstChild) a.appendChild(span.firstChild);
+        span.appendChild(a);
     }
 
     window.linkAll = function (root) {
@@ -218,11 +257,17 @@ Object.entries(TOC).forEach(function (entry) {
             var selfName = details ? (details.querySelector(".item-name") || {}).textContent || "" : "";
             var children = Array.from(el.childNodes);
             children.forEach(function (node) {
-                if (node.nodeType === Node.TEXT_NODE) linkTextNode(node, selfName);
+                if (node.nodeType === Node.TEXT_NODE) {
+                    linkTextNode(node, selfName);
+                } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === "SPAN") {
+                    if (SKIP_CLS[node.className]) return;
+                    if (LINKABLE[node.className]) linkSpan(node, selfName);
+                }
             });
         }
     };
 }());
+
 
 // ============================================================================
 // 4. Navigation history
@@ -245,7 +290,9 @@ function navigateTo(itemId, pushHistory) {
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     el.classList.add("flash");
     setTimeout(function () { el.classList.remove("flash"); }, 800);
-    history.replaceState(null, "", "#" + itemId);
+    // Update URL hash for shareability, but use a state marker so
+    // we can detect on reload that this wasn't a fresh navigation
+    history.replaceState({ navType: "internal" }, "", "#" + itemId);
     updateBackBtn();
     updateActiveSidebarLink(itemId);
 }
@@ -263,10 +310,31 @@ document.addEventListener("DOMContentLoaded", function () {
     window.linkAll();
     updateBackBtn();
 
-    // Anchor on load
+    // Anchor on load — only follow the hash if the user explicitly navigated
+    // here via a shared link (performance.navigation.type === 0 means a fresh
+    // navigation, not a reload). On reload we clear the hash so the page always
+    // starts at the top with everything collapsed.
     (function () {
         var hash = window.location.hash.slice(1);
         if (!hash) return;
+
+        // TYPE_RELOAD = 1, TYPE_BACK_FORWARD = 2 — clear hash, start fresh
+        // If the state has our internal marker, this is a reload after
+        // in-page navigation — clear hash and start fresh at top
+        if (history.state && history.state.navType === "internal") {
+            history.replaceState(null, "", window.location.pathname);
+            return;
+        }
+        // Also catch browser reload/back via performance API as fallback
+        var navType = (performance && performance.navigation)
+            ? performance.navigation.type
+            : -1;
+        if (navType === 1 || navType === 2) {
+            history.replaceState(null, "", window.location.pathname);
+            return;
+        }
+
+        // Fresh navigation with a hash (shared link) — open and scroll to it
         var el = document.getElementById(hash);
         if (!el) return;
         el.open = true;
@@ -318,7 +386,8 @@ document.addEventListener("DOMContentLoaded", function () {
         pkgLabel.className   = "toc-pkg-label";
         // Strip path prefix and .odin extension — display basename only
         var pkgBasename = pkg.replace(/^.*[\/]/, "").replace(/\.odin$/i, "");
-        pkgLabel.textContent = pkgBasename;
+        pkgLabel.textContent    = pkgBasename;
+        pkgLabel.dataset.rawPkg = pkg;  // full path for scroll-spy matching
 
         var pkgCount = document.createElement("span");
         pkgCount.className   = "toc-pkg-count";
@@ -435,22 +504,24 @@ document.addEventListener("DOMContentLoaded", function () {
         var viewHeight = apiRoot.clientHeight;
         var activePkg = null;
 
-        // Find the topmost visible file section
+        // Find the topmost visible file section (30% threshold from top)
         for (var si = 0; si < allSectionsForSpy.length; si++) {
             var sec = allSectionsForSpy[si];
             if (sec.style.display === "none") continue;
-            var rect = sec.getBoundingClientRect();
+            var rect     = sec.getBoundingClientRect();
             var rootRect = apiRoot.getBoundingClientRect();
-            var relTop = rect.top - rootRect.top;
-            if (relTop <= viewHeight * 0.3) {
-                activePkg = sec.dataset.pkg || sec.querySelector(".file-header").dataset.pkg;
+            var relTop   = rect.top - rootRect.top;
+            if (relTop <= viewHeight * 0.35) {
+                activePkg = sec.querySelector(".file-header").dataset.pkg || "";
             }
         }
 
-        // Highlight matching sidebar group header
+        // Highlight matching sidebar group header and auto-expand if collapsed
         sidebarContent.querySelectorAll(".toc-pkg").forEach(function (hdr) {
-            var pkg = hdr.closest(".toc-group").querySelector(".toc-pkg-label").textContent;
-            hdr.classList.toggle("spy-active", pkg === activePkg);
+            var label   = hdr.querySelector(".toc-pkg-label");
+            var rawText = label ? label.dataset.rawPkg || "" : "";
+            var isActive = rawText === activePkg;
+            hdr.classList.toggle("spy-active", isActive);
         });
     }
 
@@ -634,16 +705,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // =========================================================================
-    // Help modal
-    // =========================================================================
-    var helpModal = document.getElementById("help-modal");
-    function showHelp() { helpModal.setAttribute("aria-hidden", "false"); }
-    function hideHelp() { helpModal.setAttribute("aria-hidden", "true"); }
-    document.getElementById("help-btn").onclick   = showHelp;
-    document.getElementById("help-close").onclick = hideHelp;
-    helpModal.addEventListener("click", function (e) { if (e.target === helpModal) hideHelp(); });
-
-    // =========================================================================
     // Keyboard shortcuts
     // =========================================================================
     document.addEventListener("keydown", function (e) {
@@ -657,13 +718,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             return;
         }
-        if (e.key === "Escape") { hideHelp(); return; }
         switch (e.key) {
             case "s": case "S": setSidebar(!sidebarOpen); break;
             case "t": case "T": setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark"); break;
             case "j": case "J": jkNavigate(1);  break;
             case "k": case "K": jkNavigate(-1); break;
-            case "?":           showHelp();      break;
             default:
                 if (e.altKey && e.key === "ArrowLeft") {
                     e.preventDefault();
