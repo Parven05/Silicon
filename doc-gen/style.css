@@ -462,6 +462,45 @@ summary:hover { background: var(--card-hover); }
 /* ============================================================================
    Responsive
    ========================================================================== */
+/* ── GitHub link in header ──────────────────────────────────────────────── */
+#title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#github-link {
+    display: flex;
+    align-items: center;
+    color: var(--text-dim);
+    opacity: 0.6;
+    transition: opacity 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+
+#github-link:hover { opacity: 1; color: var(--text); }
+
+#github-link svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* ── Symbol count badge in file header ──────────────────────────────────── */
+.file-sym-count {
+    margin-left: auto;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--text-faint);
+    font-family: monospace;
+    letter-spacing: 0;
+}
+
+.file-header {
+    display: flex;
+    align-items: center;
+}
+
 /* ── Cross-reference links inside code blocks ───────────────────────────── */
 .sym-link {
     color: inherit;

@@ -1,4 +1,4 @@
-/*1*/
+// 1
 package silicon
 
 main :: proc() {
