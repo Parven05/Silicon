@@ -2,31 +2,143 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silicon Rendering Engine</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-monokai.min.css" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
-        <header><h1>{{title}}</h1><div class="tagline">{{tagline}}</div></header>
-        <input type="text" id="search" placeholder="Search API...">
+        <header>
+            <h1>Silicon Rendering Engine</h1>
+            <div class="tagline">Core Technical Documentation</div>
+        </header>
+        <input type="text" id="search" placeholder="Filter by name...">
         <div id="api-root">{{content}}</div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+
     <script>
-        Prism.languages.odin = Prism.languages.extend('clike', {
-            'keyword': /\b(?:package|import|proc|struct|enum|union|return|defer|if|else|for|switch|case|dynamic|map|bit_set)\b/,
-            'operator': /->|::|:=|\.\.|[\+\-\*\/%=<>!&|\^~]+/,
-            'attr-name': /@\w+/,
-            'builtin': /\b(?:[uif]\d+|bool|string|rawptr|any|int|uint)\b/
-        });
-        document.getElementById('search').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('details').forEach(el => {
-                const name = el.querySelector('summary').innerText.toLowerCase();
-                el.style.display = name.includes(term) ? 'block' : 'none';
+    // ---------------------------------------------------------------------------
+    // Odin syntax highlighter — no external dependencies
+    // Tokenises in one pass; each rule is greedy and non-overlapping.
+    // ---------------------------------------------------------------------------
+    (function () {
+        "use strict";
+
+        // Token definitions ordered by priority (first match wins)
+        const RULES = [
+            // Block comments
+            { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
+            // Line comments
+            { cls: "cm",  re: /\/\/[^\n]*/g },
+            // Strings (double-quoted)
+            { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
+            // Character literals
+            { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
+            // Procedure name:  foo :: proc
+            { cls: "fn",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*proc\b)/g, cap: 1 },
+            // Struct / enum / union type name:  Foo :: struct
+            { cls: "ty",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*(?:struct|enum|union)\b)/g, cap: 1 },
+            // Keywords
+            { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
+            // Built-in types
+            { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
+            // Boolean / nil literals
+            { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
+            // Built-in procedures
+            { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
+            // Directives
+            { cls: "dr",  re: /#\w+/g },
+            // Numbers (hex, binary, oct, float, int — with optional underscore separators)
+            { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
+            // Operators and punctuation
+            { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
+        ];
+
+        function highlight(raw) {
+            // Map each character index → replacement span (or null)
+            const n = raw.length;
+            // We'll collect [start, end, cls, text] non-overlapping matches
+            const matches = [];
+            const covered = new Uint8Array(n); // 1 = already claimed
+
+            for (const rule of RULES) {
+                rule.re.lastIndex = 0;
+                let m;
+                while ((m = rule.re.exec(raw)) !== null) {
+                    // If rule has a capture group, highlight only that group
+                    const fullStart = m.index;
+                    const fullEnd   = fullStart + m[0].length;
+                    const hlStart   = rule.cap != null ? fullStart + m[0].indexOf(m[rule.cap]) : fullStart;
+                    const hlEnd     = hlStart + (rule.cap != null ? m[rule.cap].length : m[0].length);
+
+                    // Check no overlap
+                    let skip = false;
+                    for (let i = hlStart; i < hlEnd; i++) {
+                        if (covered[i]) { skip = true; break; }
+                    }
+                    if (skip) continue;
+
+                    for (let i = hlStart; i < hlEnd; i++) covered[i] = 1;
+                    matches.push([hlStart, hlEnd, rule.cls]);
+                }
+            }
+
+            // Sort by position
+            matches.sort((a, b) => a[0] - b[0]);
+
+            // Build output
+            let out = "";
+            let pos = 0;
+            for (const [start, end, cls] of matches) {
+                if (start > pos) out += escHtml(raw.slice(pos, start));
+                out += `<span class="hl-${cls}">${escHtml(raw.slice(start, end))}</span>`;
+                pos = end;
+            }
+            if (pos < n) out += escHtml(raw.slice(pos));
+            return out;
+        }
+
+        function escHtml(s) {
+            return s.replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+        }
+
+        function highlightAll() {
+            document.querySelectorAll("code.language-odin:not([data-hl])").forEach(el => {
+                el.dataset.hl = "1";
+                // The text content was already HTML-escaped by gen.py, so read textContent
+                el.innerHTML = highlight(el.textContent);
+            });
+        }
+
+        // Run on initial load
+        document.addEventListener("DOMContentLoaded", highlightAll);
+
+        // Re-run when a <details> is opened (lazy blocks)
+        document.addEventListener("toggle", (e) => {
+            if (e.target.tagName === "DETAILS" && e.target.open) {
+                highlightAll();
+            }
+        }, true);
+
+        // Search filter
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("search").addEventListener("input", (e) => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll("details").forEach(el => {
+                    const name = el.querySelector("summary").textContent.toLowerCase();
+                    el.style.display = name.includes(term) ? "" : "none";
+                });
+                // Hide empty file sections
+                document.querySelectorAll(".file-section").forEach(sec => {
+                    const visible = [...sec.querySelectorAll("details")]
+                        .some(d => d.style.display !== "none");
+                    sec.style.display = visible ? "" : "none";
+                });
             });
         });
+    })();
     </script>
 </body>
 </html>

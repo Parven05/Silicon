@@ -2,109 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Silicon Master API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silicon Rendering Engine</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-monokai.min.css" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
-        <header><h1>Silicon Master API</h1><div class="tagline">High-performance renderer technical reference.</div></header>
-        <input type="text" id="search" placeholder="Search API...">
+        <header>
+            <h1>Silicon Rendering Engine</h1>
+            <div class="tagline">Core Technical Documentation</div>
+        </header>
+        <input type="text" id="search" placeholder="Filter by name...">
         <div id="api-root"><div class='file-section'><div class='file-header'>buffers.odin</div>
         <details>
-            <summary>EBO<div class="badge">STRUCT</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">EBO::struct {
+            <summary>EBO<span class='badge'>STRUCT</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>EBO :: struct {
     id: u32,
 }</code></pre></div>
         </details>
         <details>
-            <summary>VAO<div class="badge">STRUCT</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">VAO::struct {
+            <summary>VAO<span class='badge'>STRUCT</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>VAO :: struct {
     id: u32,
 }</code></pre></div>
         </details>
         <details>
-            <summary>VBO<div class="badge">STRUCT</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">VBO::struct {
+            <summary>VBO<span class='badge'>STRUCT</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>VBO :: struct {
     id: u32,
 }</code></pre></div>
         </details>
         <details>
-            <summary>bind_EBO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">bind_EBO::proc(ebo:^EBO, indices: []u32, usage:u32) -&gt; (bool) {
+            <summary>bind_EBO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_EBO :: proc(ebo:^EBO, indices: []u32, usage:u32) -&gt; (bool) {
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo.id)
     gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices) * len(indices), raw_data(indices), usage)
     return true
 }</code></pre></div>
         </details>
         <details>
-            <summary>bind_VAO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">bind_VAO::proc(vao:^VAO) -&gt; (bool) {
+            <summary>bind_VAO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_VAO :: proc(vao:^VAO) -&gt; (bool) {
     gl.BindVertexArray(vao.id)
     return true
 }</code></pre></div>
         </details>
         <details>
-            <summary>bind_VBO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">bind_VBO::proc(vbo:^VBO, vertices: []f32, usage:u32) -&gt; (bool) {
+            <summary>bind_VBO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_VBO :: proc(vbo:^VBO, vertices: []f32, usage:u32) -&gt; (bool) {
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo.id)
     gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices) * len(vertices), raw_data(vertices), usage)
     return true
 }</code></pre></div>
         </details>
         <details>
-            <summary>create_EBO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">create_EBO::proc() -&gt; (EBO, bool) {
+            <summary>create_EBO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>create_EBO :: proc() -&gt; (EBO, bool) {
     ebo_id: u32
-    gl.GenBuffers(1, &ebo_id)
+    gl.GenBuffers(1, &amp;ebo_id)
     return EBO{id = ebo_id}, true
 }</code></pre></div>
         </details>
         <details>
-            <summary>create_VAO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">create_VAO::proc() -&gt; (VAO, bool) {
+            <summary>create_VAO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>create_VAO :: proc() -&gt; (VAO, bool) {
     vao_id: u32
-    gl.GenVertexArrays(1, &vao_id)
+    gl.GenVertexArrays(1, &amp;vao_id)
     return VAO{id = vao_id}, true
 }</code></pre></div>
         </details>
         <details>
-            <summary>create_VBO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">create_VBO::proc() -&gt; (VBO, bool) {
+            <summary>create_VBO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>create_VBO :: proc() -&gt; (VBO, bool) {
     vbo_id: u32
-    gl.GenBuffers(1, &vbo_id)
+    gl.GenBuffers(1, &amp;vbo_id)
     return VBO{id = vbo_id}, true
 }</code></pre></div>
         </details>
         <details>
-            <summary>delete_EBO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">delete_EBO::proc(ebo:^EBO) {
-    gl.DeleteBuffers(1, &ebo.id)
+            <summary>delete_EBO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_EBO :: proc(ebo:^EBO) {
+    gl.DeleteBuffers(1, &amp;ebo.id)
 }</code></pre></div>
         </details>
         <details>
-            <summary>delete_VAO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">delete_VAO::proc(vao:^VAO) {
-    gl.DeleteVertexArrays(1, &vao.id)
+            <summary>delete_VAO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_VAO :: proc(vao:^VAO) {
+    gl.DeleteVertexArrays(1, &amp;vao.id)
 }</code></pre></div>
         </details>
         <details>
-            <summary>delete_VBO<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">delete_VBO::proc(vbo:^VBO) {
-    gl.DeleteBuffers(1, &vbo.id)
+            <summary>delete_VBO<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_VBO :: proc(vbo:^VBO) {
+    gl.DeleteBuffers(1, &amp;vbo.id)
 }</code></pre></div>
         </details>
         <details>
-            <summary>link_attrib<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">link_attrib::proc(index: u32, size, stride: i32, offset: u32) -&gt; (bool) {
+            <summary>link_attrib<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>link_attrib :: proc(index: u32, size, stride: i32, offset: u32) -&gt; (bool) {
 	gl.VertexAttribPointer(index, size, gl.FLOAT, false, stride * size_of(f32), uintptr(offset * size_of(f32)))
 	gl.EnableVertexAttribArray(index)
 	return true
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>camera.odin</div>
         <details>
-            <summary>Camera<div class="badge">STRUCT</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">Camera :: struct {
+            <summary>Camera<span class='badge'>STRUCT</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>Camera :: struct {
 	pos:   			la.Vector3f32,
 	rot: 			la.Vector3f32,
 	target: 		la.Vector3f32,
@@ -116,15 +119,15 @@
 }</code></pre></div>
         </details>
         <details>
-            <summary>Camera_mode<div class="badge">ENUM</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">Camera_mode :: enum {
+            <summary>Camera_mode<span class='badge'>ENUM</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>Camera_mode :: enum {
 	PERSPECTIVE,
 	ORTHOGRAPHIC,
 }</code></pre></div>
         </details>
         <details>
-            <summary>get_camera_mode<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">get_camera_mode :: proc(cam_mode: Camera_mode, camera: ^Camera) -&gt; la.Matrix4f32  {
+            <summary>get_camera_mode<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>get_camera_mode :: proc(cam_mode: Camera_mode, camera: ^Camera) -&gt; la.Matrix4f32  {
 	switch cam_mode {
 	case .PERSPECTIVE:
 		return la.matrix4_perspective_f32(ma.to_radians_f32(camera.fov), f32(camera.aspect_ratio.x) / f32(camera.aspect_ratio.y), camera.near, camera.far)
@@ -136,14 +139,14 @@
 }</code></pre></div>
         </details>
         <details>
-            <summary>get_camera_view<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">get_camera_view :: proc(camera: ^Camera) -&gt; la.Matrix4f32 {
+            <summary>get_camera_view<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>get_camera_view :: proc(camera: ^Camera) -&gt; la.Matrix4f32 {
 	return la.matrix4_look_at_f32(camera.pos, camera.pos + camera.target, camera.up)
 }</code></pre></div>
         </details>
         <details>
-            <summary>init_camera<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">init_camera :: proc(camera: ^Camera) -&gt; (bool) {
+            <summary>init_camera<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>init_camera :: proc(camera: ^Camera) -&gt; (bool) {
 	pitch : f32 = 0.0
 	yaw : f32 = -90.0
 
@@ -158,46 +161,46 @@
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>engine.odin</div>
         <details>
-            <summary>clear_window<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">clear_window :: proc() {
+            <summary>clear_window<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>clear_window :: proc() {
 	gl.ClearColor(0.20, 0.20, 0.20, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }</code></pre></div>
         </details>
         <details>
-            <summary>delete_engine<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">delete_engine :: proc() {
-	delete_VBO(&vbo)
-	delete_VAO(&vao)
+            <summary>delete_engine<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_engine :: proc() {
+	delete_VBO(&amp;vbo)
+	delete_VAO(&amp;vao)
 	delete_window()
 }</code></pre></div>
         </details>
         <details>
-            <summary>enable_feature<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">enable_feature :: proc(cap: u32)  {
+            <summary>enable_feature<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>enable_feature :: proc(cap: u32)  {
 	gl.Enable(cap)
 }</code></pre></div>
         </details>
         <details>
-            <summary>init_engine<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">init_engine :: proc() {
+            <summary>init_engine<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>init_engine :: proc() {
 	context.logger = log.create_console_logger()
 
 	// setup window
 	SUCCESS = init_window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	if !SUCCESS {
-		log.error("Failed to initialize window")
+		log.error(&quot;Failed to initialize window&quot;)
 	} else {
-		log.info("Window initialized successfully")
+		log.info(&quot;Window initialized successfully&quot;)
 	}
 
 	// setup shader
 	shader, SUCCESS = init_shader(VERTEX_PATH, FRAGMENT_PATH)
 	if !SUCCESS {
-		log.error("Failed to compile shader file")
+		log.error(&quot;Failed to compile shader file&quot;)
 		return
 	} else {
-		log.info("Shader file compiled successfully")
+		log.info(&quot;Shader file compiled successfully&quot;)
 	}
 
 	// setup config
@@ -209,39 +212,39 @@
 	texture_01 = init_texture(gl.TEXTURE_2D, gl.REPEAT, gl.LINEAR_MIPMAP_LINEAR, gl.LINEAR)
 	SUCCESS = load_texture(TEXTURE_PATH_01, gl.TEXTURE_2D, gl.RGB, gl.RGB)
 	if !SUCCESS {
-		log.errorf("Failed to load texture: %v", texture_01.id)
+		log.errorf(&quot;Failed to load texture: %v&quot;, texture_01.id)
 	} else {
-		log.infof("Texture loaded successfully: %v", texture_01.id)
+		log.infof(&quot;Texture loaded successfully: %v&quot;, texture_01.id)
 	}
 
 	// setup buffers
 	vao, SUCCESS = create_VAO()
 	if !SUCCESS {
-		log.errorf("Failed to create vertex array object: %v", vao.id)
+		log.errorf(&quot;Failed to create vertex array object: %v&quot;, vao.id)
 	} else {
-		log.infof("Vertex array object created successfully: %v", vao.id)
+		log.infof(&quot;Vertex array object created successfully: %v&quot;, vao.id)
 	}
 
 	vbo, SUCCESS = create_VBO()
 	if !SUCCESS {
-		log.errorf("Failed to create vertex buffer object: %v", vbo.id)
+		log.errorf(&quot;Failed to create vertex buffer object: %v&quot;, vbo.id)
 	} else {
-		log.infof("Vertex buffer object created successfully: %v", vbo.id)
+		log.infof(&quot;Vertex buffer object created successfully: %v&quot;, vbo.id)
 	}
 
 	// bind buffers
- 	SUCCESS = bind_VAO(&vao)
+ 	SUCCESS = bind_VAO(&amp;vao)
   	if !SUCCESS {
- 		log.errorf("Failed to bind vertex array object: %v", vao.id)
+ 		log.errorf(&quot;Failed to bind vertex array object: %v&quot;, vao.id)
    } else {
-   		log.infof("Vertex array object binded successfully: %v", vao.id)
+   		log.infof(&quot;Vertex array object binded successfully: %v&quot;, vao.id)
    }
 
-  	SUCCESS = bind_VBO(&vbo, cube_vertices, gl.STATIC_DRAW)
+  	SUCCESS = bind_VBO(&amp;vbo, cube_vertices, gl.STATIC_DRAW)
    	if !SUCCESS {
-  		log.errorf("Failed to bind vertex buffer object: %v", vbo.id)
+  		log.errorf(&quot;Failed to bind vertex buffer object: %v&quot;, vbo.id)
     } else {
-    		log.infof("Vertex buffer object binded successfully: %v", vbo.id)
+    		log.infof(&quot;Vertex buffer object binded successfully: %v&quot;, vbo.id)
     }
 
 	// link buffers
@@ -249,39 +252,39 @@
 	stride : i32 = 5
 	SUCCESS = link_attrib(0, 3, stride, 0)
 	if !SUCCESS {
-		log.errorf("Failed to link attributes to vertex array object: %v", vao.id)
+		log.errorf(&quot;Failed to link attributes to vertex array object: %v&quot;, vao.id)
 	} else {
-		log.infof("Linked attributes to vertex array object successfully: %v", vao.id)
+		log.infof(&quot;Linked attributes to vertex array object successfully: %v&quot;, vao.id)
 	}
 
 	// texture attribute
 	SUCCESS = link_attrib(1, 2, stride, 3)
 	if !SUCCESS {
-		log.errorf("Failed to link attributes to vertex array object: %v", vao.id)
+		log.errorf(&quot;Failed to link attributes to vertex array object: %v&quot;, vao.id)
 	} else {
-		log.infof("Linked attributes to vertex array object successfully: %v", vao.id)
+		log.infof(&quot;Linked attributes to vertex array object successfully: %v&quot;, vao.id)
 	}
 
 	// setup camera
-	SUCCESS = init_camera(&camera)
+	SUCCESS = init_camera(&amp;camera)
 	if !SUCCESS {
-		log.error("Failed to initialize camera")
+		log.error(&quot;Failed to initialize camera&quot;)
 	} else {
-		log.info("Camera initialize successfully")
+		log.info(&quot;Camera initialize successfully&quot;)
 	}
 
 	camera.aspect_ratio = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
 }</code></pre></div>
         </details>
         <details>
-            <summary>post_render_engine<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">post_render_engine :: proc() {
+            <summary>post_render_engine<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>post_render_engine :: proc() {
 	swap_buffer_window()
 }</code></pre></div>
         </details>
         <details>
-            <summary>pre_render_engine<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">pre_render_engine :: proc() {
+            <summary>pre_render_engine<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>pre_render_engine :: proc() {
 	clear_window()
 	set_current_window_size()
 
@@ -289,39 +292,39 @@
 	bind_texture(gl.TEXTURE_2D, texture_01)
 
 	use_shader(shader)
-	camera_projection := get_camera_mode(.PERSPECTIVE, &camera)
-	set_uniform(shader, "projection", &camera_projection)
+	camera_projection := get_camera_mode(.PERSPECTIVE, &amp;camera)
+	set_uniform(shader, &quot;projection&quot;, &amp;camera_projection)
 
-	camera_view := get_camera_view(&camera)
-	set_uniform(shader, "view", &camera_view)
+	camera_view := get_camera_view(&amp;camera)
+	set_uniform(shader, &quot;view&quot;, &amp;camera_view)
 }</code></pre></div>
         </details>
         <details>
-            <summary>process_input<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">process_input :: proc() {
+            <summary>process_input<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>process_input :: proc() {
 	set_deltatime()
 	close_window(window)
-	move_camera(&camera)
-	reset_camera(&camera)
+	move_camera(&amp;camera)
+	reset_camera(&amp;camera)
 }</code></pre></div>
         </details>
         <details>
-            <summary>render_engine<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">render_engine :: proc() {
-	bind_VAO(&vao)
+            <summary>render_engine<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>render_engine :: proc() {
+	bind_VAO(&amp;vao)
 	for i in 0..&lt;10 {
-		init_transform(&cube_transform)
+		init_transform(&amp;cube_transform)
 		angle := 20.0 * i
-		move(cube_positions[i], &cube_transform)
-		rotate(f32(angle), {1.0, 0.3, 0.5}, &cube_transform)
-		apply_transform(shader, &cube_transform)
+		move(cube_positions[i], &amp;cube_transform)
+		rotate(f32(angle), {1.0, 0.3, 0.5}, &amp;cube_transform)
+		apply_transform(shader, &amp;cube_transform)
 		gl.DrawArrays(gl.TRIANGLES, 0, 36)
 	}
 }</code></pre></div>
         </details>
         <details>
-            <summary>run_engine<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">run_engine :: proc() {
+            <summary>run_engine<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>run_engine :: proc() {
 	init_engine()
 	defer delete_engine()
 
@@ -335,7 +338,7 @@
 		render_engine()
 
 		pre_render_ui()
-		draw_status_bottom_bar_ui(&camera)
+		draw_status_bottom_bar_ui(&amp;camera)
 		render_ui()
 
 		post_render_engine()
@@ -343,16 +346,16 @@
 }</code></pre></div>
         </details>
         <details>
-            <summary>set_glfw_callback<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">set_glfw_callback :: proc() {
-	glfw.SetWindowUserPointer(window, &camera)
+            <summary>set_glfw_callback<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>set_glfw_callback :: proc() {
+	glfw.SetWindowUserPointer(window, &amp;camera)
 	glfw.SetCursorPosCallback(window, mouse_callback)
 	glfw.SetScrollCallback(window, mouse_scroll_callback)
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>input.odin</div>
         <details>
-            <summary>close_window<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">*/
+            <summary>close_window<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>*/
 close_window:: proc(window: glfw.WindowHandle) {
 	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
 		glfw.SetWindowShouldClose(window, true)
@@ -360,9 +363,9 @@ close_window:: proc(window: glfw.WindowHandle) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>mouse_callback<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">// callback functions
-mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
+            <summary>mouse_callback<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>// callback functions
+mouse_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 	camera_ptr := (^Camera)(glfw.GetWindowUserPointer(window))
 
 	if (first_mouse) {
@@ -396,8 +399,8 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>mouse_scroll_callback<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">mouse_scroll_callback :: proc "c" (window: glfw.WindowHandle, x_offset, y_offset: f64) {
+            <summary>mouse_scroll_callback<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>mouse_scroll_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, x_offset, y_offset: f64) {
 	camera_ptr := (^Camera)(glfw.GetWindowUserPointer(window))
 
 	// limit field of view
@@ -407,13 +410,13 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>move_camera<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">move_camera:: proc(camera: ^Camera) {
+            <summary>move_camera<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>move_camera:: proc(camera: ^Camera) {
 	base_camera_speed := 4.0 * f32(delta_time)
 	camera_speed_multiplier := 6.0
 	current_camera_speed := base_camera_speed
 
-	// increase & revert camera speed based on shift state
+	// increase &amp; revert camera speed based on shift state
 	if (glfw.GetKey(window, glfw.KEY_LEFT_SHIFT) == glfw.PRESS) {
 		current_camera_speed = base_camera_speed * f32(camera_speed_multiplier)
 	} else if (glfw.GetKey(window, glfw.KEY_LEFT_SHIFT) == glfw.RELEASE) {
@@ -433,8 +436,8 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>reset_camera<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">reset_camera:: proc(camera: ^Camera) {
+            <summary>reset_camera<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>reset_camera:: proc(camera: ^Camera) {
 	if (glfw.GetKey(window, glfw.KEY_R) == glfw.PRESS) {
 		camera.pos = {0.0, 0.0, 0.0}
 		camera.fov = 45.0
@@ -442,27 +445,27 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, x_pos: f64, y_pos: f64) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>set_input_mode<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">// utility functions
+            <summary>set_input_mode<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>// utility functions
 set_input_mode :: proc() {
 	glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>main.odin</div>
         <details>
-            <summary>main<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">main :: proc() {
+            <summary>main<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>main :: proc() {
 	run_engine()
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>shader.odin</div>
         <details>
-            <summary>Shader<div class="badge">STRUCT</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">Shader :: struct {
+            <summary>Shader<span class='badge'>STRUCT</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>Shader :: struct {
 	id: u32,
 }</code></pre></div>
         </details>
         <details>
-            <summary>init_shader<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">init_shader :: proc(vertex_path, fragment_path: string) -&gt; (Shader, bool) {
+            <summary>init_shader<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>init_shader :: proc(vertex_path, fragment_path: string) -&gt; (Shader, bool) {
 	// Read file
 	program, ok := gl.load_shaders_file(vertex_path, fragment_path)
 	if !ok {
@@ -472,42 +475,42 @@ set_input_mode :: proc() {
 }</code></pre></div>
         </details>
         <details>
-            <summary>set_uniform<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">set_uniform :: proc(shader: Shader, name: cstring, value: ^matrix[4,4]f32) {
+            <summary>set_uniform<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>set_uniform :: proc(shader: Shader, name: cstring, value: ^matrix[4,4]f32) {
 	location := gl.GetUniformLocation(shader.id, name)
-	gl.UniformMatrix4fv(location, 1, gl.FALSE, &value[0][0])
+	gl.UniformMatrix4fv(location, 1, gl.FALSE, &amp;value[0][0])
 }</code></pre></div>
         </details>
         <details>
-            <summary>use_shader<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">use_shader :: proc(shader: Shader) {
+            <summary>use_shader<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>use_shader :: proc(shader: Shader) {
 	gl.UseProgram(shader.id)
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>texture.odin</div>
         <details>
-            <summary>Texture<div class="badge">STRUCT</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">Texture :: struct {
+            <summary>Texture<span class='badge'>STRUCT</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>Texture :: struct {
     id: u32,
 }</code></pre></div>
         </details>
         <details>
-            <summary>activate_texture<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">// Utility functions
+            <summary>activate_texture<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>// Utility functions
 activate_texture :: proc (texture: u32) {
     gl.ActiveTexture(texture)
 }</code></pre></div>
         </details>
         <details>
-            <summary>bind_texture<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">bind_texture :: proc (target: u32, texture: Texture) {
+            <summary>bind_texture<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>bind_texture :: proc (target: u32, texture: Texture) {
     gl.BindTexture(target, texture.id)
 }</code></pre></div>
         </details>
         <details>
-            <summary>init_texture<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">init_texture :: proc (target: u32, wrap, filter_min, filter_max: i32) -&gt; (Texture) {
+            <summary>init_texture<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>init_texture :: proc (target: u32, wrap, filter_min, filter_max: i32) -&gt; (Texture) {
     texture: u32
-    gl.GenTextures(1, &texture)
+    gl.GenTextures(1, &amp;texture)
     gl.BindTexture(target, texture)
 
     gl.TexParameteri(target, gl.TEXTURE_WRAP_S, wrap)
@@ -519,10 +522,10 @@ activate_texture :: proc (texture: u32) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>load_texture<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">load_texture :: proc (filepath: cstring, target: u32, internal_format:i32, format:u32) -&gt; (bool) {
+            <summary>load_texture<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>load_texture :: proc (filepath: cstring, target: u32, internal_format:i32, format:u32) -&gt; (bool) {
     width, height, num_channel : i32
-    data := stb.load(filepath, &width, &height, &num_channel, 0)
+    data := stb.load(filepath, &amp;width, &amp;height, &amp;num_channel, 0)
 
     if (data == nil) {
        return false
@@ -539,54 +542,54 @@ activate_texture :: proc (texture: u32) {
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>transform.odin</div>
         <details>
-            <summary>Transform<div class="badge">STRUCT</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">Transform :: struct {
+            <summary>Transform<span class='badge'>STRUCT</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>Transform :: struct {
 	id : la.Matrix4f32,
 }</code></pre></div>
         </details>
         <details>
-            <summary>apply_transform<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">apply_transform :: proc(shader: Shader, trans: ^Transform) {
-	set_uniform(shader, "model", &trans.id )
+            <summary>apply_transform<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>apply_transform :: proc(shader: Shader, trans: ^Transform) {
+	set_uniform(shader, &quot;model&quot;, &amp;trans.id )
 }</code></pre></div>
         </details>
         <details>
-            <summary>init_transform<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">*/
+            <summary>init_transform<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>*/
 init_transform :: proc(trans: ^Transform) {
 	trans.id = la.MATRIX4F32_IDENTITY
 }</code></pre></div>
         </details>
         <details>
-            <summary>move<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">move :: proc(obj: la.Vector3f32, trans: ^Transform) {
+            <summary>move<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>move :: proc(obj: la.Vector3f32, trans: ^Transform) {
 	trans.id = trans.id * la.matrix4_translate_f32(obj)
 }</code></pre></div>
         </details>
         <details>
-            <summary>rotate<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">rotate :: proc(angle: f32, v:la.Vector3f32, trans: ^Transform) {
+            <summary>rotate<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>rotate :: proc(angle: f32, v:la.Vector3f32, trans: ^Transform) {
 	trans.id = trans.id * la.matrix4_rotate_f32(ma.to_radians(angle), v)
 }</code></pre></div>
         </details>
         <details>
-            <summary>scale<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">scale :: proc(v:la.Vector3f32, trans: ^Transform) {
+            <summary>scale<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>scale :: proc(v:la.Vector3f32, trans: ^Transform) {
 	trans.id = trans.id * la.matrix4_scale_f32(v)
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>ui.odin</div>
         <details>
-            <summary>delete_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">delete_ui :: proc() {
+            <summary>delete_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_ui :: proc() {
 	imgui_impl_opengl3.Shutdown()
 	imgui_impl_glfw.Shutdown()
 	im.DestroyContext()
 }</code></pre></div>
         </details>
         <details>
-            <summary>draw_f32_colored_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">draw_f32_colored_ui :: proc(label: string, format: cstring, v: f32) {
-    im.Text("%s: ", label)
+            <summary>draw_f32_colored_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>draw_f32_colored_ui :: proc(label: string, format: cstring, v: f32) {
+    im.Text(&quot;%s: &quot;, label)
     im.SameLine(0, 0)
 
     im.TextColored({1.0, 1.0, 0.4, 1.0}, format, v) // X - Red
@@ -594,86 +597,86 @@ init_transform :: proc(trans: ^Transform) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>draw_status_bottom_bar_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">draw_status_bottom_bar_ui :: proc(camera: ^Camera) {
+            <summary>draw_status_bottom_bar_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>draw_status_bottom_bar_ui :: proc(camera: ^Camera) {
 	bar_height : f32 = 25.0
 	im.SetNextWindowPos({0, f32(current_window_height) - bar_height})
 	im.SetNextWindowSize({f32(current_window_width) + 2, bar_height})
 
 	flags := im.WindowFlags{.NoTitleBar, .NoResize, .NoMove, .NoScrollbar, .NoBackground}
 
-	im.Begin("Status Bar", nil, flags)
-	draw_f32_colored_ui("FPS", "%.2f", f32(1.0 / delta_time))
+	im.Begin(&quot;Status Bar&quot;, nil, flags)
+	draw_f32_colored_ui(&quot;FPS&quot;, &quot;%.2f&quot;, f32(1.0 / delta_time))
 	im.SameLine()
-	im.Text("|")
-	im.SameLine()
-
-	draw_f32_colored_ui("DT", "%.4f", f32(delta_time))
-	im.SameLine()
-	im.Text("|")
+	im.Text(&quot;|&quot;)
 	im.SameLine()
 
-	im.Text("=O=")
+	draw_f32_colored_ui(&quot;DT&quot;, &quot;%.4f&quot;, f32(delta_time))
 	im.SameLine()
-	draw_vec3_colored_ui("Pos", camera.pos)
+	im.Text(&quot;|&quot;)
+	im.SameLine()
+
+	im.Text(&quot;=O=&quot;)
+	im.SameLine()
+	draw_vec3_colored_ui(&quot;Pos&quot;, camera.pos)
 
 	im.SameLine()
-	im.Text("*")
+	im.Text(&quot;*&quot;)
 	im.SameLine()
-	draw_vec2_colored_ui("Rot", camera.rot)
+	draw_vec2_colored_ui(&quot;Rot&quot;, camera.rot)
 
 	im.SameLine()
-	draw_f32_colored_ui("Fov", "%.2f", camera.fov)
+	draw_f32_colored_ui(&quot;Fov&quot;, &quot;%.2f&quot;, camera.fov)
 	im.End()
 }</code></pre></div>
         </details>
         <details>
-            <summary>draw_vec2_colored_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">draw_vec2_colored_ui :: proc(label: string, v: [3]f32) {
-    im.Text("%s: ", label)
+            <summary>draw_vec2_colored_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>draw_vec2_colored_ui :: proc(label: string, v: [3]f32) {
+    im.Text(&quot;%s: &quot;, label)
     im.SameLine(0, 0)
 
-    im.TextColored({1.0, 0.4, 0.4, 1.0}, "%.2f", v.x) // X - Red
+    im.TextColored({1.0, 0.4, 0.4, 1.0}, &quot;%.2f&quot;, v.x) // X - Red
     im.SameLine(0, 0)
-    im.Text(", ")
+    im.Text(&quot;, &quot;)
     im.SameLine(0, 2)
 
-    im.TextColored({0.4, 1.0, 0.4, 1.0}, "%.2f", v.y) // Y - Green
+    im.TextColored({0.4, 1.0, 0.4, 1.0}, &quot;%.2f&quot;, v.y) // Y - Green
     im.SameLine(0, 0)
 }</code></pre></div>
         </details>
         <details>
-            <summary>draw_vec3_colored_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">// utility functions
+            <summary>draw_vec3_colored_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>// utility functions
 draw_vec3_colored_ui :: proc(label: string, v: [3]f32) {
-    im.Text("%s: ", label)
+    im.Text(&quot;%s: &quot;, label)
     im.SameLine(0, 0)
 
-    im.TextColored({1.0, 0.4, 0.4, 1.0}, "%.2f", v.x) // X - Red
+    im.TextColored({1.0, 0.4, 0.4, 1.0}, &quot;%.2f&quot;, v.x) // X - Red
     im.SameLine(0, 0)
-    im.Text(", ")
+    im.Text(&quot;, &quot;)
     im.SameLine(0, 2)
 
-    im.TextColored({0.4, 1.0, 0.4, 1.0}, "%.2f", v.y) // Y - Green
+    im.TextColored({0.4, 1.0, 0.4, 1.0}, &quot;%.2f&quot;, v.y) // Y - Green
     im.SameLine(0, 0)
-    im.Text(", ")
+    im.Text(&quot;, &quot;)
     im.SameLine(0, 2)
 
-    im.TextColored({0.4, 0.4, 1.0, 1.0}, "%.2f", v.z) // Z - Blue
+    im.TextColored({0.4, 0.4, 1.0, 1.0}, &quot;%.2f&quot;, v.z) // Z - Blue
     im.SameLine(0, 0)
 }</code></pre></div>
         </details>
         <details>
-            <summary>init_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">init_ui :: proc() {
+            <summary>init_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>init_ui :: proc() {
 	im.CreateContext()
 	imgui_impl_glfw.InitForOpenGL(window, true)
-	imgui_impl_opengl3.Init("#version 460")
+	imgui_impl_opengl3.Init(&quot;#version 460&quot;)
 }</code></pre></div>
         </details>
         <details>
-            <summary>pre_render_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">pre_render_ui :: proc() {
+            <summary>pre_render_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>pre_render_ui :: proc() {
 	// ui default
 	imgui_impl_opengl3.NewFrame()
 	imgui_impl_glfw.NewFrame()
@@ -681,27 +684,27 @@ draw_vec3_colored_ui :: proc(label: string, v: [3]f32) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>render_ui<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">render_ui :: proc() {
+            <summary>render_ui<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>render_ui :: proc() {
 	im.Render()
 	imgui_impl_opengl3.RenderDrawData(im.GetDrawData())
 }</code></pre></div>
         </details></div><div class='file-section'><div class='file-header'>window.odin</div>
         <details>
-            <summary>delete_window<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">delete_window :: proc() {
+            <summary>delete_window<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>delete_window :: proc() {
 	glfw.Terminate()
 }</code></pre></div>
         </details>
         <details>
-            <summary>fb_size_callback<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">fb_size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
+            <summary>fb_size_callback<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>fb_size_callback :: proc &quot;c&quot; (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
 }</code></pre></div>
         </details>
         <details>
-            <summary>init_window<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) -&gt; (bool) {
+            <summary>init_window<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>init_window :: proc(window_width: i32, window_height: i32, window_title: cstring) -&gt; (bool) {
 	if !glfw.Init() {
 		return false
 	}
@@ -725,14 +728,14 @@ draw_vec3_colored_ui :: proc(label: string, v: [3]f32) {
 }</code></pre></div>
         </details>
         <details>
-            <summary>set_current_window_size<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">set_current_window_size :: proc() {
+            <summary>set_current_window_size<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>set_current_window_size :: proc() {
 	current_window_width, current_window_height = glfw.GetWindowSize(window)
 }</code></pre></div>
         </details>
         <details>
-            <summary>set_deltatime<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">// utility functions
+            <summary>set_deltatime<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>// utility functions
 set_deltatime :: proc () {
 	current_frame := glfw.GetTime()
 	delta_time = current_frame - last_frame
@@ -740,15 +743,15 @@ set_deltatime :: proc () {
 }</code></pre></div>
         </details>
         <details>
-            <summary>swap_buffer_window<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">swap_buffer_window :: proc() {
+            <summary>swap_buffer_window<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>swap_buffer_window :: proc() {
 	glfw.SwapBuffers(window)
 	glfw.PollEvents()
 }</code></pre></div>
         </details>
         <details>
-            <summary>window_close<div class="badge">PROC</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">window_close :: proc() -&gt; bool {
+            <summary>window_close<span class='badge'>PROC</span></summary>
+            <div class='content'><pre class='language-odin'><code class='language-odin'>window_close :: proc() -&gt; bool {
 	for (!glfw.WindowShouldClose(window)) {
 		return false
 	}
@@ -756,21 +759,130 @@ set_deltatime :: proc () {
 }</code></pre></div>
         </details></div></div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+
     <script>
-        Prism.languages.odin = Prism.languages.extend('clike', {
-            'keyword': /\b(?:package|import|proc|struct|enum|union|return|defer|if|else|for|switch|case|dynamic|map|bit_set)\b/,
-            'operator': /->|::|:=|\.\.|[\+\-\*\/%=<>!&|\^~]+/,
-            'attr-name': /@\w+/,
-            'builtin': /\b(?:[uif]\d+|bool|string|rawptr|any|int|uint)\b/
-        });
-        document.getElementById('search').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('details').forEach(el => {
-                const name = el.querySelector('summary').innerText.toLowerCase();
-                el.style.display = name.includes(term) ? 'block' : 'none';
+    // ---------------------------------------------------------------------------
+    // Odin syntax highlighter — no external dependencies
+    // Tokenises in one pass; each rule is greedy and non-overlapping.
+    // ---------------------------------------------------------------------------
+    (function () {
+        "use strict";
+
+        // Token definitions ordered by priority (first match wins)
+        const RULES = [
+            // Block comments
+            { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
+            // Line comments
+            { cls: "cm",  re: /\/\/[^\n]*/g },
+            // Strings (double-quoted)
+            { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },
+            // Character literals
+            { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },
+            // Procedure name:  foo :: proc
+            { cls: "fn",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*proc\b)/g, cap: 1 },
+            // Struct / enum / union type name:  Foo :: struct
+            { cls: "ty",  re: /\b([A-Za-z_]\w*)\s*(?=::\s*(?:struct|enum|union)\b)/g, cap: 1 },
+            // Keywords
+            { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|return|defer|if|else|elif|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|when|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
+            // Built-in types
+            { cls: "ty",  re: /\b(?:bool|byte|rune|string|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
+            // Boolean / nil literals
+            { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
+            // Built-in procedures
+            { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|free|delete|append|append_elem|append_elems|clear|reserve|resize|copy|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
+            // Directives
+            { cls: "dr",  re: /#\w+/g },
+            // Numbers (hex, binary, oct, float, int — with optional underscore separators)
+            { cls: "nm",  re: /\b(?:0x[\da-fA-F_]+|0b[01_]+|0o[0-7_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/g },
+            // Operators and punctuation
+            { cls: "op",  re: /->|::|:=|\.\.|[+\-*/%=<>!&|^~?]+/g },
+        ];
+
+        function highlight(raw) {
+            // Map each character index → replacement span (or null)
+            const n = raw.length;
+            // We'll collect [start, end, cls, text] non-overlapping matches
+            const matches = [];
+            const covered = new Uint8Array(n); // 1 = already claimed
+
+            for (const rule of RULES) {
+                rule.re.lastIndex = 0;
+                let m;
+                while ((m = rule.re.exec(raw)) !== null) {
+                    // If rule has a capture group, highlight only that group
+                    const fullStart = m.index;
+                    const fullEnd   = fullStart + m[0].length;
+                    const hlStart   = rule.cap != null ? fullStart + m[0].indexOf(m[rule.cap]) : fullStart;
+                    const hlEnd     = hlStart + (rule.cap != null ? m[rule.cap].length : m[0].length);
+
+                    // Check no overlap
+                    let skip = false;
+                    for (let i = hlStart; i < hlEnd; i++) {
+                        if (covered[i]) { skip = true; break; }
+                    }
+                    if (skip) continue;
+
+                    for (let i = hlStart; i < hlEnd; i++) covered[i] = 1;
+                    matches.push([hlStart, hlEnd, rule.cls]);
+                }
+            }
+
+            // Sort by position
+            matches.sort((a, b) => a[0] - b[0]);
+
+            // Build output
+            let out = "";
+            let pos = 0;
+            for (const [start, end, cls] of matches) {
+                if (start > pos) out += escHtml(raw.slice(pos, start));
+                out += `<span class="hl-${cls}">${escHtml(raw.slice(start, end))}</span>`;
+                pos = end;
+            }
+            if (pos < n) out += escHtml(raw.slice(pos));
+            return out;
+        }
+
+        function escHtml(s) {
+            return s.replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+        }
+
+        function highlightAll() {
+            document.querySelectorAll("code.language-odin:not([data-hl])").forEach(el => {
+                el.dataset.hl = "1";
+                // The text content was already HTML-escaped by gen.py, so read textContent
+                el.innerHTML = highlight(el.textContent);
+            });
+        }
+
+        // Run on initial load
+        document.addEventListener("DOMContentLoaded", highlightAll);
+
+        // Re-run when a <details> is opened (lazy blocks)
+        document.addEventListener("toggle", (e) => {
+            if (e.target.tagName === "DETAILS" && e.target.open) {
+                highlightAll();
+            }
+        }, true);
+
+        // Search filter
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("search").addEventListener("input", (e) => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll("details").forEach(el => {
+                    const name = el.querySelector("summary").textContent.toLowerCase();
+                    el.style.display = name.includes(term) ? "" : "none";
+                });
+                // Hide empty file sections
+                document.querySelectorAll(".file-section").forEach(sec => {
+                    const visible = [...sec.querySelectorAll("details")]
+                        .some(d => d.style.display !== "none");
+                    sec.style.display = visible ? "" : "none";
+                });
             });
         });
+    })();
     </script>
 </body>
 </html>

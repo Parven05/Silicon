@@ -1,95 +1,135 @@
 import os
 import re
+import textwrap
+from pathlib import Path
+from html import escape
 
+# ---------------------------------------------------------------------------
 # Configuration
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(BASE_DIR)
-SOURCE_DIR = os.path.join(PROJECT_ROOT, "src")
-OUTPUT_HTML = os.path.join(BASE_DIR, "index.html")
-TEMPLATE_PATH = os.path.join(BASE_DIR, "template.html")
+# ---------------------------------------------------------------------------
+BASE_DIR      = Path(__file__).parent.resolve()
+PROJECT_ROOT  = BASE_DIR.parent
+SOURCE_DIR    = PROJECT_ROOT / "src"
+OUTPUT_HTML   = BASE_DIR / "index.html"
+TEMPLATE_PATH = BASE_DIR / "template.html"
 
-def get_balanced_block(text, start_index):
-    count = 0
-    for i in range(start_index, len(text)):
-        if text[i] == '{': count += 1
-        elif text[i] == '}':
-            count -= 1
-            if count == 0: return text[start_index:i+1]
+SORT_ORDER = {"STRUCT": 1, "ENUM": 2, "PROC": 3}
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def get_block(text: str, start: int) -> str | None:
+    """Return the balanced-brace block starting at `start`, or rest of line."""
+    depth, found = 0, False
+    for i in range(start, len(text)):
+        ch = text[i]
+        if ch == "{":
+            depth += 1
+            found = True
+        elif ch == "}" and found:
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+    if not found:
+        end = text.find("\n", start)
+        return text[start:end] if end != -1 else text[start:]
     return None
 
-def extract_items(content, filename):
-    results = []
-    lines = content.splitlines()
-    pattern = re.compile(r"^(?P<name>\w+)\s*::\s*")
 
-    for i, line in enumerate(lines):
-        match = pattern.match(line)
-        if match:
-            name = match.group("name")
-            if name in ["import", "package"]: continue
+def preceding_comments(text: str, match_start: int) -> list[str]:
+    """Collect contiguous comment lines immediately before `match_start`."""
+    lines = text[:match_start].splitlines()
+    comments: list[str] = []
+    for line in reversed(lines):
+        stripped = line.strip()
+        if stripped.startswith(("//", "/*")) or stripped.endswith("*/"):
+            comments.insert(0, stripped)
+        elif stripped == "":
+            continue
+        else:
+            break
+    return comments
 
-            body_lines = []
-            for k in range(i, len(lines)):
-                body_lines.append(lines[k])
-                if "{" in lines[k]:
-                    block = get_balanced_block("\n".join(lines[k:]), 0)
-                    if block:
-                        body_lines[-1] = block
-                        break
-                elif ";" in lines[k] or (k > i and lines[k].strip() == ""): break
 
-            rem = " ".join(body_lines)
-            cat = "PROC" if "proc" in rem else "STRUCT" if "struct" in rem else "ENUM" if "enum" in rem else None
+def format_snippet(comments: list[str], block: str) -> str:
+    """Dedent the code block independently, then prepend stripped comments."""
+    dedented = textwrap.dedent(block).rstrip()
+    return "\n".join(comments + [dedented]).strip()
 
-            if cat:
-                comments = []
-                for j in range(i-1, -1, -1):
-                    if lines[j].strip().startswith(("//", "/*")) or lines[j].strip().endswith("*/"):
-                        comments.insert(0, lines[j])
-                    elif lines[j].strip() == "": continue
-                    else: break
 
-                full_code = "\n".join(comments + body_lines).strip()
-                results.append({"name": name, "category": cat, "code": full_code, "file": filename})
-    return results
+def build_item_html(item: dict) -> str:
+    code = escape(item["code"])
+    return (
+        f"\n        <details>"
+        f"\n            <summary>{item['name']}"
+        f"<span class='badge'>{item['cat']}</span></summary>"
+        f"\n            <div class='content'>"
+        f"<pre class='language-odin'><code class='language-odin'>{code}</code></pre>"
+        f"</div>\n        </details>"
+    )
 
-def generate():
-    all_items = []
-    for root, _, files in os.walk(SOURCE_DIR):
-        for file in sorted(files):
-            if file.endswith(".odin"):
-                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
-                    all_items.extend(extract_items(f.read(), file))
+# ---------------------------------------------------------------------------
+# Core
+# ---------------------------------------------------------------------------
+def parse_source(source_dir: Path) -> list[dict]:
+    items: list[dict] = []
+    pattern = re.compile(r"(\w+)\s*::\s*(struct|proc|enum)")
 
-    cat_order = {"STRUCT": 1, "ENUM": 2, "PROC": 3}
-    all_items.sort(key=lambda x: (x['file'], cat_order.get(x['category'], 4), x['name']))
+    for path in sorted(source_dir.rglob("*.odin")):
+        content = path.read_text(encoding="utf-8")
+        for m in pattern.finditer(content):
+            name  = m.group(1)
+            cat   = m.group(2).upper()
+            block = get_block(content, m.start())
+            if not block:
+                continue
+            comments = preceding_comments(content, m.start())
+            items.append({
+                "name": name,
+                "cat":  cat,
+                "file": path.name,
+                "code": format_snippet(comments, block),
+            })
 
-    html_content, current_file = "", None
-    for item in all_items:
-        if item['file'] != current_file:
-            if current_file: html_content += "</div>"
-            current_file = item['file']
-            html_content += f"<div class='file-section'><div class='file-header'>{current_file}</div>"
+    items.sort(key=lambda x: (x["file"], SORT_ORDER.get(x["cat"], 4), x["name"]))
+    return items
 
-        safe_code = item['code'].replace("<", "&lt;").replace(">", "&gt;")
-        html_content += f"""
-        <details>
-            <summary>{item['name']}<div class="badge">{item['category']}</div></summary>
-            <div class="content"><pre class="language-odin"><code class="language-odin">{safe_code}</code></pre></div>
-        </details>"""
 
-    if current_file: html_content += "</div>"
+def build_html(items: list[dict]) -> str:
+    parts: list[str] = []
+    last_file = None
 
-    with open(TEMPLATE_PATH, "r") as f:
-        template = f.read()
+    for item in items:
+        if item["file"] != last_file:
+            if last_file:
+                parts.append("</div>")
+            parts.append(
+                f"<div class='file-section'>"
+                f"<div class='file-header'>{item['file']}</div>"
+            )
+            last_file = item["file"]
+        parts.append(build_item_html(item))
 
-    final_html = template.replace("{{title}}", "Silicon Master API")\
-                         .replace("{{tagline}}", "High-performance renderer technical reference.")\
-                         .replace("{{content}}", html_content)
+    if last_file:
+        parts.append("</div>")
 
-    with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
-        f.write(final_html)
-    print(f"Documentation generated at {OUTPUT_HTML}")
+    return "".join(parts)
+
+
+def main() -> None:
+    if not SOURCE_DIR.exists():
+        raise SystemExit(f"Error: source directory not found → {SOURCE_DIR}")
+
+    items = parse_source(SOURCE_DIR)
+    html_content = build_html(items)
+
+    template = TEMPLATE_PATH.read_text(encoding="utf-8")
+    OUTPUT_HTML.write_text(
+        template.replace("{{content}}", html_content),
+        encoding="utf-8",
+    )
+    print(f"Done: {len(items)} items written to {OUTPUT_HTML}")
+
 
 if __name__ == "__main__":
-    generate()
+    main()
