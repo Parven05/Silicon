@@ -1,7 +1,3 @@
-/*
-This is the core of the engine. It handles the basic life of the engine
-opening a window, drawing shapes on the screen, and cleaning up when done.
-*/
 package silicon
 
 import "core:log"
@@ -21,9 +17,6 @@ import la "core:math/linalg"
 @(private="file") camera : Camera
 @(private="file") cube_transform: Transform
 
-/*
-Starts the engine and keeps it running until close the window.
-*/
 run_engine :: proc() {
 	init_engine()
 	defer delete_engine()
@@ -45,10 +38,6 @@ run_engine :: proc() {
 	}
 }
 
-/*
-Sets everything up so the engine is ready to use.
-It prepares the window, loads shaders, and sets up the graphics buffers.
-*/
 init_engine :: proc() {
 	context.logger = log.create_console_logger()
 
@@ -142,19 +131,12 @@ init_engine :: proc() {
 	camera.aspect_ratio = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
 }
 
-/*
-Cleans up the mess.
-*/
 delete_engine :: proc() {
 	delete_VBO(&vbo)
 	delete_VAO(&vao)
 	delete_window()
 }
 
-/*
-Clears the screen and updates the perspective for the next frame.
-This makes sure the camera is looking at the right spot before draw.
-*/
 pre_render_engine :: proc() {
 	clear_window()
 	set_current_window_size()
@@ -170,9 +152,6 @@ pre_render_engine :: proc() {
 	set_uniform(shader, "view", &camera_view)
 }
 
-/*
-Draws the 3D scene geometry onto the screen.
-*/
 render_engine :: proc() {
 	bind_VAO(&vao)
 	for i in 0..<10 {
@@ -185,25 +164,16 @@ render_engine :: proc() {
 	}
 }
 
-/*
-Takes the finished drawing and presents it onto monitor.
-*/
 post_render_engine :: proc() {
 	swap_buffer_window()
 }
 
-/*
-Configures hardware callbacks for mouse and scroll events.
-*/
 set_glfw_callback :: proc() {
 	glfw.SetWindowUserPointer(window, &camera)
 	glfw.SetCursorPosCallback(window, mouse_callback)
 	glfw.SetScrollCallback(window, mouse_scroll_callback)
 }
 
-/*
-Updates the engine timing and handles user input changes.
-*/
 process_input :: proc() {
 	set_deltatime()
 	close_window(window)
@@ -211,17 +181,11 @@ process_input :: proc() {
 	reset_camera(&camera)
 }
 
-/*
-Wipes the window clean with a background color to start a new frame.
-*/
 clear_window :: proc() {
 	gl.ClearColor(0.20, 0.20, 0.20, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
-/*
-Turns on a specific graphics setting.
-*/
 enable_feature :: proc(cap: u32)  {
 	gl.Enable(cap)
 }
