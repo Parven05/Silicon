@@ -34,12 +34,12 @@ jobs:
           python-version: "3.12"
 
       - name: Generate docs
-        run: python doc-gen/gen.py
+        run: python docs/gen.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: doc-gen/
+          path: docs/
 
       - name: Deploy to GitHub Pages
         id: deployment
