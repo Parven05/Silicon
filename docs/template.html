@@ -535,51 +535,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     };
 
-    // ── j/k navigation ──────────────────────────────────────────────────────
-    function getVisible() {
-        return detailMeta.filter(function (m) { return m.el.style.display !== "none"; });
-    }
-
-    function jkNavigate(dir) {
-        var vis = getVisible();
-        if (!vis.length) return;
-        _jkIndex = Math.max(0, Math.min(vis.length - 1, _jkIndex + dir));
-        var target = vis[_jkIndex].el;
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-        target.classList.add("flash");
-        setTimeout(function () { target.classList.remove("flash"); }, 800);
-    }
-
-    // ── Keyboard shortcuts ───────────────────────────────────────────────────
-    document.addEventListener("keydown", function (e) {
-        if (e.target.tagName === "INPUT") {
-            if (e.key === "Escape") { searchEl.value = ""; applyFilters(); searchEl.blur(); }
-            else if (e.key === "Enter") {
-                var first = getVisible()[0];
-                if (first) {
-                    first.el.open = true;
-                    window.highlightAll(first.el);
-                    window.linkAll(first.el);
-                    first.el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    searchEl.blur();
-                }
-            }
-            return;
-        }
-        switch (e.key) {
-            case "s": case "S": setSidebar(!sidebarOpen); break;
-            case "j": case "J": jkNavigate(1);  break;
-            case "k": case "K": jkNavigate(-1); break;
-            default:
-                if (e.altKey && e.key === "ArrowLeft") {
-                    e.preventDefault();
-                    if (NAV_HISTORY.length) { navigateTo(NAV_HISTORY.pop(), false); updateBackBtn(); }
-                } else if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-                    e.preventDefault(); searchEl.focus(); searchEl.select();
-                }
-        }
-    });
-
     // ── Sidebar resize — mouse + touch ───────────────────────────────────────
     (function () {
         var handle   = document.getElementById("sidebar-resize");
