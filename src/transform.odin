@@ -8,9 +8,6 @@ Transform :: struct {
 	id : la.Matrix4f32,
 }
 
-/*
-Testing
-*/
 init_transform :: proc(trans: ^Transform) {
 	trans.id = la.MATRIX4F32_IDENTITY
 }

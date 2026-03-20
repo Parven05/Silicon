@@ -1,8 +1,4 @@
-/* ============================================================================
-   Variables — dark theme
-   ========================================================================== */
-:root,
-[data-theme="dark"] {
+:root {
     --bg:        #1a1a1a;
     --bg2:       #1e1e1e;
     --card:      #252525;
@@ -18,65 +14,6 @@
     --sb-border: #2a2a2a;
     --sb-text:   #999;
     --sb-hover:  #222;
-
-    --m-bg:     #272822;
-    --m-fg:     #f8f8f2;
-    --m-pink:   #f92672;
-    --m-green:  #a6e22e;
-    --m-blue:   #66d9ef;
-    --m-yellow: #e6db74;
-    --m-gray:   #75715e;
-    --m-purple: #ae81ff;
-    --m-orange: #fd971f;
-    --m-teal:   #a1efe4;
-
-    --badge-struct:    #4e8fce33;
-    --badge-struct-fg: #4e8fce;
-    --badge-enum:      #a6e22e33;
-    --badge-enum-fg:   #a6e22e;
-    --badge-proc:      #f9267233;
-    --badge-proc-fg:   #f92672;
-    --badge-union:     #ae81ff33;
-    --badge-union-fg:  #ae81ff;
-}
-
-/* ── Light theme ─────────────────────────────────────────────────────────── */
-[data-theme="light"] {
-    --bg:        #f5f5f5;
-    --bg2:       #efefef;
-    --card:      #ffffff;
-    --card-hover:#f8f8f8;
-    --border:    #e0e0e0;
-    --border2:   #d0d0d0;
-    --text:      #1e1e1e;
-    --text-dim:  #666;
-    --text-faint:#bbb;
-    --accent:    #1a6cb0;
-
-    --sb-bg:     #ebebeb;
-    --sb-border: #ddd;
-    --sb-text:   #555;
-    --sb-hover:  #e2e2e2;
-
-    --m-bg:     #e8e8e3;
-    --m-fg:     #272822;
-    --m-pink:   #c0185a;
-    --m-green:  #4e7a10;
-    --m-blue:   #106080;
-    --m-yellow: #7a5800;
-    --m-gray:   #6e6e6e;
-    --m-purple: #6a3ab0;
-    --m-orange: #a05c10;
-    --m-teal:   #107060;
-
-    --badge-struct:    #1a6cb022;
-    --badge-struct-fg: #1a6cb0;
-    --badge-enum:      #4e7a1022;
-    --badge-enum-fg:   #4e7a10;
-    --badge-proc:      #c0185a22;
-    --badge-proc-fg:   #c0185a;
-    --badge-union:     #6a3ab022;
-    --badge-union-fg:  #6a3ab0;
 }
 
 /* ============================================================================
@@ -92,7 +29,6 @@ body {
     font-size: 14px;
     display: flex;
     overflow: hidden;
-    transition: background 0.2s, color 0.2s;
 }
 
 /* ============================================================================
@@ -291,14 +227,6 @@ body {
     font-family: monospace;
 }
 
-/* Scroll-spy active file in sidebar */
-.toc-pkg.spy-active {
-    background: rgba(78, 143, 206, 0.10);
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
-}
-.toc-pkg.spy-active .toc-pkg-label { color: var(--accent); }
-.toc-pkg.spy-active .toc-arrow { opacity: 0.8; }
-
 /* Search highlight inside sidebar names */
 .search-hl {
     background: rgba(78, 143, 206, 0.30);    /* fallback for Safari < 16.2 */
@@ -324,8 +252,6 @@ header {
 }
 
 #header-left  { display: flex; align-items: center; gap: 12px; }
-#header-right { display: flex; align-items: center; gap: 6px; }
-
 /* ── Title row with GitHub icon ─────────────────────────────────────────── */
 #title-row { display: flex; align-items: center; gap: 8px; }
 
@@ -645,25 +571,6 @@ summary:hover { background: var(--card-hover); }
     white-space: pre;
 }
 
-/* ============================================================================
-   Syntax tokens (Monokai)
-   ========================================================================== */
-.hl-cm  { color: var(--m-gray);   font-style: italic; }   /* comments        */
-.hl-str { color: var(--m-yellow); }                        /* strings         */
-.hl-kw  { color: var(--m-pink);   font-weight: 600; }     /* keywords        */
-.hl-ty  { color: var(--m-blue); }                          /* types           */
-.hl-fn  { color: var(--m-green); }                         /* proc names      */
-.hl-bi  { color: var(--m-teal);   font-style: italic; }   /* built-ins       */
-.hl-bl  { color: var(--m-purple); }                        /* true/false/nil  */
-.hl-nm  { color: var(--m-purple); }                        /* numbers         */
-.hl-dr  { color: var(--m-orange); }                        /* directives      */
-.hl-at  { color: var(--m-orange); font-style: italic; }   /* attributes      */
-.hl-op  { color: var(--m-fg);     opacity: 0.55; }        /* operators       */
-.hl-dc  { color: var(--m-pink);   opacity: 0.7; }         /* ::  declaration */
-.hl-as  { color: var(--m-pink);   opacity: 0.7; }         /* :=  assignment  */
-.hl-pt  { color: var(--m-pink);   opacity: 0.75; }        /* ^   pointer     */
-.hl-ar  { color: var(--m-teal);   opacity: 0.9; }         /* ->  return type */
-
 /* ── Cross-reference links ───────────────────────────────────────────────── */
 .sym-link {
     color: inherit;
@@ -716,8 +623,6 @@ details.flash { animation: sym-flash 0.8s ease-out forwards; }
     font-size: 0.79rem;
     color: var(--text-faint);
 }
-
-/* Help modal removed */
 
 /* ============================================================================
    Responsive

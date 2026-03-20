@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Silicon Documentation</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme_monokai.css">
 </head>
 <body>
 
 <script id="toc-data"  type="application/json">{"main.odin": [{"id": "main-odin--main", "name": "main", "cat": "PROC"}], "engine.odin": [{"id": "engine-odin--clear_window", "name": "clear_window", "cat": "PROC"}, {"id": "engine-odin--delete_engine", "name": "delete_engine", "cat": "PROC"}, {"id": "engine-odin--enable_feature", "name": "enable_feature", "cat": "PROC"}, {"id": "engine-odin--init_engine", "name": "init_engine", "cat": "PROC"}, {"id": "engine-odin--post_render_engine", "name": "post_render_engine", "cat": "PROC"}, {"id": "engine-odin--pre_render_engine", "name": "pre_render_engine", "cat": "PROC"}, {"id": "engine-odin--process_input", "name": "process_input", "cat": "PROC"}, {"id": "engine-odin--render_engine", "name": "render_engine", "cat": "PROC"}, {"id": "engine-odin--run_engine", "name": "run_engine", "cat": "PROC"}, {"id": "engine-odin--set_glfw_callback", "name": "set_glfw_callback", "cat": "PROC"}], "window.odin": [{"id": "window-odin--delete_window", "name": "delete_window", "cat": "PROC"}, {"id": "window-odin--fb_size_callback", "name": "fb_size_callback", "cat": "PROC"}, {"id": "window-odin--init_window", "name": "init_window", "cat": "PROC"}, {"id": "window-odin--set_current_window_size", "name": "set_current_window_size", "cat": "PROC"}, {"id": "window-odin--set_deltatime", "name": "set_deltatime", "cat": "PROC"}, {"id": "window-odin--swap_buffer_window", "name": "swap_buffer_window", "cat": "PROC"}, {"id": "window-odin--window_close", "name": "window_close", "cat": "PROC"}], "shader.odin": [{"id": "shader-odin--Shader", "name": "Shader", "cat": "STRUCT"}, {"id": "shader-odin--init_shader", "name": "init_shader", "cat": "PROC"}, {"id": "shader-odin--set_uniform", "name": "set_uniform", "cat": "PROC"}, {"id": "shader-odin--use_shader", "name": "use_shader", "cat": "PROC"}], "texture.odin": [{"id": "texture-odin--Texture", "name": "Texture", "cat": "STRUCT"}, {"id": "texture-odin--activate_texture", "name": "activate_texture", "cat": "PROC"}, {"id": "texture-odin--bind_texture", "name": "bind_texture", "cat": "PROC"}, {"id": "texture-odin--init_texture", "name": "init_texture", "cat": "PROC"}, {"id": "texture-odin--load_texture", "name": "load_texture", "cat": "PROC"}], "buffers.odin": [{"id": "buffers-odin--EBO", "name": "EBO", "cat": "STRUCT"}, {"id": "buffers-odin--VAO", "name": "VAO", "cat": "STRUCT"}, {"id": "buffers-odin--VBO", "name": "VBO", "cat": "STRUCT"}, {"id": "buffers-odin--bind_EBO", "name": "bind_EBO", "cat": "PROC"}, {"id": "buffers-odin--bind_VAO", "name": "bind_VAO", "cat": "PROC"}, {"id": "buffers-odin--bind_VBO", "name": "bind_VBO", "cat": "PROC"}, {"id": "buffers-odin--create_EBO", "name": "create_EBO", "cat": "PROC"}, {"id": "buffers-odin--create_VAO", "name": "create_VAO", "cat": "PROC"}, {"id": "buffers-odin--create_VBO", "name": "create_VBO", "cat": "PROC"}, {"id": "buffers-odin--delete_EBO", "name": "delete_EBO", "cat": "PROC"}, {"id": "buffers-odin--delete_VAO", "name": "delete_VAO", "cat": "PROC"}, {"id": "buffers-odin--delete_VBO", "name": "delete_VBO", "cat": "PROC"}, {"id": "buffers-odin--link_attrib", "name": "link_attrib", "cat": "PROC"}], "camera.odin": [{"id": "camera-odin--Camera", "name": "Camera", "cat": "STRUCT"}, {"id": "camera-odin--Camera_mode", "name": "Camera_mode", "cat": "ENUM"}, {"id": "camera-odin--get_camera_mode", "name": "get_camera_mode", "cat": "PROC"}, {"id": "camera-odin--get_camera_view", "name": "get_camera_view", "cat": "PROC"}, {"id": "camera-odin--init_camera", "name": "init_camera", "cat": "PROC"}], "input.odin": [{"id": "input-odin--close_window", "name": "close_window", "cat": "PROC"}, {"id": "input-odin--mouse_callback", "name": "mouse_callback", "cat": "PROC"}, {"id": "input-odin--mouse_scroll_callback", "name": "mouse_scroll_callback", "cat": "PROC"}, {"id": "input-odin--move_camera", "name": "move_camera", "cat": "PROC"}, {"id": "input-odin--reset_camera", "name": "reset_camera", "cat": "PROC"}, {"id": "input-odin--set_input_mode", "name": "set_input_mode", "cat": "PROC"}], "transform.odin": [{"id": "transform-odin--Transform", "name": "Transform", "cat": "STRUCT"}, {"id": "transform-odin--apply_transform", "name": "apply_transform", "cat": "PROC"}, {"id": "transform-odin--init_transform", "name": "init_transform", "cat": "PROC"}, {"id": "transform-odin--move", "name": "move", "cat": "PROC"}, {"id": "transform-odin--rotate", "name": "rotate", "cat": "PROC"}, {"id": "transform-odin--scale", "name": "scale", "cat": "PROC"}], "ui.odin": [{"id": "ui-odin--delete_ui", "name": "delete_ui", "cat": "PROC"}, {"id": "ui-odin--draw_f32_colored_ui", "name": "draw_f32_colored_ui", "cat": "PROC"}, {"id": "ui-odin--draw_status_bottom_bar_ui", "name": "draw_status_bottom_bar_ui", "cat": "PROC"}, {"id": "ui-odin--draw_vec2_colored_ui", "name": "draw_vec2_colored_ui", "cat": "PROC"}, {"id": "ui-odin--draw_vec3_colored_ui", "name": "draw_vec3_colored_ui", "cat": "PROC"}, {"id": "ui-odin--init_ui", "name": "init_ui", "cat": "PROC"}, {"id": "ui-odin--pre_render_ui", "name": "pre_render_ui", "cat": "PROC"}, {"id": "ui-odin--render_ui", "name": "render_ui", "cat": "PROC"}]}</script>
-<script id="meta-data" type="application/json">{"item_count":65,"generated_at":"March 19, 2026 at 12:47 UTC"}</script>
+<script id="meta-data" type="application/json">{"item_count":65,"generated_at":"March 20, 2026 at 08:26 UTC"}</script>
 
 <aside id="sidebar">
     <div id="sidebar-header">
@@ -37,11 +38,8 @@
                         <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
                     </a>
                 </div>
-                <div class="tagline">Code Documentation</div>
+                <div class="tagline">Library Overview</div>
             </div>
-        </div>
-        <div id="header-right">
-            <button id="theme-toggle" class="icon-btn" title="Toggle theme (T)">&#9680;</button>
         </div>
     </header>
 
@@ -759,8 +757,7 @@ set_input_mode :: proc() {
             <summary><span class='item-name'>init_transform</span><span class='badge badge-proc'>PROC</span></summary>
             <div class='sig-bar'><span class='sig-label'>params</span> <span class='sig-val'>trans: ^Transform</span></div>
             <div class='refs-bar'><span class='refs-label'>used by</span> <a class='ref-link' href='#engine-odin--render_engine'>render_engine</a></div>
-            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>*/
-init_transform :: proc(trans: ^Transform) {
+            <div class='content'><div class='code-header'><span class='code-file'>transform.odin</span><button class='copy-btn' onclick='copyCode(this)' title='Copy'>&#x2398;</button></div><pre class='language-odin'><code class='language-odin'>init_transform :: proc(trans: ^Transform) {
 	trans.id = la.MATRIX4F32_IDENTITY
 }</code></pre></div>
         </details>
@@ -923,7 +920,7 @@ draw_vec3_colored_ui :: proc(label: string, v: [3]f32) {
 "use strict";
 
 // ============================================================================
-// 1. Data — parse injected JSON, never executed before gen.py fills placeholders
+// 1. Data
 // ============================================================================
 var TOC  = JSON.parse(document.getElementById("toc-data").textContent);
 var META = JSON.parse(document.getElementById("meta-data").textContent);
@@ -931,7 +928,7 @@ var META = JSON.parse(document.getElementById("meta-data").textContent);
 document.getElementById("sidebar-count").textContent = META.item_count + " symbols";
 document.getElementById("gen-time").textContent      = META.generated_at;
 
-// Flat name -> id map for O(1) lookup. First declaration wins on name collision.
+// Flat name -> id map, O(1) lookup. First declaration wins on collision.
 var SYMBOL_MAP = Object.create(null);
 Object.entries(TOC).forEach(function (entry) {
     entry[1].forEach(function (sym) {
@@ -940,48 +937,40 @@ Object.entries(TOC).forEach(function (entry) {
 });
 
 // ============================================================================
-// 2. Syntax highlighter — Odin-aware, greedy single-pass
-//    Rules are ordered by priority. The covered[] bitmap ensures a character
-//    range claimed by an earlier rule is never overwritten by a later one.
+// 2. Syntax highlighter — single-pass, priority-ordered rules
+//    The _buf bitmap ensures a range claimed by an earlier rule is never
+//    overwritten by a later one.
 // ============================================================================
 (function () {
-    var RULES = [
-        // ── Strings & comments first — protect internals ───────────────────
-        { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },          // block comment
-        { cls: "cm",  re: /\/\/[^\n]*/g },                 // line comment
-        { cls: "str", re: /`[^`]*`/g },                    // raw string
-        { cls: "str", re: /"(?:[^"\\]|\\.)*"/g },          // double-quoted string
-        { cls: "str", re: /'(?:[^'\\]|\\.)*'/g },          // rune literal
-
-        // ── Declaration names — before keywords to avoid double-colour ──────
+        var RULES = [
+        // Strings & comments first — protect internals from keyword matches
+        { cls: "cm",  re: /\/\*[\s\S]*?\*\//g },
+        { cls: "cm",  re: /\/\/[^\n]*/g },
+        { cls: "str",  re: /`[^`]*`/g },
+        { cls: "str",  re: /"(?:[^"\\]|\\.)*"/g },
+        { cls: "str",  re: /'(?:[^'\\]|\\.)*'/g },
+        // Declaration names — before keywords to avoid double-colour
         { cls: "fn",  re: /\b([A-Za-z_]\w*)(\s*::\s*proc\b)/g,                  cap: true },
         { cls: "ty",  re: /\b([A-Za-z_]\w*)(\s*::\s*(?:struct|enum|union)\b)/g, cap: true },
-
-        // ── Compiler directives & attributes ────────────────────────────────
+        // Directives & attributes
         { cls: "dr",  re: /#[a-z_]+/g },
         { cls: "at",  re: /@(?:\([^)]*\)|\w+)/g },
-
-        // ── Keywords ────────────────────────────────────────────────────────
+        // Keywords
         { cls: "kw",  re: /\b(?:package|import|proc|struct|enum|union|bit_set|map|dynamic|matrix|return|defer|if|else|when|for|switch|case|break|continue|fallthrough|using|context|foreign|distinct|where|do|in|not_in|or_else|or_return|auto_cast|cast|transmute)\b/g },
-
-        // ── Built-in types ───────────────────────────────────────────────────
+        // Built-in types
         { cls: "ty",  re: /\b(?:bool|b8|b16|b32|b64|byte|rune|string|cstring|rawptr|any|typeid|int|uint|uintptr|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f16|f32|f64|f16le|f16be|f32le|f32be|f64le|f64be|complex32|complex64|complex128|quaternion64|quaternion128|quaternion256)\b/g },
-
-        // ── Boolean & nil literals ───────────────────────────────────────────
+        // Literals
         { cls: "bl",  re: /\b(?:true|false|nil)\b/g },
-
-        // ── Built-in procedures ──────────────────────────────────────────────
-        { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|new_clone|free|free_all|delete|append|append_elem|append_elems|append_nothing|assign_at|clear|reserve|resize|shrink|copy|unordered_remove|ordered_remove|pop|push|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|panic|unreachable|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln|assertf|panicf)\b/g },
-
-        // ── Numeric literals — hex / binary / octal / float / int ───────────
+        // Built-in procedures
+        { cls: "bi",  re: /\b(?:len|cap|size_of|align_of|offset_of|type_of|type_info_of|typeid_of|make|new|new_clone|free|free_all|delete|append|append_elem|append_elems|append_nothing|assign_at|clear|reserve|resize|shrink|copy|unordered_remove|ordered_remove|pop|push|swizzle|complex|real|imag|conj|expand_to_tuple|min|max|abs|clamp|assert|assertf|panic|panicf|unreachable|print|println|printf|fprintf|sprintf|eprintf|eprintln|eprintfln)\b/g },
+        // Numeric literals
         { cls: "nm",  re: /\b(?:0x[\da-fA-F][\da-fA-F_]*|0b[01][01_]*|0o[0-7][0-7_]*|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d[\d_]*)?i?)\b/g },
-
-        // ── Operators — distinct classes for the most important ones ─────────
-        { cls: "dc",  re: /::/g },           // declaration separator
-        { cls: "as",  re: /:=/g },           // assignment
-        { cls: "pt",  re: /\^/g },           // pointer prefix
-        { cls: "ar",  re: /->/g },           // return type arrow
-        { cls: "op",  re: /\.\./g },         // range
+        // Operators
+        { cls: "dc",  re: /::/g },
+        { cls: "as", re: /:=/g },
+        { cls: "pt",  re: /\^/g },
+        { cls: "ar",  re: /->/g },
+        { cls: "op",  re: /\.\./g },
         { cls: "op",  re: /[+\-*/%=<>!&|~?]+/g },
     ];
 
@@ -1035,46 +1024,44 @@ Object.entries(TOC).forEach(function (entry) {
 
 // ============================================================================
 // 3. Cross-reference linker
-//    Runs AFTER highlighting. Walks every direct child of <code>:
-//      text nodes      → scan for symbol names in whitespace/punctuation runs
-//      span.hl-fn/ty/bi → if the entire textContent is a known symbol, wrap
-//                          it in <a class="sym-link"> preserving the token colour
-//      span.hl-cm/str/kw etc. → skipped entirely
+//    Runs after highlighting. Walks <code> children:
+//      text nodes        — scan for known symbol names
+//      span.hl-fn/ty/bi  — wrap entire content in <a> if it names a symbol
+//      span.hl-cm/str/kw — skipped (never link inside comments/strings/keywords)
 // ============================================================================
 (function () {
     var LINKABLE = { "hl-fn": true, "hl-ty": true, "hl-bi": true };
     var SKIP_CLS = { "hl-cm": true, "hl-str": true, "hl-kw": true,
                      "hl-dr": true, "hl-at": true,  "hl-nm": true,
                      "hl-bl": true, "hl-dc": true,  "hl-as": true };
-
     var IDENT_RE = /\b([A-Za-z_]\w*)\b/g;
 
     function esc(s) {
         return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    function makeLink(word, targetId) {
-        var a       = document.createElement("a");
-        a.className = "sym-link";
-        a.href      = "#" + targetId;
-        a.title     = "Go to " + word;
+    function makeLink(word, id) {
+        var a = document.createElement("a");
+        a.className   = "sym-link";
+        a.href        = "#" + id;
+        a.title       = "Go to " + word;
         a.textContent = word;
-        a.onclick = (function (id) {
-            return function (ev) { ev.preventDefault(); navigateTo(id); };
-        }(targetId));
+        a.onclick = (function (tid) {
+            return function (ev) { ev.preventDefault(); navigateTo(tid); };
+        }(id));
         return a;
     }
 
-    function linkTextNode(node, selfName) {
+    function linkTextNode(node, self) {
         var text = node.nodeValue;
         IDENT_RE.lastIndex = 0;
         var m, parts = [], pos = 0, any = false;
         while ((m = IDENT_RE.exec(text)) !== null) {
-            var word = m[1];
-            if (word === selfName || !SYMBOL_MAP[word]) continue;
+            var w = m[1];
+            if (w === self || !SYMBOL_MAP[w]) continue;
             if (m.index > pos) parts.push(document.createTextNode(text.slice(pos, m.index)));
-            parts.push(makeLink(word, SYMBOL_MAP[word]));
-            pos = m.index + word.length;
+            parts.push(makeLink(w, SYMBOL_MAP[w]));
+            pos = m.index + w.length;
             any = true;
         }
         if (!any) return;
@@ -1084,11 +1071,10 @@ Object.entries(TOC).forEach(function (entry) {
         parent.removeChild(node);
     }
 
-    function linkSpan(span, selfName) {
-        var word = span.textContent;
-        if (!word || word === selfName || !SYMBOL_MAP[word]) return;
-        if (span.querySelector("a.sym-link")) return;
-        var a = makeLink(word, SYMBOL_MAP[word]);
+    function linkSpan(span, self) {
+        var w = span.textContent;
+        if (!w || w === self || !SYMBOL_MAP[w] || span.querySelector("a.sym-link")) return;
+        var a = makeLink(w, SYMBOL_MAP[w]);
         while (span.firstChild) a.appendChild(span.firstChild);
         span.appendChild(a);
     }
@@ -1096,20 +1082,18 @@ Object.entries(TOC).forEach(function (entry) {
     window.linkAll = function (root) {
         var els = (root || document).querySelectorAll("code.language-odin[data-hl]:not([data-linked])");
         for (var i = 0; i < els.length; i++) {
-            var el       = els[i];
+            var el   = els[i];
             el.dataset.linked = "1";
-            var details  = el.closest("details");
-            var selfName = details
-                ? ((details.querySelector(".item-name") || {}).textContent || "")
-                : "";
-            var children = Array.from(el.childNodes);
-            for (var c = 0; c < children.length; c++) {
-                var node = children[c];
+            var det  = el.closest("details");
+            var self = det ? ((det.querySelector(".item-name") || {}).textContent || "") : "";
+            var kids = Array.from(el.childNodes);
+            for (var c = 0; c < kids.length; c++) {
+                var node = kids[c];
                 if (node.nodeType === Node.TEXT_NODE) {
-                    linkTextNode(node, selfName);
+                    linkTextNode(node, self);
                 } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === "SPAN") {
                     if (SKIP_CLS[node.className]) continue;
-                    if (LINKABLE[node.className]) linkSpan(node, selfName);
+                    if (LINKABLE[node.className]) linkSpan(node, self);
                 }
             }
         }
@@ -1117,17 +1101,18 @@ Object.entries(TOC).forEach(function (entry) {
 }());
 
 // ============================================================================
-// 4. Navigation — history stack + updateActiveSidebarLink at module scope
-//    (so navigateTo can call it even before DOMContentLoaded fires)
+// 4. Navigation
+//    At module scope so linker onclick handlers can call navigateTo immediately.
 // ============================================================================
 var NAV_HISTORY = [];
 
-// Defined at module scope so linker onclick handlers can call it immediately
-function updateActiveSidebarLink(itemId) {
-    var links = document.querySelectorAll("#sidebar-content .toc-link");
-    for (var i = 0; i < links.length; i++) {
-        links[i].classList.toggle("active", links[i].dataset.id === itemId);
-    }
+// Cached after sidebar build — avoids querySelectorAll on every navigation
+var _sidebarLinkMap = Object.create(null); // id -> <a> element
+
+function updateActiveSidebarLink(id) {
+    Object.keys(_sidebarLinkMap).forEach(function (k) {
+        _sidebarLinkMap[k].classList.toggle("active", k === id);
+    });
 }
 
 function updateBackBtn() {
@@ -1140,9 +1125,9 @@ function navigateTo(itemId, pushHistory) {
     if (!el) return;
 
     if (pushHistory !== false) {
-        var current = window.location.hash.slice(1);
-        if (current && current !== itemId) {
-            NAV_HISTORY.push(current);
+        var cur = window.location.hash.slice(1);
+        if (cur && cur !== itemId) {
+            NAV_HISTORY.push(cur);
             if (NAV_HISTORY.length > 20) NAV_HISTORY.shift();
         }
     }
@@ -1153,37 +1138,27 @@ function navigateTo(itemId, pushHistory) {
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     el.classList.add("flash");
     setTimeout(function () { el.classList.remove("flash"); }, 800);
-
-    // Use state marker so reload detection works correctly
     history.replaceState({ navType: "internal" }, "", "#" + itemId);
     updateBackBtn();
     updateActiveSidebarLink(itemId);
 }
 
 // ============================================================================
-// 5. App bootstrap — everything that needs the DOM
+// 5. Bootstrap
 // ============================================================================
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Highlight + link all initially visible blocks
     window.highlightAll();
     window.linkAll();
     updateBackBtn();
 
-    // ── Anchor on load ──────────────────────────────────────────────────────
-    // Only follow the hash on a genuine fresh navigation (shared link).
-    // On reload or back/forward, clear the hash so the page starts clean.
+    // Anchor on load — only on fresh navigation, not reload
     (function () {
         var hash = window.location.hash.slice(1);
         if (!hash) return;
-
         var isReload = (history.state && history.state.navType === "internal") ||
                        (performance.navigation && performance.navigation.type >= 1);
-        if (isReload) {
-            history.replaceState(null, "", window.location.pathname);
-            return;
-        }
-
+        if (isReload) { history.replaceState(null, "", window.location.pathname); return; }
         var el = document.getElementById(hash);
         if (!el) return;
         el.open = true;
@@ -1192,17 +1167,14 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(function () { el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80);
     }());
 
-    // ── Lazy highlight/link when a <details> opens ──────────────────────────
+    // Lazy highlight/link + open animation on <details> toggle
     document.addEventListener("toggle", function (e) {
         if (e.target.tagName !== "DETAILS") return;
         e.target.classList.toggle("is-open", e.target.open);
-        if (e.target.open) {
-            window.highlightAll(e.target);
-            window.linkAll(e.target);
-        }
+        if (e.target.open) { window.highlightAll(e.target); window.linkAll(e.target); }
     }, true);
 
-    // ── ref-link delegation ─────────────────────────────────────────────────
+    // ref-link clicks (delegated)
     document.getElementById("api-root").addEventListener("click", function (e) {
         var a = e.target.closest(".ref-link");
         if (!a) return;
@@ -1215,12 +1187,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var sidebarGroups  = [];
     var CAT_ICON       = { STRUCT: "S", ENUM: "E", PROC: "P", UNION: "U" };
 
-    // Pre-cache all details metadata at build time to avoid per-keypress queries
-    var allDetails  = Array.from(document.querySelectorAll("details"));
-    var allSections = Array.from(document.querySelectorAll(".file-section"));
-
-    // Cache name/cat/section per detail element for O(1) filter access
-    var detailMeta = allDetails.map(function (el) {
+    // Pre-cache detail metadata once — used by filter, expand/collapse, j/k
+    var detailMeta = Array.from(document.querySelectorAll("details")).map(function (el) {
         var nameEl  = el.querySelector("summary .item-name");
         var badgeEl = el.querySelector(".badge");
         return {
@@ -1231,41 +1199,39 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     });
 
+    var allSections = Array.from(document.querySelectorAll(".file-section"));
+
     Object.entries(TOC).forEach(function (entry) {
         var pkg    = entry[0];
         var syms   = entry[1];
         var safeId = pkg.replace(/[/\\.]/g, "-");
+        var storeKey    = "toc-" + safeId;
+        var isCollapsed = localStorage.getItem(storeKey) !== "0";
 
         var group = document.createElement("div");
         group.className = "toc-group";
 
         var hdr = document.createElement("div");
-        hdr.className  = "toc-pkg";
-        hdr.dataset.id = safeId;
+        hdr.className = "toc-pkg";
 
-        var pkgLabel = document.createElement("span");
-        pkgLabel.className      = "toc-pkg-label";
-        pkgLabel.textContent    = pkg.replace(/^.*[/\\]/, "").replace(/\.odin$/i, "");
-        pkgLabel.dataset.rawPkg = pkg;  // kept for scroll-spy matching
+        var label = document.createElement("span");
+        label.className   = "toc-pkg-label";
+        label.textContent = pkg.replace(/^.*[/\\]/, "").replace(/\.odin$/i, "");
 
-        var pkgCount = document.createElement("span");
-        pkgCount.className   = "toc-pkg-count";
-        pkgCount.textContent = syms.length;
+        var count = document.createElement("span");
+        count.className   = "toc-pkg-count";
+        count.textContent = syms.length;
 
         var arrow = document.createElement("span");
         arrow.className = "toc-arrow";
         arrow.innerHTML = "&#9662;";
 
-        hdr.appendChild(pkgLabel);
-        hdr.appendChild(pkgCount);
+        hdr.appendChild(label);
+        hdr.appendChild(count);
         hdr.appendChild(arrow);
 
         var list = document.createElement("ul");
         list.className = "toc-list";
-
-        var storeKey    = "toc-collapse-" + safeId;
-        var stored      = localStorage.getItem(storeKey);
-        var isCollapsed = stored === null ? true : stored === "1";
 
         function applyCollapse() {
             list.classList.toggle("collapsed", isCollapsed);
@@ -1288,8 +1254,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         syms.forEach(function (sym) {
-            var li = document.createElement("li");
-            var a  = document.createElement("a");
+            var li   = document.createElement("li");
+            var a    = document.createElement("a");
             a.href       = "#" + sym.id;
             a.className  = "toc-link toc-" + sym.cat.toLowerCase();
             a.dataset.id = sym.id;
@@ -1298,25 +1264,27 @@ document.addEventListener("DOMContentLoaded", function () {
             icon.className   = "toc-icon toc-icon-" + sym.cat.toLowerCase();
             icon.textContent = CAT_ICON[sym.cat] || sym.cat[0];
 
-            var nameSpan = document.createElement("span");
-            nameSpan.className   = "toc-link-name";
-            nameSpan.textContent = sym.name;
+            var name = document.createElement("span");
+            name.className   = "toc-link-name";
+            name.textContent = sym.name;
 
             a.appendChild(icon);
-            a.appendChild(nameSpan);
+            a.appendChild(name);
 
-            a.onclick = (function (itemId) {
+            a.onclick = (function (id) {
                 return function (ev) {
                     ev.preventDefault();
-                    // Auto-expand group if collapsed before navigating
                     if (isCollapsed) {
                         isCollapsed = false;
                         localStorage.setItem(storeKey, "0");
                         applyCollapse();
                     }
-                    navigateTo(itemId);
+                    navigateTo(id);
                 };
             }(sym.id));
+
+            // Register in link map for O(1) active-state updates
+            _sidebarLinkMap[sym.id] = a;
 
             li.appendChild(a);
             list.appendChild(li);
@@ -1334,62 +1302,17 @@ document.addEventListener("DOMContentLoaded", function () {
         sidebarGroups.forEach(function (g) { g.setCollapsed(true); });
     };
 
-    // ── Scroll-spy ──────────────────────────────────────────────────────────
-    // Cache pkg headers for spy matching — no querySelector on every scroll
-    var spyHeaders = Array.from(
-        sidebarContent.querySelectorAll(".toc-pkg-label")
-    ).map(function (el) {
-        return { el: el.closest(".toc-pkg"), rawPkg: el.dataset.rawPkg || "" };
-    });
-
-    var apiRoot    = document.getElementById("api-root");
-    var spyTicking = false;
-
-    function runScrollSpy() {
-        spyTicking = false;
-        var rootRect   = apiRoot.getBoundingClientRect();
-        var threshold  = rootRect.height * 0.35;
-        var activePkg  = "";
-
-        for (var si = 0; si < allSections.length; si++) {
-            var sec = allSections[si];
-            if (sec.style.display === "none") continue;
-            var top = sec.getBoundingClientRect().top - rootRect.top;
-            if (top <= threshold) {
-                activePkg = sec.querySelector(".file-header").dataset.pkg || "";
-            }
-        }
-
-        for (var hi = 0; hi < spyHeaders.length; hi++) {
-            spyHeaders[hi].el.classList.toggle("spy-active", spyHeaders[hi].rawPkg === activePkg);
-        }
-    }
-
-    apiRoot.addEventListener("scroll", function () {
-        if (!spyTicking) { spyTicking = true; requestAnimationFrame(runScrollSpy); }
-    }, { passive: true });
-
     // ── Sidebar toggle ──────────────────────────────────────────────────────
     var sidebar     = document.getElementById("sidebar");
-    var mainEl      = document.getElementById("main");
     var sidebarOpen = localStorage.getItem("sidebar") !== "0";
 
     function setSidebar(open) {
         sidebarOpen = open;
         sidebar.classList.toggle("hidden", !open);
-        mainEl.classList.toggle("sidebar-hidden", !open);
         localStorage.setItem("sidebar", open ? "1" : "0");
     }
     setSidebar(sidebarOpen);
     document.getElementById("sidebar-toggle").onclick = function () { setSidebar(!sidebarOpen); };
-
-    // ── Theme toggle ────────────────────────────────────────────────────────
-    var htmlEl = document.documentElement;
-    function setTheme(t) { htmlEl.dataset.theme = t; localStorage.setItem("theme", t); }
-    setTheme(localStorage.getItem("theme") || "dark");
-    document.getElementById("theme-toggle").onclick = function () {
-        setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark");
-    };
 
     // ── Back button ─────────────────────────────────────────────────────────
     document.getElementById("back-btn").onclick = function () {
@@ -1398,26 +1321,25 @@ document.addEventListener("DOMContentLoaded", function () {
         updateBackBtn();
     };
 
-    // ── Search + category filter ────────────────────────────────────────────
+    // ── Search + filter ─────────────────────────────────────────────────────
     var searchEl   = document.getElementById("search");
     var filterBtns = document.querySelectorAll(".filter-btn");
     var noResults  = document.getElementById("no-results");
     var activeCat  = "ALL";
     var _jkIndex   = -1;
 
-    // Count categories from pre-cached meta
+    // Category counts
     var catCounts = { ALL: detailMeta.length, STRUCT: 0, ENUM: 0, PROC: 0, UNION: 0 };
     detailMeta.forEach(function (m) {
         if (catCounts[m.cat] !== undefined) catCounts[m.cat]++;
     });
     filterBtns.forEach(function (btn) {
-        var countEl = btn.querySelector(".filter-count");
-        if (countEl && catCounts[btn.dataset.cat] !== undefined) {
-            countEl.textContent = catCounts[btn.dataset.cat];
-        }
+        var el = btn.querySelector(".filter-count");
+        if (el && catCounts[btn.dataset.cat] !== undefined)
+            el.textContent = catCounts[btn.dataset.cat];
     });
 
-    // Cache all toc-link-name elements for highlight-match
+    // Cache sidebar name spans for search highlight
     var tocLinkNames = Array.from(sidebarContent.querySelectorAll(".toc-link-name"));
 
     function escHtml(s) {
@@ -1425,11 +1347,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function highlightMatch(el, term) {
-        var text = el.dataset.original || el.textContent;
-        el.dataset.original = text;
+        var text = el.dataset.orig || el.textContent;
+        el.dataset.orig = text;
         if (!term) { el.textContent = text; return; }
-        var lower = text.toLowerCase();
-        var idx   = lower.indexOf(term);
+        var idx = text.toLowerCase().indexOf(term);
         if (idx === -1) { el.textContent = text; return; }
         el.innerHTML =
             escHtml(text.slice(0, idx)) +
@@ -1438,32 +1359,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function applyFilters() {
-        var term     = searchEl.value.toLowerCase();
-        var anyVis   = false;
-        _jkIndex     = -1;  // reset j/k index whenever filter changes
-
-        // Reset section visibility tracking
+        var term   = searchEl.value.toLowerCase();
+        var anyVis = false;
+        _jkIndex   = -1;
         var secVis = new Map();
         allSections.forEach(function (s) { secVis.set(s, false); });
 
-        // Single pass using pre-cached metadata — no querySelector per item
         detailMeta.forEach(function (m) {
-            var visible = m.name.indexOf(term) !== -1 &&
-                          (activeCat === "ALL" || m.cat === activeCat);
-            m.el.style.display = visible ? "" : "none";
-            if (visible) {
-                anyVis = true;
-                if (m.sec) secVis.set(m.sec, true);
-            }
+            var vis = m.name.indexOf(term) !== -1 && (activeCat === "ALL" || m.cat === activeCat);
+            m.el.style.display = vis ? "" : "none";
+            if (vis) { anyVis = true; if (m.sec) secVis.set(m.sec, true); }
         });
 
-        allSections.forEach(function (sec) {
-            sec.style.display = secVis.get(sec) ? "" : "none";
-        });
-
-        // Highlight sidebar match
+        allSections.forEach(function (sec) { sec.style.display = secVis.get(sec) ? "" : "none"; });
         tocLinkNames.forEach(function (el) { highlightMatch(el, term); });
-
         noResults.setAttribute("aria-hidden", anyVis ? "true" : "false");
     }
 
@@ -1478,7 +1387,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     });
 
-    // ── Expand / collapse all symbols ───────────────────────────────────────
+    // ── Expand / collapse all ───────────────────────────────────────────────
     document.getElementById("expand-all").onclick = function () {
         detailMeta.forEach(function (m) {
             if (m.el.style.display !== "none") {
@@ -1494,9 +1403,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ── Copy code ───────────────────────────────────────────────────────────
     window.copyCode = function (btn) {
-        var details = btn.closest("details");
-        if (!details) return;
-        var code = details.querySelector("code");
+        var code = btn.closest("details") && btn.closest("details").querySelector("code");
         if (!code) return;
         navigator.clipboard.writeText(code.textContent).then(function () {
             var orig = btn.textContent;
@@ -1507,15 +1414,15 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // ── j/k navigation ──────────────────────────────────────────────────────
-    function getVisibleDetails() {
+    function getVisible() {
         return detailMeta.filter(function (m) { return m.el.style.display !== "none"; });
     }
 
     function jkNavigate(dir) {
-        var visible = getVisibleDetails();
-        if (!visible.length) return;
-        _jkIndex = Math.max(0, Math.min(visible.length - 1, _jkIndex + dir));
-        var target = visible[_jkIndex].el;
+        var vis = getVisible();
+        if (!vis.length) return;
+        _jkIndex = Math.max(0, Math.min(vis.length - 1, _jkIndex + dir));
+        var target = vis[_jkIndex].el;
         target.scrollIntoView({ behavior: "smooth", block: "start" });
         target.classList.add("flash");
         setTimeout(function () { target.classList.remove("flash"); }, 800);
@@ -1524,14 +1431,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // ── Keyboard shortcuts ───────────────────────────────────────────────────
     document.addEventListener("keydown", function (e) {
         if (e.target.tagName === "INPUT") {
-            if (e.key === "Escape") {
-                searchEl.value = "";
-                applyFilters();
-                searchEl.blur();
-                return;
-            }
-            if (e.key === "Enter") {
-                var first = getVisibleDetails()[0];
+            if (e.key === "Escape") { searchEl.value = ""; applyFilters(); searchEl.blur(); }
+            else if (e.key === "Enter") {
+                var first = getVisible()[0];
                 if (first) {
                     first.el.open = true;
                     window.highlightAll(first.el);
@@ -1539,34 +1441,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     first.el.scrollIntoView({ behavior: "smooth", block: "start" });
                     searchEl.blur();
                 }
-                return;
             }
             return;
         }
         switch (e.key) {
             case "s": case "S": setSidebar(!sidebarOpen); break;
-            case "t": case "T": setTheme(htmlEl.dataset.theme === "dark" ? "light" : "dark"); break;
             case "j": case "J": jkNavigate(1);  break;
             case "k": case "K": jkNavigate(-1); break;
             default:
                 if (e.altKey && e.key === "ArrowLeft") {
                     e.preventDefault();
                     if (NAV_HISTORY.length) { navigateTo(NAV_HISTORY.pop(), false); updateBackBtn(); }
-                }
-                if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-                    e.preventDefault();
-                    searchEl.focus();
-                    searchEl.select();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+                    e.preventDefault(); searchEl.focus(); searchEl.select();
                 }
         }
     });
-
-    // ── Details open animation ───────────────────────────────────────────────
-    document.addEventListener("toggle", function (e) {
-        if (e.target.tagName === "DETAILS") {
-            e.target.classList.toggle("is-open", e.target.open);
-        }
-    }, true);
 
     // ── Sidebar resize — mouse + touch ───────────────────────────────────────
     (function () {
@@ -1576,47 +1466,33 @@ document.addEventListener("DOMContentLoaded", function () {
         var startX, startW;
         var MIN_W = 160, MAX_W = 420;
 
-        function startDrag(clientX) {
-            dragging = true;
-            startX   = clientX;
-            startW   = sb.offsetWidth;
+        function startDrag(x) {
+            dragging = true; startX = x; startW = sb.offsetWidth;
             handle.classList.add("dragging");
-            document.body.style.cursor     = "col-resize";
-            document.body.style.userSelect = "none";
+            document.body.style.cssText += ";cursor:col-resize;user-select:none";
         }
-
-        function moveDrag(clientX) {
+        function moveDrag(x) {
             if (!dragging) return;
-            var w = Math.min(MAX_W, Math.max(MIN_W, startW + (clientX - startX)));
-            sb.style.width    = w + "px";
-            sb.style.minWidth = w + "px";
+            var w = Math.min(MAX_W, Math.max(MIN_W, startW + (x - startX)));
+            sb.style.width = sb.style.minWidth = w + "px";
             localStorage.setItem("sidebar-width", w);
         }
-
         function endDrag() {
             if (!dragging) return;
             dragging = false;
             handle.classList.remove("dragging");
-            document.body.style.cursor     = "";
-            document.body.style.userSelect = "";
+            document.body.style.cursor = document.body.style.userSelect = "";
         }
 
-        // Mouse
         handle.addEventListener("mousedown",   function (e) { startDrag(e.clientX); });
         document.addEventListener("mousemove", function (e) { moveDrag(e.clientX); });
         document.addEventListener("mouseup",   endDrag);
-
-        // Touch
         handle.addEventListener("touchstart",  function (e) { startDrag(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
         document.addEventListener("touchmove", function (e) { if (dragging) { moveDrag(e.touches[0].clientX); e.preventDefault(); } }, { passive: false });
         document.addEventListener("touchend",  endDrag);
 
-        // Restore persisted width
         var saved = parseInt(localStorage.getItem("sidebar-width"), 10);
-        if (saved >= MIN_W && saved <= MAX_W) {
-            sb.style.width    = saved + "px";
-            sb.style.minWidth = saved + "px";
-        }
+        if (saved >= MIN_W && saved <= MAX_W) sb.style.width = sb.style.minWidth = saved + "px";
     }());
 });
 </script>
