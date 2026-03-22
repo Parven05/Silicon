@@ -229,7 +229,7 @@ body {
 
 /* Search highlight inside sidebar names */
 .search-hl {
-    background: rgba(78, 143, 206, 0.30);    /* fallback for Safari < 16.2 */
+    background: rgba(78, 143, 206, 0.30);
     background: color-mix(in srgb, var(--accent) 30%, transparent);
     color: var(--text);
     border-radius: 2px;
@@ -252,7 +252,6 @@ header {
 }
 
 #header-left  { display: flex; align-items: center; gap: 12px; }
-/* ── Title row with GitHub icon ─────────────────────────────────────────── */
 #title-row { display: flex; align-items: center; gap: 8px; }
 
 h1 {
@@ -393,7 +392,7 @@ button:disabled  { opacity: 0.3; cursor: default; }
     letter-spacing: 0;
 }
 
-/* ── Details / summary — smooth open animation ──────────────────────────── */
+/* ── Details / summary ──────────────────────────────────────────────────── */
 details {
     border: 1px solid var(--border);
     border-top: none;
@@ -401,7 +400,6 @@ details {
     transition: background 0.1s;
 }
 
-/* Height transition for smooth open/close */
 details .content {
     display: grid;
     grid-template-rows: 0fr;
@@ -413,7 +411,6 @@ details.is-open .content {
     grid-template-rows: 1fr;
 }
 
-/* Inner wrapper needed for grid trick */
 details .content > * {
     min-height: 0;
 }
@@ -458,6 +455,17 @@ summary:hover { background: var(--card-hover); }
 .badge-proc   { background: var(--badge-proc);   color: var(--badge-proc-fg); }
 .badge-union  { background: var(--badge-union);  color: var(--badge-union-fg); }
 
+/* ── Doc comment description ─────────────────────────────────────────────── */
+.doc-text {
+    padding: 7px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 0.86rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-style: italic;
+}
+
 /* ── Signature bar ──────────────────────────────────────────────────────── */
 .sig-bar {
     padding: 5px 14px;
@@ -480,13 +488,12 @@ summary:hover { background: var(--card-hover); }
     letter-spacing: 0.05em;
 }
 
-.sig-val { color: var(--text); }
-
-.sig-param-name { color: var(--text-dim); }
-.sig-param-type { color: var(--m-blue);   font-style: italic; }
-.sig-ret        { color: var(--m-teal);   }
-
-.sig-ret { color: var(--m-teal); }
+.sig-val         { color: var(--text); }
+.sig-ret         { color: var(--m-teal); }
+.sig-param-name  { color: var(--text-dim); }
+.sig-param-type  { color: var(--m-blue); font-style: italic; }
+.sig-colon       { color: var(--text-faint); }
+.sig-comma       { color: var(--text-faint); }
 
 /* ── "Used by" back-link bar ─────────────────────────────────────────────── */
 .refs-bar {
@@ -518,7 +525,7 @@ summary:hover { background: var(--card-hover); }
     font-family: monospace;
     padding: 1px 5px;
     border-radius: 3px;
-    background: rgba(78, 143, 206, 0.12);    /* fallback for Safari < 16.2 */
+    background: rgba(78, 143, 206, 0.12);
     background: color-mix(in srgb, var(--accent) 12%, transparent);
     transition: background 0.1s;
 }

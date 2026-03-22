@@ -10,7 +10,12 @@ To swap themes: create a new theme_*.css and update the <link> in template.html.
 
 File ordering: define "file_order" in config.json as a list of filenames
 (e.g. ["window.odin", "renderer.odin"]). Files not listed sort alphabetically
-after the listed ones. The old // N comment trick is no longer needed.
+after the listed ones.
+
+Doc comments: place // or /* */ comments directly above a declaration (no
+blank line gap) and they will appear as a readable description in the docs.
+Comments separated by a blank line or inside the body are ignored.
+Doc comments are stripped from the code block — they appear as text only.
 """
 
 import json
@@ -45,6 +50,7 @@ PROJ          = CFG["project"]
 # Build a filename -> index lookup from config.json "file_order" list.
 # Files not listed get index 999_999 and fall back to alphabetical sorting.
 FILE_ORDER = {name: i for i, name in enumerate(CFG.get("file_order", []))}
+
 
 # ---------------------------------------------------------------------------
 # JS highlight rules — built from odin_syntax.json at gen time
@@ -148,12 +154,12 @@ def get_block(text: str, start: int) -> str | None:
         line_end = n
     depth = 0
     found = False
-    i = start
+    i     = start
     while i < n:
         ch = text[i]
         if ch == "{":
             depth += 1
-            found = True
+            found  = True
         elif ch == "}" and found:
             depth -= 1
             if depth == 0:
@@ -170,7 +176,7 @@ def _proc_params(line: str) -> str:
     if ps == -1:
         return ""
     depth = 0
-    i = ps
+    i     = ps
     while i < len(line):
         ch = line[i]
         if ch == "(":
@@ -195,6 +201,8 @@ def extract_signature(block: str, cat: str) -> dict[str, str]:
 
 
 def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str]]:
+    """Collect comments and attributes immediately above a declaration.
+    Stops at the first blank line — does not cross blank lines."""
     region = text.rfind("\n", 0, match_start)
     for _ in range(59):
         pos = text.rfind("\n", 0, region)
@@ -205,26 +213,41 @@ def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str
 
     comments: list[str] = []
     attrs:    list[str] = []
-    seen = False
 
     for line in reversed(text[region:match_start].splitlines()):
         stripped = line.strip()
         if _ATTR_RE.search(stripped):
             attrs.insert(0, stripped)
-            seen = True
         elif stripped.startswith(("//", "/*")) or stripped.endswith("*/"):
             comments.insert(0, stripped)
-            seen = True
-        elif not stripped and not seen:
-            continue
+        elif not stripped:
+            # blank line — stop; don't cross blank lines
+            break
         else:
             break
 
     return comments, attrs
 
 
-def format_snippet(comments: list[str], attrs: list[str], block: str) -> str:
-    return "\n".join(comments + attrs + [textwrap.dedent(block).rstrip()]).strip()
+def _extract_doc(comments: list[str]) -> str:
+    """Strip comment markers and return clean doc description text.
+    Handles both // single-line and /* */ block comment styles."""
+    lines = []
+    for line in comments:
+        s = line.strip()
+        s = re.sub(r"^//\s?", "", s)           # strip // prefix
+        s = re.sub(r"^/\*+\s*|\s*\*+/$", "", s)  # strip /* */ markers
+        s = re.sub(r"^\*\s?", "", s)            # strip leading * in block comments
+        s = s.strip()
+        if s:
+            lines.append(s)
+    return " ".join(lines).strip()
+
+
+def format_snippet(attrs: list[str], block: str) -> str:
+    """Build the code snippet shown in the doc — attrs + block only.
+    Doc comments are intentionally excluded; they appear as .doc-text instead."""
+    return "\n".join(attrs + [textwrap.dedent(block).rstrip()]).strip()
 
 
 def package_path(fp: Path, src: Path) -> str:
@@ -244,9 +267,9 @@ def make_item_id(pkg: str, name: str) -> str:
 def _split_params(raw: str) -> list[str]:
     """Split a param string on commas that are outside brackets.
     Handles types like ^matrix[4, 4]f32 or proc(a, b) without breaking them."""
-    segments = []
-    depth    = 0
-    current  = []
+    segments: list[str] = []
+    depth     = 0
+    current:  list[str] = []
     for ch in raw:
         if ch in "([{":
             depth += 1
@@ -266,7 +289,7 @@ def _split_params(raw: str) -> list[str]:
 
 def _format_params(raw: str) -> str:
     """Wrap param names and types in coloured spans."""
-    parts = []
+    parts: list[str] = []
     for segment in _split_params(raw):
         if not segment:
             continue
@@ -287,6 +310,13 @@ def _format_params(raw: str) -> str:
 # ---------------------------------------------------------------------------
 # HTML builders
 # ---------------------------------------------------------------------------
+def _doc_html(doc: str) -> str:
+    """Render the doc comment as a description bar below the summary."""
+    if not doc:
+        return ""
+    return f"\n            <div class='doc-text'>{escape(doc)}</div>"
+
+
 def _sig_html(item: dict) -> str:
     if item["cat"] != "PROC":
         return ""
@@ -294,7 +324,7 @@ def _sig_html(item: dict) -> str:
     r = item["sig"]["returns"]
     if not p and not r:
         return ""
-    parts = []
+    parts: list[str] = []
     if p:
         parts.append(
             f"<span class='sig-label'>params</span> "
@@ -336,7 +366,9 @@ def _item_html(item: dict) -> str:
         f"{attrs_html}"
         f"<span class='badge badge-{item['cat'].lower()}'>{item['cat']}</span>"
         f"</summary>"
-        f"{_sig_html(item)}{_refs_html(item.get('used_by', []))}"
+        f"{_doc_html(item.get('doc', ''))}"
+        f"{_sig_html(item)}"
+        f"{_refs_html(item.get('used_by', []))}"
         f"\n            <div class='content'>"
         f"<div class='code-header'>"
         f"<span class='code-file'>{escape(item['pkg'])}</span>"
@@ -351,7 +383,7 @@ def _item_html(item: dict) -> str:
 
 def build_html(items: list[dict]) -> str:
     parts: list[str] = []
-    last_pkg = None
+    last_pkg: str | None = None
     for item in items:
         pkg = item["pkg"]
         if pkg != last_pkg:
@@ -380,16 +412,11 @@ def parse_source(source_dir: Path) -> list[dict]:
     for path in source_dir.rglob("*.odin"):
         content = path.read_text(encoding="utf-8")
         pkg     = package_path(path, source_dir)
-        file_data.append((
-            get_file_order(pkg),
-            pkg,
-            path,
-            content,
-        ))
+        file_data.append((get_file_order(pkg), pkg, path, content))
     file_data.sort(key=lambda x: (x[0], x[1]))
 
     items: list[dict] = []
-    for order, pkg, path, content in file_data:
+    for order, pkg, _path, content in file_data:
         for m in _DECL_RE.finditer(content):
             name  = m.group(1)
             cat   = m.group(2).upper()
@@ -404,8 +431,9 @@ def parse_source(source_dir: Path) -> list[dict]:
                 "pkg":        pkg,
                 "file_order": order,
                 "attrs":      attrs,
+                "doc":        _extract_doc(comments),
                 "sig":        extract_signature(block, cat),
-                "code":       format_snippet(comments, attrs, block),
+                "code":       format_snippet(attrs, block),
                 "raw_code":   block,
                 "used_by":    [],
             })
@@ -423,8 +451,8 @@ def parse_source(source_dir: Path) -> list[dict]:
     ident_re = re.compile(r"\b([A-Za-z_]\w*)\b")
     for item in items:
         cid = item["id"]
-        for m in ident_re.finditer(item["raw_code"]):
-            word = m.group(1)
+        for match in ident_re.finditer(item["raw_code"]):
+            word = match.group(1)
             if word != item["name"] and word in name_to_id and name_to_id[word] != cid:
                 used_by[name_to_id[word]].add(cid)
 

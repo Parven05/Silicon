@@ -6,6 +6,7 @@ Shader :: struct {
 	id: u32,
 }
 
+// load GLSL file
 init_shader :: proc(vertex_path, fragment_path: string) -> (Shader, bool) {
 	// Read file
 	program, ok := gl.load_shaders_file(vertex_path, fragment_path)
