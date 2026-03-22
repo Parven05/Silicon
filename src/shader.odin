@@ -1,4 +1,3 @@
-// 5
 package silicon
 
 import gl "vendor:OpenGL"

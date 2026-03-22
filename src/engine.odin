@@ -1,4 +1,3 @@
-// 2
 package silicon
 
 import "core:log"

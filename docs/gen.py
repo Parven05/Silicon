@@ -8,8 +8,9 @@ CSS is handled by two static files committed to the repo:
 
 To swap themes: create a new theme_*.css and update the <link> in template.html.
 
-File ordering: place `// N` (e.g. `// 1`) as the very first line of a .odin
-file to control its position. Files without an order number sort alphabetically.
+File ordering: define "file_order" in config.json as a list of filenames
+(e.g. ["window.odin", "renderer.odin"]). Files not listed sort alphabetically
+after the listed ones. The old // N comment trick is no longer needed.
 """
 
 import json
@@ -40,6 +41,10 @@ OUTPUT_HTML   = BASE_DIR / CFG["paths"]["output_html"]
 TEMPLATE_PATH = BASE_DIR / CFG["paths"]["template"]
 SORT_ORDER    = CFG["sort_order"]
 PROJ          = CFG["project"]
+
+# Build a filename -> index lookup from config.json "file_order" list.
+# Files not listed get index 999_999 and fall back to alphabetical sorting.
+FILE_ORDER = {name: i for i, name in enumerate(CFG.get("file_order", []))}
 
 # ---------------------------------------------------------------------------
 # JS highlight rules — built from odin_syntax.json at gen time
@@ -123,15 +128,17 @@ _RET_RE       = re.compile(r"->\s*([^{]+)")
 _ATTR_RE      = re.compile(r"@(?:\([^)]*\)|\w+)\s*$")
 _WS_RE        = re.compile(r"\s+")
 _ID_UNSAFE_RE = re.compile(r"[^A-Za-z0-9]")
-_ORDER_RE     = re.compile(r"^//\s*(\d+)\s*$")
 
 
 # ---------------------------------------------------------------------------
 # Parsing helpers
 # ---------------------------------------------------------------------------
-def get_file_order(content: str) -> int:
-    m = _ORDER_RE.match(content.split("\n", 1)[0].strip())
-    return int(m.group(1)) if m else 999_999
+def get_file_order(pkg: str) -> int:
+    """Return sort index for a package path, matched on filename only.
+    Files listed in config.json 'file_order' get their list index;
+    everything else gets 999_999 and sorts alphabetically after them."""
+    filename = Path(pkg).name
+    return FILE_ORDER.get(filename, 999_999)
 
 
 def get_block(text: str, start: int) -> str | None:
@@ -206,8 +213,6 @@ def preceding_metadata(text: str, match_start: int) -> tuple[list[str], list[str
             attrs.insert(0, stripped)
             seen = True
         elif stripped.startswith(("//", "/*")) or stripped.endswith("*/"):
-            if _ORDER_RE.match(stripped):
-                break
             comments.insert(0, stripped)
             seen = True
         elif not stripped and not seen:
@@ -234,6 +239,52 @@ def make_item_id(pkg: str, name: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Param highlighting
+# ---------------------------------------------------------------------------
+def _split_params(raw: str) -> list[str]:
+    """Split a param string on commas that are outside brackets.
+    Handles types like ^matrix[4, 4]f32 or proc(a, b) without breaking them."""
+    segments = []
+    depth    = 0
+    current  = []
+    for ch in raw:
+        if ch in "([{":
+            depth += 1
+            current.append(ch)
+        elif ch in ")]}":
+            depth -= 1
+            current.append(ch)
+        elif ch == "," and depth == 0:
+            segments.append("".join(current).strip())
+            current = []
+        else:
+            current.append(ch)
+    if current:
+        segments.append("".join(current).strip())
+    return segments
+
+
+def _format_params(raw: str) -> str:
+    """Wrap param names and types in coloured spans."""
+    parts = []
+    for segment in _split_params(raw):
+        if not segment:
+            continue
+        if ":" in segment:
+            name, _, typ = segment.partition(":")
+            parts.append(
+                f"<span class='sig-param-name'>{escape(name.strip())}</span>"
+                f"<span class='sig-colon'>:</span> "
+                f"<span class='sig-param-type'>{escape(typ.strip())}</span>"
+            )
+        else:
+            parts.append(
+                f"<span class='sig-param-name'>{escape(segment)}</span>"
+            )
+    return "<span class='sig-comma'>, </span>".join(parts)
+
+
+# ---------------------------------------------------------------------------
 # HTML builders
 # ---------------------------------------------------------------------------
 def _sig_html(item: dict) -> str:
@@ -247,7 +298,7 @@ def _sig_html(item: dict) -> str:
     if p:
         parts.append(
             f"<span class='sig-label'>params</span> "
-            f"<span class='sig-val'>{escape(p)}</span>"
+            f"<span class='sig-val'>{_format_params(p)}</span>"
         )
     if r:
         parts.append(
@@ -328,9 +379,10 @@ def parse_source(source_dir: Path) -> list[dict]:
     file_data: list[tuple[int, str, Path, str]] = []
     for path in source_dir.rglob("*.odin"):
         content = path.read_text(encoding="utf-8")
+        pkg     = package_path(path, source_dir)
         file_data.append((
-            get_file_order(content),
-            package_path(path, source_dir),
+            get_file_order(pkg),
+            pkg,
             path,
             content,
         ))

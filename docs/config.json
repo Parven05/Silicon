@@ -1,5 +1,5 @@
 {
-    "_comment": "Silicon doc-gen \u2014 edit this file to customise the site.",
+    "_comment": "Silicon doc-gen — edit this file to customise the site.",
     "project": {
         "name": "Silicon",
         "subtitle": "an OpenGL Renderer",
@@ -13,12 +13,24 @@
         "template": "template.html",
         "syntax": "odin_syntax.json",
         "style_css": "style.css",
-        "theme_css": "theme_monokai.css"
+        "theme_css": "themes/monokai.css"
     },
     "sort_order": {
         "STRUCT": 1,
         "ENUM": 2,
         "PROC": 3,
         "UNION": 4
-    }
+    },
+    "file_order": [
+        "main.odin",
+        "engine.odin",
+        "window.odin",
+        "shader.odin",
+        "texture.odin",
+        "buffers.odin",
+        "camera.odin",
+        "input.odin",
+        "transform.odin",
+        "ui.odin"
+    ]
 }

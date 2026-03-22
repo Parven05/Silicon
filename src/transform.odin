@@ -1,4 +1,3 @@
-// 10
 package silicon
 
 import ma "core:math"

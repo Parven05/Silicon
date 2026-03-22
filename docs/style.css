@@ -481,6 +481,11 @@ summary:hover { background: var(--card-hover); }
 }
 
 .sig-val { color: var(--text); }
+
+.sig-param-name { color: var(--text-dim); }
+.sig-param-type { color: var(--m-blue);   font-style: italic; }
+.sig-ret        { color: var(--m-teal);   }
+
 .sig-ret { color: var(--m-teal); }
 
 /* ── "Used by" back-link bar ─────────────────────────────────────────────── */
