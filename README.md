@@ -1,5 +1,5 @@
 # Silicon
-A high-performance OpenGL renderer written in Odin, suppporting PBR and ray tracing for CAD visualization
+A basic OpenGL graphics renderer 
 
 ## Progress
 https://github.com/user-attachments/assets/b63a2dde-4b79-4d4f-ae22-e8c679f9254b
